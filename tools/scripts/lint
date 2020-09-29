@@ -1,0 +1,28 @@
+#!/usr/bin/env sh
+
+SRCDIR="${SRCDIR:-src}"
+
+echo "Running bear..."
+if which bear >/dev/null ; then
+	make clean
+	bear -- make 2>&1>/dev/null
+else
+  echo -e "\e[31mnot found. Without compile_commands.json results might be bad or outright wrong.\e[0m"
+fi
+
+echo "Running cppcheck..."
+if which cppcheck >/dev/null ; then
+  echo ""
+	if [ -e 'compile_commands.json' ] ; then
+		cppcheck --language=c --std=c99 --enable=all \
+			--suppress={missingIncludeSystem,unusedFunction} \
+			--project=compile_commands.json \
+				-q "${SRCDIR}"
+	else
+		cppcheck --language=c --std=c99 --enable=all \
+			--suppress={missingIncludeSystem,unusedFunction} \
+				-q "${SRCDIR}"
+	fi
+else
+  echo -e "\e[31mnot found\e[0m"
+fi
