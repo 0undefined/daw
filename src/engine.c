@@ -579,7 +579,11 @@ i32 engine_run(Platform *p, StateType initial_state) {
 					case SDL_KEYDOWN: {
 					  if (e[i].key.keysym.sym == SDLK_F7) {
 							INFO("Reloading %s", StateTypeStr[state]);
-							State_reload(state);
+							if (!State_reload(state)) {
+								ERROR("Failed to reload state library!");
+							} else {
+								update_func = State_updateFunc(state);
+							}
 							break;
 						}
 						Keybinding lookupkey = ((Keybinding){
