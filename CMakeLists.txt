@@ -106,7 +106,7 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/tools/cmake/list_of_states.h.in
-  ${CMAKE_BINARY_DIR}/include/list_of_states.h.in)
+  ${CMAKE_BINARY_DIR}/include/states/list_of_states.h.in)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/tools/cmake/all_states.h.in
   ${CMAKE_BINARY_DIR}/include/states/all_states.h)
