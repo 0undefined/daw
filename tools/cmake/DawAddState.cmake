@@ -41,6 +41,9 @@ macro(daw_add_state STATENAME)
     else()
       add_library(${STATENAME} SHARED ${STATE_SOURCES})
     endif()
+
+    set_property(TARGET ${STATENAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+
   else()
     add_library(${STATENAME} OBJECT ${STATE_SOURCES})
   endif()
