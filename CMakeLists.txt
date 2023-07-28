@@ -85,6 +85,7 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
+set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 target_compile_options(${PROJECT_NAME} PUBLIC
   $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra>
