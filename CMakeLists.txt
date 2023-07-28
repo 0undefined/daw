@@ -56,6 +56,7 @@ endif()
 
 set(ENGINE_SOURCES
   src/btree.c
+  src/dltools.c
   src/engine.c
   src/fov.c
   src/hashmap.c
@@ -79,6 +80,7 @@ target_include_directories(daw PUBLIC
 target_link_libraries(${PROJECT_NAME}
   SDL2 SDL2_image SDL2_ttf
   $<$<NOT:$<PLATFORM_ID:Windows>>:m>
+  $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:dl>
   $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_UBSAN}>>:ubsan>
 )
 
@@ -97,6 +99,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
   $<$<BOOL:${DAW_BUILD_DEBUG}>:DAW_BUILD_DEBUG>
+  $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:DAW_BUILD_HOTRELOAD>
 )
 
 

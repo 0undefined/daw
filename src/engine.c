@@ -379,6 +379,19 @@ Platform *engine_init(
 
 	GLOBAL_PLATFORM = p;
 
+
+#ifdef DAW_BUILD_HOTRELOAD
+
+#define State(name)                                                             \
+if (!State_reload(STATE_##name)) {                                              \
+    ERROR("Failed to reload shared object file for state %s", #name );          \
+};
+
+#include <states/list_of_states.h>
+#undef State
+
+#endif
+
 	return p;
 }
 

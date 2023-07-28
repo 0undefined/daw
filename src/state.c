@@ -1,5 +1,6 @@
 #include <engine/state.h>
 #include <engine/logging.h>
+#include <engine/dltools.h>
 
 typedef StateType state_update_t(void*);
 
@@ -17,18 +18,22 @@ typedef struct name##_state name##_state;            \
 typedef void (state_##name##_init_t)(name##_state*); \
 typedef void (state_##name##_free_t)(name##_state*); \
 typedef StateType (state_##name##_update_t)(name##_state*);
-#include <states/all_states.h>
+#include <states/list_of_states.h>
 #undef State
 
 #ifdef DAW_BUILD_HOTRELOAD
+
 // When hotreloading is enabled, we want to assign state function pointers
 // dynamically.
-#define State(name)                             \
-state_##name##_init_t   *name##_init = NULL;    \
-state_##name##_free_t   *name##_free = NULL;    \
-state_##name##_update_t *name##_update = NULL;
-
+#define State(name)                                      \
+state_##name##_init_t   *name##_init = NULL;             \
+state_##name##_free_t   *name##_free = NULL;             \
+state_##name##_update_t *name##_update = NULL;           \
+																												 \
+void* libstate_##name = NULL;                            \
+const char* libstate_##name##_str = "lib" #name ".so";
 #else
+
 // Otherwise we just declare them.
 #define State(name)                        \
 state_##name##_init_t   name##_init;       \
@@ -36,8 +41,10 @@ state_##name##_free_t   name##_free;       \
 state_##name##_update_t name##_update;
 #endif
 
-#include <states/all_states.h>
+#include <states/list_of_states.h>
 #undef State
+
+#include <states/all_states.h>
 
 void State_init(StateType type,   memory *mem) {
   switch (type) {
@@ -80,11 +87,19 @@ void State_free(StateType type,   memory *mem) {
 
 StateType (*State_updateFunc(StateType type))(void*) {
   switch (type) {
+#ifdef DAW_BUILD_HOTRELOAD
+#define State(name)                          \
+    case (STATE_##name): {                   \
+    return  (state_update_t*)name##_update;  \
+      break;                                 \
+    }
+#else
 #define State(name)                          \
     case (STATE_##name): {                   \
     return  (state_update_t*)&name##_update; \
       break;                                 \
     }
+#endif
 #include <states/list_of_states.h>
 #undef State
     case STATE_null:
@@ -115,4 +130,41 @@ StateType State_update(StateType type, memory *mem) {
       exit(EXIT_FAILURE);
   }
   return next_state;
+}
+
+bool State_reload(StateType type) {
+#ifdef DAW_BUILD_HOTRELOAD
+  switch (type) {
+#define State(name)                                                             \
+    case (STATE_##name): {                                                      \
+      if (libstate_##name == NULL) {                                            \
+        libstate_##name = dynamic_library_open(libstate_##name##_str);          \
+      } else {                                                                  \
+        libstate_##name =                                                       \
+          dynamic_library_reload(libstate_##name, libstate_##name##_str);       \
+      }                                                                         \
+      if (libstate_##name == NULL) {                                            \
+        ERROR("Failed loading shared object: %s (%s)",                          \
+            libstate_##name##_str,                                              \
+            dynamic_library_get_error());                                       \
+        return false;                                                           \
+      }                                                                         \
+                                                                                \
+      name##_init = (state_##name##_init_t*)dynamic_library_get_symbol(libstate_##name, STR( name##_init ) ); \
+      name##_free = (state_##name##_free_t*)dynamic_library_get_symbol(libstate_##name, STR( name##_free ) ); \
+      name##_update = (state_##name##_update_t*)dynamic_library_get_symbol(libstate_##name, STR( name##_update ) ); \
+      break;                                                                    \
+    }
+#include <states/list_of_states.h>
+#undef State
+    case STATE_null:
+    case STATE_quit:
+      ERROR("Invalid state");
+      DEBUG("Got %s state.\n", StateTypeStr[type]);
+      break;
+    default:
+      exit(EXIT_FAILURE);
+  }
+#endif
+  return true;
 }
