@@ -36,9 +36,9 @@ const char* libstate_##name##_str = "lib" #name ".so";
 
 // Otherwise we just declare them.
 #define State(name)                        \
-state_##name##_init_t   name##_init;       \
-state_##name##_free_t   name##_free;       \
-state_##name##_update_t name##_update;
+extern state_##name##_init_t   name##_init;       \
+extern state_##name##_free_t   name##_free;       \
+extern state_##name##_update_t name##_update;
 #endif
 
 #include <states/list_of_states.h>
@@ -167,6 +167,4 @@ bool State_reload(StateType type) {
   }
   return true;
 }
-#else
-#define State_reload(_) true
 #endif
