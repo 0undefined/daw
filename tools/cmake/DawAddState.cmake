@@ -52,9 +52,11 @@ macro(daw_add_state STATENAME)
     include
     )
 
-  #set_property(TARGET daw
-  #  APPEND PROPERTY LINK_LIBRARIES
-  #  ${STATENAME})
+  if(NOT DAW_BUILD_HOTRELOAD)
+    set_property(TARGET daw
+      APPEND PROPERTY LINK_LIBRARIES
+      ${STATENAME})
+  endif()
 
   list(APPEND STATE_LIST ${STATENAME})
 endmacro()
