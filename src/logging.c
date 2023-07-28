@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <engine/types.h>
 #include <engine/logging.h>
 
 char *itoa(i32 x) {

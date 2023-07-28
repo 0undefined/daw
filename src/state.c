@@ -1,4 +1,5 @@
 #include <engine/state.h>
+#include <engine/logging.h>
 
 #include <include_states.h>
 
@@ -23,7 +24,7 @@ void State_init(StateType type,   memory *mem) {
 #undef State
     case STATE_null:
     case STATE_quit:
-      _DEBUG("Got %s state.\n", StateTypeStr[type]);
+      DEBUG("Got %s state.\n", StateTypeStr[type]);
       break;
     default:
       exit(EXIT_FAILURE);
@@ -42,7 +43,7 @@ void State_free(StateType type,   memory *mem) {
 #undef State
     case STATE_null:
     case STATE_quit:
-      _DEBUG("Got %s state.\n", StateTypeStr[type]);
+      DEBUG("Got %s state.\n", StateTypeStr[type]);
       break;
     default:
       exit(EXIT_FAILURE);
@@ -62,7 +63,7 @@ StateType (*State_updateFunc(StateType type))(void*) {
 #undef State
     case STATE_null:
     case STATE_quit:
-      return NULL; //_DEBUG("Got %s state.\n", StateTypeStr[type]);
+      return NULL; //DEBUG("Got %s state.\n", StateTypeStr[type]);
       break;
     default:
       exit(EXIT_FAILURE);
@@ -82,7 +83,7 @@ StateType State_update(StateType type, memory *mem) {
 #undef State
     case STATE_null:
     case STATE_quit:
-      _DEBUG("Got %s state.\n", StateTypeStr[type]);
+      DEBUG("Got %s state.\n", StateTypeStr[type]);
       break;
     default:
       exit(EXIT_FAILURE);

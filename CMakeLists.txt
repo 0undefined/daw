@@ -1,13 +1,57 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.24)
+project(daw VERSION 0.0.1 LANGUAGES C)
 
-if(NOT DEFINED PROJECT_NAME)
+# We really don't want any in-source builds
+set(CMAKE_DISABLE_IN_SOURCE_BUILD ON CACHE BOOL "Prevents cmake -S. -B.")
+set(CMAKE_DISABLE_SOURCE_CHANGES ON CACHE BOOL "Prevent writing files to CMAKE_SOURCE_DIR under configure")
+
+if(NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(NOT_SUBPROJECT ON)
 else()
   set(NOT_SUBPROJECT OFF)
 endif()
 
-option(ENGINE_DEBUG "Compile engine with debugging features" OFF)
-option(ENGINE_HOT_RELOADING "Compile with hot-reloading enabled (only works with debug mode)" ON)
+include(CMakeDependentOption)
+
+option(ASAN "Enable address sanitizer")
+option(UBSAN "Enable undefined behaviour sanitizer")
+
+cmake_dependent_option(DAW_BUILD_DEBUG
+  "Compile daw engine with debugging features" ON
+  "CMAKE_BUILD_TYPE STREQUAL Debug" OFF)
+
+# unused
+cmake_dependent_option(DAW_BUILD_HOTRELOAD
+  "Compile daw engine with hot reloading enabled" ON
+  "NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME;CMAKE_BUILD_TYPE STREQUAL Debug;NOT WIN32" OFF)
+
+cmake_dependent_option(DAW_BUILD_ASAN
+  "Compile daw engine with address sanitizer (asan)" ON
+  "DAW_BUILD_DEBUG;ASAN" OFF)
+
+cmake_dependent_option(DAW_BUILD_UBSAN
+  "Compile daw engine with undefined behaviour sanitizer (ubsan)" ON
+  "DAW_BUILD_DEBUG;UBSAN" OFF)
+
+# unused
+cmake_dependent_option(DAW_BUILD_STANDALONE
+  # Would require us to enable dynamically registered states.
+  "Compile daw as a standalone library. This is not implemented yet." OFF
+  "TRUE" OFF)
+
+# unused
+cmake_dependent_option(DAW_BUILD_TOOLS
+  "Build tools to manipulate a daw project" ON
+  "CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME" OFF)
+
+if("${CMAKE_BUILD_TYPE}" STREQUAL "Release")
+  message("Enabling LTO")
+  set(${CMAKE_INTERPROCEDURAL_OPTIMIZATION} TRUE)
+endif()
+
+if(DAW_BUILD_UBSAN AND DAW_BUILD_ASAN)
+  message(FATAL_ERROR "You cannot build both asan and ubsan")
+endif()
 
 set(ENGINE_SOURCES
   src/btree.c
@@ -25,14 +69,35 @@ set(ENGINE_SOURCES
   src/vector.c
 )
 
-add_library(engine ${ENGINE_SOURCES})
+add_library(daw
+  ${ENGINE_SOURCES})
 
-target_include_directories(engine PUBLIC
-  include
-  ${CMAKE_BINARY_DIR}/include
-  ${ENGINE_INCLUDE})
-target_link_libraries(engine SDL2 SDL2_image SDL2_ttf m)
-target_compile_features(engine PRIVATE c_std_99)
+target_include_directories(daw PUBLIC
+  include ${CMAKE_BINARY_DIR}/include ${ENGINE_INCLUDE})
+
+target_link_libraries(${PROJECT_NAME}
+  SDL2 SDL2_image SDL2_ttf
+  $<$<NOT:$<PLATFORM_ID:Windows>>:m>
+  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_UBSAN}>>:ubsan>
+)
+
+target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
+
+target_compile_options(${PROJECT_NAME} PUBLIC
+  $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
+  $<$<C_COMPILER_ID:MSVC>:/W4>
+  # Debug related flags.  sorry windows, you're just not that important.
+  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_DEBUG}>>:-Og -ggdb3 -fno-omit-frame-pointer>
+  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_ASAN}>>:-fsanitize=address -fsanitize=leak -fsanitize-address-use-after-scope>
+  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_UBSAN}>>:-fsanitize=undefined -fsanitize-undefined-trap-on-error -fno-sanitize-recover>
+
+  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<NOT:$<BOOL:${DAW_BUILD_DEBUG}>>>:-O2 -flto=auto -fuse-linker-plugin -ffat-lto-objects -funroll-loops -ffast-math -fno-signed-zeros -fno-trapping-math -ffunction-sections -fdata-sections>
+)
+
+target_compile_definitions(${PROJECT_NAME} PUBLIC
+  $<$<BOOL:${DAW_BUILD_DEBUG}>:DAW_BUILD_DEBUG>
+)
+
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/state_type_list.h.in
   ${CMAKE_BINARY_DIR}/include/state_type_list.h)
@@ -41,48 +106,17 @@ configure_file(${CMAKE_CURRENT_LIST_DIR}/include_states.h.in
   ${CMAKE_BINARY_DIR}/include/include_states.h)
 
 
-# Add the directory to the list of states
-# The directorys contents will be compiled into a shared object file and linked
-# to the main executable
-macro(add_state STATEDIR)
-  if(NOT_SUBPROJECT)
-  else()
-    set_property(TARGET engine
-      APPEND PROPERTY INCLUDE_DIRECTORIES
-      ${CMAKE_SOURCE_DIR}/state_${STATEDIR}/include)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/tools/cmake")
+if (NOT NOT_SUBPROJECT)
+  set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
+endif()
+include(DawAddState)
 
-    file(APPEND ${CMAKE_BINARY_DIR}/include/state_type_list.h
-      "State(${STATEDIR})\n")
 
-    file(APPEND ${CMAKE_BINARY_DIR}/include/include_states.h
-      "#include <states/${STATEDIR}.h>\n")
-
-    file(GLOB STATE_SOURCES
-      LIST_DIRECTORIES false
-      state_${STATEDIR}/src/*.c
-    )
-
-    # TODO: When state reloading is implemented properly, add MODULE library
-    # option In general, this should only be available when debugging.
-    if(BUILD_SHARED_LIBS)
-      add_library(${STATEDIR} SHARED ${STATE_SOURCES})
-    else()
-      add_library(${STATEDIR} OBJECT ${STATE_SOURCES})
-    endif()
-
-    target_include_directories(${STATEDIR} PUBLIC
-      state_${STATEDIR}/include
-      engine/include
-      ${CMAKE_BINARY_DIR}/include
-      include
-      )
-
-    set_property(TARGET engine
-      APPEND PROPERTY LINK_LIBRARIES
-      ${STATEDIR})
-
-  endif()
-
-  list(APPEND STATE_LIST ${STATEDIR})
-  #list(APPEND ENGINE_INCLUDE state_${STATEDIR}/include)
-endmacro()
+message("Configured ${PROJECT_NAME} ${PROJECT_VERSION}")
+message("Build type:       ${CMAKE_BUILD_TYPE}")
+message("enable debug:     ${DAW_BUILD_DEBUG}")
+message("enable hotreload: ${DAW_BUILD_HOTRELOAD}")
+message("enable asan:      ${DAW_BUILD_ASAN}")
+message("enable ubsan:     ${DAW_BUILD_UBSAN}")
+message("build tools:      ${DAW_BUILD_TOOLS}")

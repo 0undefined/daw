@@ -22,7 +22,7 @@ i32 drawcall_len = 0;
 /* Clear the screen,
  * To be used inbetween draw calls */
 void render_begin(Window *w) {
-#ifdef DEBUG
+#ifdef DAW_BUILD_DEBUG
 	SDL_SetRenderDrawColor(w->renderer, 0x10, 0x0a, 0x33, 0x00);
 #else
 	SDL_SetRenderDrawColor(w->renderer, 0x00, 0x00, 0x00, 0x00);
@@ -42,7 +42,7 @@ void render_present(Window *w) {
 				break;
 			case RenderDrawCallType_Sprite:
 				{
-#ifdef DEBUG
+#ifdef DAW_BUILD_DEBUG
 					if (dc.data.sprite.sprite == NULL) {
 						__asm__("int3;");
 						WARN("Sprite %lx in drawcall %d/%d had NULL reference", dc.data.sprite.sprite, i, drawcall_len);
@@ -110,7 +110,7 @@ void engine_draw_uitree(UITree *t) {
 
 void engine_draw_sprite(Sprite *s, v2_i32 *pos, f32 scale) {
 	if (drawcall_len + 1 >= drawcall_limit) return;
-#ifdef DEBUG
+#ifdef DAW_BUILD_DEBUG
 	if (s == NULL) __asm__("int3;");
 #endif
 	drawcalls[drawcall_len++] = (RenderDrawCall){
@@ -127,7 +127,7 @@ void engine_draw_sprite(Sprite *s, v2_i32 *pos, f32 scale) {
 
 void engine_draw_sprite_ex(Sprite *s, v2_i32 *pos, f32 scale, Engine_color colormod) {
 	if (drawcall_len + 1 >= drawcall_limit) return;
-#ifdef DEBUG
+#ifdef DAW_BUILD_DEBUG
 	if (s == NULL) __asm__("int3;");
 #endif
 	drawcalls[drawcall_len++] = (RenderDrawCall){
