@@ -132,8 +132,8 @@ StateType State_update(StateType type, memory *mem) {
   return next_state;
 }
 
-bool State_reload(StateType type) {
 #ifdef DAW_BUILD_HOTRELOAD
+bool State_reload(StateType type) {
   switch (type) {
 #define State(name)                                                             \
     case (STATE_##name): {                                                      \
@@ -165,6 +165,8 @@ bool State_reload(StateType type) {
     default:
       exit(EXIT_FAILURE);
   }
-#endif
   return true;
 }
+#else
+#define State_reload(_) true
+#endif

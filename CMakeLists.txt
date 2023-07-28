@@ -24,7 +24,7 @@ cmake_dependent_option(DAW_BUILD_DEBUG
 # unused
 cmake_dependent_option(DAW_BUILD_HOTRELOAD
   "Compile daw engine with hot reloading enabled" ON
-  "NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME;CMAKE_BUILD_TYPE STREQUAL Debug;NOT WIN32" OFF)
+  "NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME;CMAKE_BUILD_TYPE STREQUAL Debug;NOT WIN32;BUILD_SHARED_LIBS" OFF)
 
 cmake_dependent_option(DAW_BUILD_ASAN
   "Compile daw engine with address sanitizer (asan)" ON
@@ -87,7 +87,9 @@ target_link_libraries(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
 
 target_compile_options(${PROJECT_NAME} PUBLIC
-  $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra -pedantic>
+  $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra>
+  # Dont be pedantic when using hot reloading.
+  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<NOT:$<BOOL:${DAW_BUILD_HOTRELOAD}>>>:-pedantic>
   $<$<C_COMPILER_ID:MSVC>:/W4>
   # Debug related flags.  sorry windows, you're just not that important.
   $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_DEBUG}>>:-Og -ggdb3 -fno-omit-frame-pointer>

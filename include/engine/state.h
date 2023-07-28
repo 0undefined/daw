@@ -21,6 +21,10 @@ void State_free(StateType type,   memory *mem);
 StateType State_update(StateType type, memory *mem);
 
 /* Reloads shared object file associated with state */
+#ifdef DAW_BUILD_HOTRELOAD
 bool State_reload(StateType type);
+#else
+#define State_reload(_) true
+#endif
 
 #endif
