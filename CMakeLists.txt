@@ -5,7 +5,8 @@ project(daw VERSION 0.0.1 LANGUAGES C)
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON CACHE BOOL "Prevents cmake -S. -B.")
 set(CMAKE_DISABLE_SOURCE_CHANGES ON CACHE BOOL "Prevent writing files to CMAKE_SOURCE_DIR under configure")
 
-if(NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
+# Check if we are used as a sub project/module or not
+if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(NOT_SUBPROJECT ON)
 else()
   set(NOT_SUBPROJECT OFF)
@@ -13,8 +14,8 @@ endif()
 
 include(CMakeDependentOption)
 
-option(ASAN "Enable address sanitizer")
-option(UBSAN "Enable undefined behaviour sanitizer")
+option(ASAN "Enable address sanitizer. Only enabled when DAW_BUILD_DEBUG=ON")
+option(UBSAN "Enable undefined behaviour sanitizer. Only enabled when DAW_BUILD_DEBUG=ON")
 
 cmake_dependent_option(DAW_BUILD_DEBUG
   "Compile daw engine with debugging features" ON
@@ -99,11 +100,11 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
 )
 
 
-configure_file(${CMAKE_CURRENT_LIST_DIR}/state_type_list.h.in
-  ${CMAKE_BINARY_DIR}/include/state_type_list.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/tools/cmake/list_of_states.h.in
+  ${CMAKE_BINARY_DIR}/include/list_of_states.h.in)
 
-configure_file(${CMAKE_CURRENT_LIST_DIR}/include_states.h.in
-  ${CMAKE_BINARY_DIR}/include/include_states.h)
+configure_file(${CMAKE_CURRENT_LIST_DIR}/tools/cmake/all_states.h.in
+  ${CMAKE_BINARY_DIR}/include/states/all_states.h)
 
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_LIST_DIR}/tools/cmake")
@@ -111,7 +112,6 @@ if (NOT NOT_SUBPROJECT)
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 endif()
 include(DawAddState)
-
 
 message("Configured ${PROJECT_NAME} ${PROJECT_VERSION}")
 message("Build type:       ${CMAKE_BUILD_TYPE}")

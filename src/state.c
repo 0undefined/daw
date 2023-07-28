@@ -1,14 +1,14 @@
 #include <engine/state.h>
 #include <engine/logging.h>
 
-#include <include_states.h>
+#include <states/all_states.h>
 
 typedef StateType state_update_t (void*);
 
 const char *StateTypeStr[] = {
   "null",
 #define State(name) #name,
-#include <state_type_list.h>
+#include <states/list_of_states.h>
 #undef State
   "quit",
 };
@@ -20,7 +20,7 @@ void State_init(StateType type,   memory *mem) {
       name##_init(memory_allocate(mem, sizeof(name##_state)));  \
       break;                                          \
     }
-#include <state_type_list.h>
+#include <states/list_of_states.h>
 #undef State
     case STATE_null:
     case STATE_quit:
@@ -39,7 +39,7 @@ void State_free(StateType type,   memory *mem) {
       name##_free(mem->data); \
       break;                  \
     }
-#include <state_type_list.h>
+#include <states/list_of_states.h>
 #undef State
     case STATE_null:
     case STATE_quit:
@@ -59,7 +59,7 @@ StateType (*State_updateFunc(StateType type))(void*) {
     return  (state_update_t*)&name##_update; \
       break;                                 \
     }
-#include <state_type_list.h>
+#include <states/list_of_states.h>
 #undef State
     case STATE_null:
     case STATE_quit:
@@ -79,7 +79,7 @@ StateType State_update(StateType type, memory *mem) {
       next_state = name##_update(mem->data); \
       break;                                 \
     }
-#include <state_type_list.h>
+#include <states/list_of_states.h>
 #undef State
     case STATE_null:
     case STATE_quit:

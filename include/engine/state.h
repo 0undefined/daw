@@ -6,7 +6,7 @@
 typedef enum StateType {
   STATE_null,
 #define State(name) STATE_##name,
-#include <state_type_list.h>
+#include <states/list_of_states.h>
 #undef State
   STATE_quit,
 } StateType;
