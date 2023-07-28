@@ -577,6 +577,10 @@ i32 engine_run(Platform *p, StateType initial_state) {
 				for (i32 i = 0; i < num_events; i++) {
 					switch (e[i].type) {
 					case SDL_KEYDOWN: {
+					  if (e[i].key.keysym.sym == SDLK_F7) {
+							State_reload(state);
+							break;
+						}
 						Keybinding lookupkey = ((Keybinding){
 							.keycode = e[i].key.keysym.sym,
 							.modifiers = e[i].key.keysym.mod
