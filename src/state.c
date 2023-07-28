@@ -1,9 +1,7 @@
 #include <engine/state.h>
 #include <engine/logging.h>
 
-#include <states/all_states.h>
-
-typedef StateType state_update_t (void*);
+typedef StateType state_update_t(void*);
 
 const char *StateTypeStr[] = {
   "null",
@@ -12,6 +10,34 @@ const char *StateTypeStr[] = {
 #undef State
   "quit",
 };
+
+// Setup API for states
+#define State(name)                                  \
+typedef struct name##_state name##_state;            \
+typedef void (state_##name##_init_t)(name##_state*); \
+typedef void (state_##name##_free_t)(name##_state*); \
+typedef StateType (state_##name##_update_t)(name##_state*);
+#include <states/all_states.h>
+#undef State
+
+#ifdef DAW_BUILD_HOTRELOAD
+// When hotreloading is enabled, we want to assign state function pointers
+// dynamically.
+#define State(name)                             \
+state_##name##_init_t   *name##_init = NULL;    \
+state_##name##_free_t   *name##_free = NULL;    \
+state_##name##_update_t *name##_update = NULL;
+
+#else
+// Otherwise we just declare them.
+#define State(name)                        \
+state_##name##_init_t   name##_init;       \
+state_##name##_free_t   name##_free;       \
+state_##name##_update_t name##_update;
+#endif
+
+#include <states/all_states.h>
+#undef State
 
 void State_init(StateType type,   memory *mem) {
   switch (type) {

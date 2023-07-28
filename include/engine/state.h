@@ -11,6 +11,7 @@ typedef enum StateType {
   STATE_quit,
 } StateType;
 
+
 extern const char *StateTypeStr[];
 
 StateType(*State_updateFunc(StateType type))(void*);
