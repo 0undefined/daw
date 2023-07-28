@@ -578,6 +578,7 @@ i32 engine_run(Platform *p, StateType initial_state) {
 					switch (e[i].type) {
 					case SDL_KEYDOWN: {
 					  if (e[i].key.keysym.sym == SDLK_F7) {
+							INFO("Reloading %s", StateTypeStr[state]);
 							State_reload(state);
 							break;
 						}
