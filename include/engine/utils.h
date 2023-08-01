@@ -24,9 +24,9 @@ i32 int_lerp(f32 dt, i32 a, i32 b);
 /* Hashes */
 u32 hash(char *str);
 
-/* Masks surrounding tiles of a kernel size of 3 */
+/* Masks surrounding tiles of a kernel size of 3x3 */
 /* In reality we only need 9 bits for this, but I think I had a reason for using i32 */
-i32* kernmap(const void *map, i32 *dstmap, const v2_i32 mapsize, bool (*predicate)(const void*));
+i32* kernmap(const void *map, i32 *dstmap, const v2_i32 mapsize, predicate_t *predicate);
 
 /* Returns an index from the given weights. */
 i32 pick_from_sample(const i32 *weights, i32 len);

@@ -26,7 +26,7 @@ u32 hash(char *str) {
 /* Populates dstmap
  * on success: return pointer to dstmap
  * on failure: return NULL */
-i32* kernmap(const void *map, i32 *dstmap, const v2_i32 mapsize, bool (*predicate)(const void*)) {
+i32* kernmap(const void *map, i32 *dstmap, const v2_i32 mapsize, predicate_t *predicate) {
 	const i32 w = mapsize.x;
 	const i32 h = mapsize.y;
 	i32 mask[w*h];
