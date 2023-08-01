@@ -29,4 +29,6 @@ typedef u32 usize;
 typedef i32 isize;
 #endif
 
+typedef bool(predicate_t)(const void*);
+
 #endif
