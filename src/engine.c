@@ -1,4 +1,6 @@
 #include <stdlib.h>
+#include <errno.h>
+#include <string.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -40,21 +42,11 @@ extern i32 drawcall_len;
 #define BENCHEXPR(timevar, expr) expr
 #endif
 
-i32 bindings_cmp(const Keybinding *a, const Keybinding *b) {
-	return a->modifiers ^ b->modifiers;
-}
-
-i32 binding_to_int(const Keybinding *b) {
-	return b->keycode;
-}
-
-/* Defines (struct) List_Keybinding */
-/* Defines (struct) hashmap_Keybinding,
- * and hashmap_Keybinding_lookup, and hashmap_Keybinding_insert */
-DEFINE_HASHMAP(Keybinding, 64, bindings_cmp, binding_to_int)
-
 static u64 FPS_CAP   = 50;
 Platform *GLOBAL_PLATFORM = NULL;
+
+input_callback_t *callbacks[128];
+usize callbacks_len;
 
 i32 nproc(void) {
 	return SDL_GetCPUCount();
@@ -369,6 +361,10 @@ Platform *engine_init(
 	p->edit_pos     = 0;
 
 	p->bindings     = NULL;
+	p->bindings_sz  = 0;
+	p->bindings_len = 0;
+
+	// TODO: Add global bindings
 
 #ifdef BENCHMARK
 	u32 init_stop = SDL_GetTicks();
@@ -497,15 +493,15 @@ i32 engine_run(Platform *p, StateType initial_state) {
 		/* Events */
 		BENCHEXPR(profile_input, {
 
-			if (GLOBAL_PLATFORM->mouse_lclick) {
-				GLOBAL_PLATFORM->mouseup.x    = -1;
-				GLOBAL_PLATFORM->mouseup.y    = -1;
-				GLOBAL_PLATFORM->mousedown.x  = -1;
-				GLOBAL_PLATFORM->mousedown.y  = -1;
-				GLOBAL_PLATFORM->mouse_lclick = false;
+			if (p->mouse_lclick) {
+				p->mouseup.x    = -1;
+				p->mouseup.y    = -1;
+				p->mousedown.x  = -1;
+				p->mousedown.y  = -1;
+				p->mouse_lclick = false;
 			}
-			if (GLOBAL_PLATFORM->mouse_rclick) {
-				GLOBAL_PLATFORM->mouse_rclick = false;
+			if (p->mouse_rclick) {
+				p->mouse_rclick = false;
 			}
 
 			/* Window events */
@@ -536,17 +532,17 @@ i32 engine_run(Platform *p, StateType initial_state) {
 						{
 							SDL_MouseMotionEvent m = e[i].motion;
 							/* In case of a first-person game, use xrel and yrel */
-							GLOBAL_PLATFORM->mouse_pos.x = m.x;
-							GLOBAL_PLATFORM->mouse_pos.y = m.y;
+							p->mouse_pos.x = m.x;
+							p->mouse_pos.y = m.y;
 						}
 						break;
 					case SDL_MOUSEBUTTONUP:
 						{
 							switch (e[i].button.button) {
 								case SDL_BUTTON_LEFT:
-									GLOBAL_PLATFORM->mouseup = GLOBAL_PLATFORM->mouse_pos;
+									p->mouseup = p->mouse_pos;
 
-									GLOBAL_PLATFORM->mouse_lclick = true;
+									p->mouse_lclick = true;
 								case SDL_BUTTON_RIGHT:
 									break;
 								default:
@@ -557,7 +553,7 @@ i32 engine_run(Platform *p, StateType initial_state) {
 					case SDL_MOUSEBUTTONDOWN:
 						switch (e[i].button.button) {
 							case SDL_BUTTON_LEFT:
-								GLOBAL_PLATFORM->mousedown = GLOBAL_PLATFORM->mouse_pos;
+								p->mousedown = p->mouse_pos;
 								break;
 							case SDL_BUTTON_RIGHT:
 								break;
@@ -573,10 +569,14 @@ i32 engine_run(Platform *p, StateType initial_state) {
 			}
 
 			BENCHEXPR(profile_input_handling, {
+			if (p->bindings != NULL) {
+			const i_ctx *bindings = *p->bindings;
+			const usize bindings_len = p->bindings_len;
+
 			while ((num_events = SDL_PeepEvents(e, 8, SDL_GETEVENT, SDL_KEYDOWN, SDL_KEYUP)) > 0) {
 				for (i32 i = 0; i < num_events; i++) {
 					switch (e[i].type) {
-					case SDL_KEYDOWN: {
+					case SDL_KEYDOWN:
 					  if (e[i].key.keysym.sym == SDLK_F7) {
 							INFO("Reloading %s", StateTypeStr[state]);
 							if (!State_reload(state)) {
@@ -586,15 +586,41 @@ i32 engine_run(Platform *p, StateType initial_state) {
 							}
 							break;
 						}
-						Keybinding lookupkey = ((Keybinding){
-							.keycode = e[i].key.keysym.sym,
-							.modifiers = e[i].key.keysym.mod
-						});
-						Keybinding *kb = hashmap_Keybinding_lookup(GLOBAL_PLATFORM->bindings, &lookupkey);
-						if (kb != NULL && kb->action != NULL) kb->action(mem->data);
+						for (usize b = 0; b < bindings_len; b++) {
+							const action_t a = i_get_action(&bindings[b], e[i].key.timestamp, e[i].key.keysym.scancode);
+
+							switch (a.type) {
+								case InputType_action:
+									if (a.action.callback != NULL) {
+										callbacks[callbacks_len++] = a.action.callback;
+									}
+									break;
+
+								case InputType_state:
+									if (!e[i].key.repeat && a.state.activate != NULL) {
+										callbacks[callbacks_len++] = a.state.activate;
+									}
+									break;
+
+								case InputType_range:
+									WARN("Range inputs not supported yet!");
+									break;
+								case InputType_error:
+									WARN("Unhandled scancode: %lu", e[i].key.keysym.scancode);
+
+								default:
+									break;
+							}
 						}
 						break;
+
 					case SDL_KEYUP:
+						for (usize b = 0; b < bindings_len; b++) {
+							const action_t a = i_get_action(&bindings[b], e[i].key.timestamp, e[i].key.keysym.scancode);
+									if (a.type == InputType_state && a.state.deactivate != NULL && !e[i].key.repeat) {
+											callbacks[callbacks_len++] = a.state.deactivate;
+									}
+						}
 						break;
 					default:
 						WARN("Unhandled mouse event 0x%04x", (i32)e[i].type);
@@ -602,8 +628,12 @@ i32 engine_run(Platform *p, StateType initial_state) {
 					}
 				}
 			}
+			}
 			});
 		});
+
+		i_flush_bindings(callbacks_len, mem->data, callbacks);
+		callbacks_len = 0;
 
 		/* update */
 		StateType next_state;
@@ -618,7 +648,7 @@ i32 engine_run(Platform *p, StateType initial_state) {
 			State_free(state, mem);
 			memory_clear(mem);
 
-			GLOBAL_PLATFORM->bindings = NULL;
+			p->bindings_len = 0;
 
 			state = next_state;
 			update_func = State_updateFunc(state);
@@ -688,20 +718,52 @@ void stop(Platform *p) {
 
 void engine_fps_max(u64 cap) { FPS_CAP = cap; }
 
-void engine_bindkey(i32 key, void (*action)(void*)) {
-	/* TODO: Make a hashmap ++ linked list */
-	//if (key >= 512) {
-	//	ERROR("Key value too high! (got %d)\n", key);
-	//}
+void engine_input_ctx_push(i_ctx *ctx) {
 	if (GLOBAL_PLATFORM->bindings == NULL) {
-		//GLOBAL_PLATFORM->bindings = memory_allocate(GLOBAL_PLATFORM->mem, 512 * sizeof(Keybinding));
-		GLOBAL_PLATFORM->bindings = memory_allocate(GLOBAL_PLATFORM->mem, sizeof(hashmap_Keybinding));
+		GLOBAL_PLATFORM->bindings = calloc(8, sizeof(i_ctx*));
+		GLOBAL_PLATFORM->bindings_sz = 8;
+	}
+	if (GLOBAL_PLATFORM->bindings_len + 1 >= GLOBAL_PLATFORM->bindings_sz) {
+		 void* m = realloc(GLOBAL_PLATFORM->bindings, GLOBAL_PLATFORM->bindings_sz + 8);
+		 if (m == NULL) {
+			 ERROR("Failed to allocate 8 bytes (%d): %s", errno, strerror(errno));
+			 exit(EXIT_FAILURE);
+		 }
+		 GLOBAL_PLATFORM->bindings_sz += 8;
 	}
 
-	Keybinding kb = (Keybinding){.keycode = key, .action = action};
-	hashmap_Keybinding_insert(GLOBAL_PLATFORM->mem, GLOBAL_PLATFORM->bindings, &kb);
+	/*
+	LOG("Bindings in ctx:");
+	for (isize i = 0; i < ctx->len; i++) {
+		switch (ctx->bindings[i].action.type) {
+			case InputType_error:
+				LOG("(error)");
+				break;
+
+			case InputType_action:
+				LOG("(action) %s", ctx->bindings[i].action.action.callback_str);
+				break;
+
+			case InputType_state:
+				LOG("(+state) %s", ctx->bindings[i].action.state.activate_str);
+				LOG("(-state) %s", ctx->bindings[i].action.state.deactivate_str);
+				break;
+			case InputType_range:
+				LOG("(range) --unhandled--");
+				break;
+		}
+	}
+	*/
+	GLOBAL_PLATFORM->bindings[GLOBAL_PLATFORM->bindings_len++] = ctx;
 }
 
+void engine_input_ctx_pop(void) {
+	if (GLOBAL_PLATFORM->bindings == NULL || GLOBAL_PLATFORM->bindings_sz == 0) return;
+}
+
+void engine_input_ctx_reset(void) {
+	GLOBAL_PLATFORM->bindings_len = 0;
+}
 
 u32 get_time(void) {return SDL_GetTicks();}
 v2_i32   get_windowsize(void) {return GLOBAL_PLATFORM->window->windowsize;}

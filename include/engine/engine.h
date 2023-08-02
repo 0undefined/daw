@@ -4,10 +4,11 @@
 #include <stdbool.h>
 
 #include <engine/types.h>
+#include <engine/logging.h>
 #include <engine/stack.h>
 #include <engine/vector.h>
 #include <engine/memory.h>
-#include <engine/logging.h>
+#include <engine/input.h>
 #include <engine/state.h>
 
 typedef struct {
@@ -29,12 +30,7 @@ typedef struct {
 
 typedef struct Window Window;
 
-typedef struct Keybinding {
-  i32 keycode;
-  i32 modifiers;
-  void (*action)(void*);
-} Keybinding;
-
+#define NUM_GLOBAL_BINDINGS 1
 typedef struct {
   void    *data; /* Contains textures and such */
   u64 data_len;
@@ -45,6 +41,7 @@ typedef struct {
   u64 frame;
   f32 fps_target;
 
+	/* TODO: Move mouse data to input ctx */
   v2_i32 mouse_pos;
 
   v2_i32 mousedown;
@@ -62,7 +59,11 @@ typedef struct {
 
   memory *mem;
 
-  void *bindings;
+  i_ctx **bindings;
+  usize bindings_sz;
+  usize bindings_len;
+
+  binding_t bindings_global[NUM_GLOBAL_BINDINGS];
 } Platform;
 
 /* Essential functions */
@@ -81,7 +82,8 @@ void engine_stop(Platform *p);
 
 /* Utility functions */
 void engine_fps_max(u64 cap);
-void engine_bindkey(i32 key, void (*action)(void*));
+void engine_input_ctx_push(i_ctx *ctx);
+void engine_input_ctx_pop(void);
 
 void render_set_zoom(f32 new_zoom);
 void render_adjust_zoom(f32 diff);

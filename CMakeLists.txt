@@ -64,6 +64,7 @@ set(ENGINE_SOURCES
   src/engine.c
   src/fov.c
   src/hashmap.c
+  src/input.c
   src/logging.c
   src/memory.c
   src/rendering.c

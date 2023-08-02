@@ -23,8 +23,13 @@ StateType State_update(StateType type, memory *mem);
 /* Reloads shared object file associated with state */
 #ifdef DAW_BUILD_HOTRELOAD
 bool State_reload(StateType type);
+
+#define get_statelib_var(type) libstate_##name
+#define State_load_binding(type, function_name) dynamic_library_get_symbol(get_statelib_var(type), #function_name)
+
 #else
 #define State_reload(_) true
+#define State_load_binding(_, __) true
 #endif
 
 #endif
