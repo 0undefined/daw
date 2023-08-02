@@ -58,6 +58,16 @@ if(DAW_BUILD_UBSAN AND DAW_BUILD_ASAN)
   message(FATAL_ERROR "You cannot build both asan and ubsan")
 endif()
 
+if(DAW_BUILD_DEBUG)
+  set(BUILD_OPTS -Og -ggdb3 -fno-omit-frame-pointer)
+else()
+  set(BUILD_OPTS -O2 -flto=auto -fuse-linker-plugin -ffat-lto-objects
+    -funroll-loops -ffast-math -fno-signed-zeros -fno-trapping-math
+    -ffunction-sections -fdata-sections)
+endif()
+
+##
+
 set(ENGINE_SOURCES
   src/btree.c
   src/dltools.c
@@ -75,6 +85,9 @@ set(ENGINE_SOURCES
   src/utils.c
   src/vector.c
 )
+
+add_compile_options(${RELEASE_OPTS})
+add_link_options(${RELEASE_OPTS})
 
 add_library(daw
   ${ENGINE_SOURCES})
@@ -101,17 +114,6 @@ if(DAW_BUILD_UBSAN AND NOT C_COMPILER_ID STREQUAL MSVC)
   add_compile_options(-fsanitize=undefined -fsanitize-undefined-trap-on-error -fno-sanitize-recover)
   add_link_options(-fsanitize=undefined -fsanitize-undefined-trap-on-error -fno-sanitize-recover)
 endif()
-
-if(DAW_BUILD_DEBUG)
-  set(BUILD_OPTS -Og -ggdb3 -fno-omit-frame-pointer)
-else()
-  set(BUILD_OPTS -O2 -flto=auto -fuse-linker-plugin -ffat-lto-objects
-    -funroll-loops -ffast-math -fno-signed-zeros -fno-trapping-math
-    -ffunction-sections -fdata-sections)
-endif()
-
-add_compile_options(${RELEASE_OPTS})
-add_link_options(${RELEASE_OPTS})
 
 target_compile_options(${PROJECT_NAME} PUBLIC
   $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra>

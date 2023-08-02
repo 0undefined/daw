@@ -48,7 +48,7 @@ typedef struct i_ctx {
 } i_ctx;
 
 void i_flush_bindings(usize numcalls, void* state_mem, input_callback_t* c[]);
-action_t i_get_action(const i_ctx *ctx, u32 time, scancode_t scancode);
+action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode);
 
 #define BindAction(key, altkey, f_action) \
   (binding_t){\
@@ -75,5 +75,33 @@ action_t i_get_action(const i_ctx *ctx, u32 time, scancode_t scancode);
 	.scancode_alt = altkey,\
   .since_last_activation = 0\
 }
+
+// Lazy binds, used internally
+#define BindActionLazy(key, altkey, action_str) \
+  (binding_t){\
+  .action = (action_t){.action = {\
+		.type = InputType_action,\
+		.callback     = NULL,\
+		.callback_str = action_str,\
+	}},\
+	.scancode = key,\
+	.scancode_alt = altkey,\
+  .since_last_activation = 0\
+}
+
+#define BindStateLazy(key, altkey, _activate_str , _deactivate_str) \
+  (binding_t){\
+  .action = (action_t){.state = {\
+		.type = InputType_state,\
+    .activate   = NULL,\
+    .deactivate = NULL,\
+    .activate_str   = _activate_str,\
+    .deactivate_str = _deactivate_str,\
+	}},\
+	.scancode = key,\
+	.scancode_alt = altkey,\
+  .since_last_activation = 0\
+}
+
 
 #endif

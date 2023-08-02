@@ -74,7 +74,7 @@ void i_flush_bindings(usize numcalls, void* state_mem, input_callback_t* c[]) {
 	}
 }
 
-action_t i_get_action(const i_ctx *ctx, u32 time, scancode_t scancode) {
+action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode) {
 	isize idx = 0;
 
 	if (ctx == NULL) {

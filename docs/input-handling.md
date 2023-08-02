@@ -5,6 +5,7 @@ _This document serves as a low-level explanation of how the input system works_
 ```C
 typedef enum InputType InputType;
 enum InputType {
+  InputType_error,
   // fire once, ie. keydown. stuff like spells, semi-automatic
   InputType_action,
   // active while pressed, deactivate once released. Ignore key-repeat. stuff like running

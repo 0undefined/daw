@@ -379,7 +379,7 @@ Platform *engine_init(
 #ifdef DAW_BUILD_HOTRELOAD
 
 #define State(name)                                                             \
-if (!State_reload(STATE_##name)) {                                              \
+if (!State_reload(STATE_##name, p->bindings, p->bindings_len)) {                                              \
     ERROR("Failed to reload shared object file for state %s", #name );          \
 };
 
@@ -579,7 +579,7 @@ i32 engine_run(Platform *p, StateType initial_state) {
 					case SDL_KEYDOWN:
 					  if (e[i].key.keysym.sym == SDLK_F7) {
 							INFO("Reloading %s", StateTypeStr[state]);
-							if (!State_reload(state)) {
+							if (! State_reload(state, p->bindings, p->bindings_len) ) {
 								ERROR("Failed to reload state library!");
 							} else {
 								update_func = State_updateFunc(state);
@@ -648,7 +648,7 @@ i32 engine_run(Platform *p, StateType initial_state) {
 			State_free(state, mem);
 			memory_clear(mem);
 
-			p->bindings_len = 0;
+			engine_input_ctx_reset();
 
 			state = next_state;
 			update_func = State_updateFunc(state);
