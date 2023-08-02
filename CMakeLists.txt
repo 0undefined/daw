@@ -92,17 +92,33 @@ target_link_libraries(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+if(DAW_BUILD_ASAN AND NOT C_COMPILER_ID STREQUAL MSVC)
+  add_compile_options(-fsanitize=address -fsanitize=leak -fsanitize-address-use-after-scope)
+  add_link_options(-fsanitize=address -fsanitize=leak -fsanitize-address-use-after-scope)
+endif()
+
+if(DAW_BUILD_UBSAN AND NOT C_COMPILER_ID STREQUAL MSVC)
+  add_compile_options(-fsanitize=undefined -fsanitize-undefined-trap-on-error -fno-sanitize-recover)
+  add_link_options(-fsanitize=undefined -fsanitize-undefined-trap-on-error -fno-sanitize-recover)
+endif()
+
+if(DAW_BUILD_DEBUG)
+  set(BUILD_OPTS -Og -ggdb3 -fno-omit-frame-pointer)
+else()
+  set(BUILD_OPTS -O2 -flto=auto -fuse-linker-plugin -ffat-lto-objects
+    -funroll-loops -ffast-math -fno-signed-zeros -fno-trapping-math
+    -ffunction-sections -fdata-sections)
+endif()
+
+add_compile_options(${RELEASE_OPTS})
+add_link_options(${RELEASE_OPTS})
+
 target_compile_options(${PROJECT_NAME} PUBLIC
   $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wall -Wextra>
   # Dont be pedantic when using hot reloading.
   $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<NOT:$<BOOL:${DAW_BUILD_HOTRELOAD}>>>:-pedantic>
   $<$<C_COMPILER_ID:MSVC>:/W4>
   # Debug related flags.  sorry windows, you're just not that important.
-  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_DEBUG}>>:-Og -ggdb3 -fno-omit-frame-pointer>
-  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_ASAN}>>:-fsanitize=address -fsanitize=leak -fsanitize-address-use-after-scope>
-  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_UBSAN}>>:-fsanitize=undefined -fsanitize-undefined-trap-on-error -fno-sanitize-recover>
-
-  $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<NOT:$<BOOL:${DAW_BUILD_DEBUG}>>>:-O2 -flto=auto -fuse-linker-plugin -ffat-lto-objects -funroll-loops -ffast-math -fno-signed-zeros -fno-trapping-math -ffunction-sections -fdata-sections>
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
