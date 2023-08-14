@@ -278,9 +278,8 @@ bool State_reload(StateType type, i_ctx **ctx, usize ctx_len) {
     default:
       exit(EXIT_FAILURE);
   }
-	state_refresh_input_ctx(libptr, ctx, ctx_len);
+	return state_refresh_input_ctx(libptr, ctx, ctx_len);
 	//state_refresh_input_ctx(libptr, &ctx_cpy, ctx_len);
 	//ctx = &ctx_cpy;
-  return true;
 }
 #endif
