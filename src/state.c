@@ -49,6 +49,8 @@ extern state_##name##_update_t name##_update;
 
 #include <states/all_states.h>
 
+void binding_t_free(binding_t* b);
+
 void State_init(StateType type,   memory *mem) {
   switch (type) {
 #define State(name)                                   \
@@ -283,3 +285,34 @@ bool State_reload(StateType type, i_ctx **ctx, usize ctx_len) {
 	//ctx = &ctx_cpy;
 }
 #endif
+
+void i_ctx_t_free(i_ctx* c) {
+	for (isize i = 0; i < c->len; i++) {
+		binding_t_free(&c->bindings[i]);
+	}
+}
+
+void binding_t_free(binding_t* b) {
+	switch (b->action.type) {
+		case InputType_error:
+			ERROR("Cannot free binding of type InputType_error");
+			break;
+		case InputType_action:
+			free(b->action.action.callback_str);
+			return;
+
+		case InputType_state:
+			free(b->action.state.activate_str);
+			free(b->action.state.deactivate_str);
+			break;
+
+		case InputType_range:
+			ERROR("Cannot free binding of type InputType_rage");
+			break;
+
+		default:
+			ERROR("Unknown bindings type");
+			break;
+	}
+	exit(EXIT_FAILURE);
+}

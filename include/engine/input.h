@@ -19,15 +19,15 @@ typedef union action_t {
   struct {
     InputType type;
     input_callback_t* callback;
-    const char* callback_str;
+    char* callback_str;
   } action;
 
   struct {
     InputType type;
     input_callback_t* activate;
     input_callback_t* deactivate;
-    const char* activate_str;
-    const char* deactivate_str;
+    char* activate_str;
+    char* deactivate_str;
   } state;
 } action_t;
 
@@ -47,6 +47,7 @@ typedef struct i_ctx {
 	isize len;
 } i_ctx;
 
+void i_ctx_t_free(i_ctx* c);
 void i_flush_bindings(usize numcalls, void* state_mem, input_callback_t* c[]);
 action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode);
 
@@ -55,7 +56,7 @@ action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode);
   .action = (action_t){.action = {\
 		.type = InputType_action,\
 		.callback     = (input_callback_t*)&f_action,\
-		.callback_str = #f_action,\
+		.callback_str = strdup( #f_action ),\
 	}},\
 	.scancode = key,\
 	.scancode_alt = altkey,\
@@ -68,8 +69,8 @@ action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode);
 		.type = InputType_state,\
     .activate   = (input_callback_t*)&f_activate,\
     .deactivate = (input_callback_t*)&f_deactivate,\
-    .activate_str   = #f_activate,\
-    .deactivate_str = #f_deactivate,\
+    .activate_str   = strdup( #f_activate ),\
+    .deactivate_str = strdup( #f_deactivate ),\
 	}},\
 	.scancode = key,\
 	.scancode_alt = altkey,\
@@ -82,7 +83,7 @@ action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode);
   .action = (action_t){.action = {\
 		.type = InputType_action,\
 		.callback     = NULL,\
-		.callback_str = action_str,\
+		.callback_str = strdup( action_str ),\
 	}},\
 	.scancode = key,\
 	.scancode_alt = altkey,\
@@ -95,8 +96,8 @@ action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode);
 		.type = InputType_state,\
     .activate   = NULL,\
     .deactivate = NULL,\
-    .activate_str   = _activate_str,\
-    .deactivate_str = _deactivate_str,\
+    .activate_str   = strdup( _activate_str ),\
+    .deactivate_str = strdup( _deactivate_str ),\
 	}},\
 	.scancode = key,\
 	.scancode_alt = altkey,\

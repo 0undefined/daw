@@ -759,11 +759,13 @@ void engine_input_ctx_push(i_ctx *ctx) {
 
 void engine_input_ctx_pop(void) {
 	if (GLOBAL_PLATFORM->bindings == NULL || GLOBAL_PLATFORM->bindings_sz == 0) return;
-	GLOBAL_PLATFORM->bindings_len--;
+	i_ctx_t_free(GLOBAL_PLATFORM->bindings[--GLOBAL_PLATFORM->bindings_len]);
 }
 
 void engine_input_ctx_reset(void) {
-	GLOBAL_PLATFORM->bindings_len = 0;
+	while (GLOBAL_PLATFORM->bindings_len > 0) {
+		i_ctx_t_free(GLOBAL_PLATFORM->bindings[--GLOBAL_PLATFORM->bindings_len]);
+	}
 }
 
 u32 get_time(void) {return SDL_GetTicks();}
