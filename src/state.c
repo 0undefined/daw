@@ -222,14 +222,14 @@ i_ctx* i_ctx_dup(i_ctx **ctx, usize ctx_len) {
 					bb[cumsum] = BindActionLazy(
 							b[i].scancode,
 							b[i].scancode_alt,
-							b[i].action.action.callback_str);
+							strdup(b[i].action.action.callback_str));
 					break;
 				case InputType_state:
 					bb[cumsum] = BindStateLazy(
 							b[i].scancode,
 							b[i].scancode_alt,
-							b[i].action.state.activate_str,
-							b[i].action.state.deactivate_str);
+							strdup(b[i].action.state.activate_str),
+							strdup(b[i].action.state.deactivate_str));
 					break;
 				case InputType_range:
 				default:

@@ -723,6 +723,7 @@ void engine_input_ctx_push(i_ctx *ctx) {
 		GLOBAL_PLATFORM->bindings = calloc(8, sizeof(i_ctx*));
 		GLOBAL_PLATFORM->bindings_sz = 8;
 	}
+
 	if (GLOBAL_PLATFORM->bindings_len + 1 >= GLOBAL_PLATFORM->bindings_sz) {
 		 void* m = realloc(GLOBAL_PLATFORM->bindings, GLOBAL_PLATFORM->bindings_sz + 8);
 		 if (m == NULL) {
@@ -732,8 +733,7 @@ void engine_input_ctx_push(i_ctx *ctx) {
 		 GLOBAL_PLATFORM->bindings_sz += 8;
 	}
 
-	/*
-	LOG("Bindings in ctx:");
+	LOG("Bindings in ctx[%d]:", GLOBAL_PLATFORM->bindings_len);
 	for (isize i = 0; i < ctx->len; i++) {
 		switch (ctx->bindings[i].action.type) {
 			case InputType_error:
@@ -753,12 +753,13 @@ void engine_input_ctx_push(i_ctx *ctx) {
 				break;
 		}
 	}
-	*/
+
 	GLOBAL_PLATFORM->bindings[GLOBAL_PLATFORM->bindings_len++] = ctx;
 }
 
 void engine_input_ctx_pop(void) {
 	if (GLOBAL_PLATFORM->bindings == NULL || GLOBAL_PLATFORM->bindings_sz == 0) return;
+	GLOBAL_PLATFORM->bindings_len--;
 }
 
 void engine_input_ctx_reset(void) {
