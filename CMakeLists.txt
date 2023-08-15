@@ -21,7 +21,6 @@ cmake_dependent_option(DAW_BUILD_DEBUG
   "Compile daw engine with debugging features" ON
   "CMAKE_BUILD_TYPE STREQUAL Debug" OFF)
 
-# unused
 cmake_dependent_option(DAW_BUILD_HOTRELOAD
   "Compile daw engine with hot reloading enabled" ON
   "NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME;CMAKE_BUILD_TYPE STREQUAL Debug;NOT WIN32;BUILD_SHARED_LIBS" OFF)
@@ -33,12 +32,6 @@ cmake_dependent_option(DAW_BUILD_ASAN
 cmake_dependent_option(DAW_BUILD_UBSAN
   "Compile daw engine with undefined behaviour sanitizer (ubsan)" ON
   "DAW_BUILD_DEBUG;UBSAN" OFF)
-
-# unused
-cmake_dependent_option(DAW_BUILD_STANDALONE
-  # Would require us to enable dynamically registered states.
-  "Compile daw as a standalone library. This is not implemented yet." OFF
-  "TRUE" OFF)
 
 # unused
 cmake_dependent_option(DAW_BUILD_TOOLS
@@ -124,7 +117,7 @@ target_compile_options(${PROJECT_NAME} PUBLIC
 )
 
 target_compile_definitions(${PROJECT_NAME} PUBLIC
-  $<$<BOOL:${DAW_BUILD_DEBUG}>:DAW_BUILD_DEBUG>
+  $<$<BOOL:${DAW_BUILD_DEBUG}>:_DEBUG>
   $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:DAW_BUILD_HOTRELOAD>
 )
 

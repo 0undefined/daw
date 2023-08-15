@@ -64,7 +64,7 @@ void render_container(Window *w, UITree_container *t) {
 
 	SDL_RenderDrawRect(w->renderer, &r);
 
-#ifdef DAW_BUILD_DEBUG
+#ifdef _DEBUG
 	r.x += t->padding;
 	r.y += t->padding;
 	r.w -= t->padding *	2;
@@ -162,7 +162,7 @@ void render_title(Window *w, UITree_title *t) {
 		NULL,
 		&r);
 
-#ifdef DAW_BUILD_DEBUG
+#ifdef _DEBUG
 	SDL_SetRenderDrawColor(w->renderer,
 			0xFF,
 			0xFF,
@@ -196,7 +196,7 @@ void render_text(Window *w, UITree_text *t) {
 		NULL,
 		&r);
 
-#ifdef DAW_BUILD_DEBUG
+#ifdef _DEBUG
 	SDL_SetRenderDrawColor(w->renderer,
 			0xFF,
 			0xFF,

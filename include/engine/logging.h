@@ -34,7 +34,7 @@ void LOG(const char *fmt, ...);
 void INFO_(const char *fmt, ...);
 void INFO(const char *fmt, ...);
 
-#ifdef DAW_BUILD_DEBUG
+#ifdef _DEBUG
 #define DEBUG(fmt, ...) __DEBUG(__FILE__,__LINE__, __func__, fmt, __VA_ARGS__)
 void __DEBUG(const char* file, const i32 line, const char* func, const char *fmt, ...);
 #else

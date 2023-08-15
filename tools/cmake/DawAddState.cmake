@@ -38,6 +38,9 @@ macro(daw_add_state STATENAME)
   if(BUILD_SHARED_LIBS)
     if(DAW_BUILD_DEBUG AND DAW_BUILD_HOTRELOAD)
       add_library(${STATENAME} MODULE ${STATE_SOURCES})
+      target_compile_definitions(${STATENAME} PUBLIC
+        $<$<BOOL:${DAW_BUILD_DEBUG}>:_DEBUG>
+      )
     else()
       add_library(${STATENAME} SHARED ${STATE_SOURCES})
     endif()
