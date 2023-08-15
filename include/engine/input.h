@@ -48,8 +48,22 @@ typedef struct i_ctx {
 } i_ctx;
 
 void i_ctx_t_free(i_ctx* c);
+/* Executes all callbacks that has been pushed onto the callstack and resets the
+ * callstack */
 void i_flush_bindings(usize numcalls, void* state_mem, input_callback_t* c[]);
 action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode);
+
+void i_ctx_push(i_ctx *ctx);
+void i_ctx_pop(void);
+void i_ctx_reset(void);
+
+/* Finds and updates the scancode of a binding with the given action in ctx */
+void i_bind_ctx(i_ctx *c, scancode_t s, action_t *a);
+void i_bind_ctx_alt(i_ctx *c, scancode_t s, action_t *a);
+
+/* Update the scancode of a binding */
+void i_bind(binding_t *b, scancode_t s);
+void i_bind_alt(binding_t *b, scancode_t s);
 
 #define BindAction(key, altkey, f_action) \
   (binding_t){\
@@ -71,33 +85,6 @@ action_t i_get_action(const i_ctx *restrict ctx, u32 time, scancode_t scancode);
     .deactivate = (input_callback_t*)&f_deactivate,\
     .activate_str   = strdup( #f_activate ),\
     .deactivate_str = strdup( #f_deactivate ),\
-	}},\
-	.scancode = key,\
-	.scancode_alt = altkey,\
-  .since_last_activation = 0\
-}
-
-// Lazy binds, used internally
-#define BindActionLazy(key, altkey, action_str) \
-  (binding_t){\
-  .action = (action_t){.action = {\
-		.type = InputType_action,\
-		.callback     = NULL,\
-		.callback_str = strdup( action_str ),\
-	}},\
-	.scancode = key,\
-	.scancode_alt = altkey,\
-  .since_last_activation = 0\
-}
-
-#define BindStateLazy(key, altkey, _activate_str , _deactivate_str) \
-  (binding_t){\
-  .action = (action_t){.state = {\
-		.type = InputType_state,\
-    .activate   = NULL,\
-    .deactivate = NULL,\
-    .activate_str   = strdup( _activate_str ),\
-    .deactivate_str = strdup( _deactivate_str ),\
 	}},\
 	.scancode = key,\
 	.scancode_alt = altkey,\
