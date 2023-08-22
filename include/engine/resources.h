@@ -2,7 +2,6 @@
 #define RESOURCES_H
 
 #include <engine/types.h>
-#include <engine/engine.h>
 
 /* We need some "global resources", available to all states.
  * These are resources such as common fonts, GUI frames, button background
@@ -15,14 +14,55 @@
  *   font?
  * - Then declare to the engine, in the main function for the game, that these
  *   resources are to be made available throughout?
- * - Make all resource specifications A UNION?! (gone wrong) 🛩️🙈 -- 💯 real!!!
+ * - Make all resource specifications A UNION?! 🤯
  * */
 
+enum Asset {
+	Asset_error,
+	Asset_font,
+	Asset_texture,
+	Asset_audio,
+};
+
+typedef struct {
+	enum Asset  type;
+  const char *font_path;
+  i32         ptsize;
+} Asset_FontSpec;
+
+typedef struct {
+	enum Asset  type;
+  const char *path;
+  i32         width;
+  i32         height;
+} Asset_TextureSpec;
+
+typedef struct {
+	enum Asset  type;
+  const char *path;
+} Asset_AudioSpec;
+
+typedef union {
+	enum Asset        type;
+	Asset_FontSpec    font;
+	Asset_TextureSpec texture;
+	Asset_AudioSpec   audio;
+} asset_t;
+
 #define Resource_FontDefinition(_path, _fontsize) \
-	(const FontSpec){ .font_path=_path, .ptsize=_fontsize}
+(const Asset_FontSpec){    \
+  .type      = Asset_font, \
+  .font_path = _path,      \
+  .ptsize    = _fontsize   \
+}
 
 #define Resource_TextureAtlasDefinition(_path, _subtexture_width, _subtexture_height) \
-	(const TextureSpec){.width = _subtexture_width, .height = _subtexture_height, .path = _path}
+(const Asset_TextureSpec){      \
+  .type   = Asset_texture,      \
+  .width  = _subtexture_width,  \
+  .height = _subtexture_height, \
+  .path   = _path               \
+}
 
 #define TextureDefinition(_path, ...) \
 	unimplemented
@@ -30,11 +70,15 @@
 #define Resource_AudioDefinition(_path, ...) \
 	unimplemented
 
-isize resource_load_texture(TextureSpec font_def);
-isize resource_load_font(FontSpec font_def);
-//isize load_audio(void);
+/* Each of resource_load_font, resource_load_texture, and resource_load_audio
+ * loads a given resource into the engines memory and returns an identifier.
+ */
+isize resource_load_font(Asset_FontSpec font_def);
+isize resource_load_texture(Asset_TextureSpec texture_def);
+isize resource_load_audio(Asset_AudioSpec audio_def);
 
-
+/* Makes a resource globally available. This must be called **BEFORE** any call
+ * to `engine_run` */
 isize resource_make_global(isize resource_id);
 
 #endif

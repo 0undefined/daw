@@ -10,23 +10,13 @@
 #include <engine/memory.h>
 #include <engine/input.h>
 #include <engine/state.h>
+#include <engine/resources.h>
 
 typedef struct {
   u32 texture_id;
   i32 x, y,
       w, h;
 } RenderUnit;
-
-typedef struct {
-  const char *font_path;
-  i32 ptsize;
-} FontSpec;
-
-typedef struct {
-  i32 width;
-  i32 height;
-  const char *path;
-} TextureSpec;
 
 typedef struct Window Window;
 
