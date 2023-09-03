@@ -59,6 +59,23 @@ else()
     -ffunction-sections -fdata-sections)
 endif()
 
+## Add some information before project configuration
+# Git Sha1
+execute_process(COMMAND
+  ${GIT_EXECUTABLE} describe --match=NeVeRmAtCh --always --abbrev=16 --dirty
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  OUTPUT_VARIABLE GIT_SHA
+  OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+#
+string(TIMESTAMP COMPILATION_DATE "%F")
+
+set(ENGINE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
+set(ENGINE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
+set(ENGINE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
+set(ENGINE_VERSION_TWEAK ${GIT_SHA})
+
 ##
 
 set(ENGINE_SOURCES
@@ -121,6 +138,8 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
   $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:DAW_BUILD_HOTRELOAD>
 )
 
+configure_file(${CMAKE_CURRENT_LIST_DIR}/tools/cmake/configure.h.in
+  ${CMAKE_BINARY_DIR}/include/engine/configure.h)
 
 configure_file(${CMAKE_CURRENT_LIST_DIR}/tools/cmake/list_of_states.h.in
   ${CMAKE_BINARY_DIR}/include/states/list_of_states.h)
@@ -135,8 +154,15 @@ if (NOT NOT_SUBPROJECT)
 endif()
 include(DawAddState)
 
+
+
+
+
+
+
 message("Configured ${PROJECT_NAME} ${PROJECT_VERSION}")
 message("Build type:       ${CMAKE_BUILD_TYPE}")
+message("version:          ${ENGINE_VERSION_MAJOR}.${ENGINE_VERSION_MINOR}.${ENGINE_VERSION_PATCH}-${ENGINE_VERSION_TWEAK}")
 message("enable debug:     ${DAW_BUILD_DEBUG}")
 message("enable hotreload: ${DAW_BUILD_HOTRELOAD}")
 message("enable asan:      ${DAW_BUILD_ASAN}")
