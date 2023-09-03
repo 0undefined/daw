@@ -2,3 +2,5 @@ rogue
 obj
 compile_commands.json
 build
+CMakeCache.txt
+CMakeFiles
