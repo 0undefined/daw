@@ -75,6 +75,7 @@ set(ENGINE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
 set(ENGINE_VERSION_MINOR ${PROJECT_VERSION_MINOR})
 set(ENGINE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(ENGINE_VERSION_TWEAK ${GIT_SHA})
+string(TOLOWER "${CMAKE_BUILD_TYPE}" ENGINE_BUILD_TYPE)
 
 ##
 
@@ -161,8 +162,7 @@ include(DawAddState)
 
 
 message("Configured ${PROJECT_NAME} ${PROJECT_VERSION}")
-message("Build type:       ${CMAKE_BUILD_TYPE}")
-message("version:          ${ENGINE_VERSION_MAJOR}.${ENGINE_VERSION_MINOR}.${ENGINE_VERSION_PATCH}-${ENGINE_VERSION_TWEAK}")
+message("version:          ${ENGINE_VERSION_MAJOR}.${ENGINE_VERSION_MINOR}.${ENGINE_VERSION_PATCH}-${ENGINE_VERSION_TWEAK} (${ENGINE_BUILD_TYPE} build)")
 message("enable debug:     ${DAW_BUILD_DEBUG}")
 message("enable hotreload: ${DAW_BUILD_HOTRELOAD}")
 message("enable asan:      ${DAW_BUILD_ASAN}")
