@@ -62,8 +62,8 @@ endif()
 ## Add some information before project configuration
 # Git Sha1
 execute_process(COMMAND
-  ${GIT_EXECUTABLE} describe --match=NeVeRmAtCh --always --abbrev=16 --dirty
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+  ${GIT_EXECUTABLE} describe --match=NeVeRmAtCh --always --abbrev=6 --dirty
+  WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
   OUTPUT_VARIABLE GIT_SHA
   OUTPUT_STRIP_TRAILING_WHITESPACE
   )
