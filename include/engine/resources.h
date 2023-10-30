@@ -18,57 +18,52 @@
  * */
 
 enum Asset {
-	Asset_error,
-	Asset_font,
-	Asset_texture,
-	Asset_audio,
+  Asset_error,
+  Asset_font,
+  Asset_texture,
+  Asset_audio,
 };
 
 typedef struct {
-	enum Asset  type;
-  const char *font_path;
-  i32         ptsize;
+  enum Asset type;
+  const char* font_path;
+  i32 ptsize;
 } Asset_FontSpec;
 
 typedef struct {
-	enum Asset  type;
-  const char *path;
-  i32         width;
-  i32         height;
+  enum Asset type;
+  const char* path;
+  i32 width;
+  i32 height;
 } Asset_TextureSpec;
 
 typedef struct {
-	enum Asset  type;
-  const char *path;
+  enum Asset type;
+  const char* path;
 } Asset_AudioSpec;
 
 typedef union {
-	enum Asset        type;
-	Asset_FontSpec    font;
-	Asset_TextureSpec texture;
-	Asset_AudioSpec   audio;
+  enum Asset type;
+  Asset_FontSpec font;
+  Asset_TextureSpec texture;
+  Asset_AudioSpec audio;
 } asset_t;
 
-#define Resource_FontDefinition(_path, _fontsize) \
-(const Asset_FontSpec){    \
-  .type      = Asset_font, \
-  .font_path = _path,      \
-  .ptsize    = _fontsize   \
-}
+#define Resource_FontDefinition(_path, _fontsize)                              \
+  (const Asset_FontSpec) {                                                     \
+    .type = Asset_font, .font_path = _path, .ptsize = _fontsize                \
+  }
 
-#define Resource_TextureAtlasDefinition(_path, _subtexture_width, _subtexture_height) \
-(const Asset_TextureSpec){      \
-  .type   = Asset_texture,      \
-  .width  = _subtexture_width,  \
-  .height = _subtexture_height, \
-  .path   = _path               \
-}
+#define Resource_TextureAtlasDefinition(_path, _subtexture_width,              \
+                                        _subtexture_height)                    \
+  (const Asset_TextureSpec) {                                                  \
+    .type = Asset_texture, .width = _subtexture_width,                         \
+    .height = _subtexture_height, .path = _path                                \
+  }
 
-#define TextureDefinition(_path, ...) \
-	unimplemented
+#define TextureDefinition(_path, ...) unimplemented
 
-#define Resource_AudioDefinition(_path, ...) \
-	unimplemented
+#define Resource_AudioDefinition(_path, ...) unimplemented
 
 /* Each of resource_load_font, resource_load_texture, and resource_load_audio
  * loads a given resource into the engines memory and returns an identifier.

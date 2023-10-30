@@ -11,19 +11,18 @@ typedef enum StateType {
   STATE_quit,
 } StateType;
 
+extern const char* StateTypeStr[];
 
-extern const char *StateTypeStr[];
+StateType (*State_updateFunc(StateType type))(void*);
 
-StateType(*State_updateFunc(StateType type))(void*);
-
-void State_init(StateType type,   memory *mem);
-void State_free(StateType type,   memory *mem);
-StateType State_update(StateType type, memory *mem);
+void State_init(StateType type, memory* mem);
+void State_free(StateType type, memory* mem);
+StateType State_update(StateType type, memory* mem);
 
 /* Reloads shared object file associated with state */
 #ifdef DAW_BUILD_HOTRELOAD
 #include <engine/input.h>
-bool State_reload(StateType type, i_ctx **ctx, usize ctx_len);
+bool State_reload(StateType type, i_ctx** ctx, usize ctx_len);
 
 #else
 #define State_reload(_, _0, _1) true

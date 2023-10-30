@@ -2,24 +2,24 @@
 #define MEMORY_H
 
 #include "types.h"
-//#include <stdlib.h>
+// #include <stdlib.h>
 
 typedef struct memory {
-  void *data;
+  void* data;
   usize size;
   usize pos;
   usize free;
 } memory;
 
-memory *memory_new(usize max_size);
+memory* memory_new(usize max_size);
 
 /* Returns a pointer to the allocated data */
-void *memory_allocate(memory* mem, usize size);
+void* memory_allocate(memory* mem, usize size);
 
-memory memory_init(void *data, usize size);
+memory memory_init(void* data, usize size);
 
-void memory_free(memory *mem, usize size);
+void memory_free(memory* mem, usize size);
 
-void memory_clear(memory *mem);
+void memory_clear(memory* mem);
 
 #endif
