@@ -1,0 +1,20 @@
+# Taken from https://projects.blender.org/blender/blender/src/branch/main/.git-blame-ignore-revs
+#
+# Run the following git configuration command:
+#
+#   git config blame.ignoreRevsFile .git-blame-ignore-revs
+#
+# Changes that belong here:
+# - Massive comment, doxy-sections, or spelling corrections.
+# - Clang-format, PEP8 or other automated changes which are *strictly* "no functional change".
+# - Several commits should be added to this list at once, because adding
+#   one extra commit (to edit this file) after every cleanup is noisy.
+# - No clang-tidy changes.
+#
+# Note:
+# - The comment above the SHA should be the first line of the commit.
+# - It is fine to pack together similar commits if they have the same explanatory comment.
+# - Use only 40 character git SHAs; not smaller ones, not prefixed with rB.
+
+# The great formattening!
+5c0311ff3095a5dd30fb15db54aa394498dd2bcf
