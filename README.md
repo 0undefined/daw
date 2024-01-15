@@ -13,3 +13,5 @@ stand-alone utility sources:
 * [list](include/engine/list.h), just a linked list.
 * The `memory` module provides a simple arena allocator.
 * The `vector` module just provides some simple 2d vector functions and datatype.
+
+The documentation is lacking, but the code is smacking!
