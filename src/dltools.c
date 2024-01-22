@@ -1,4 +1,3 @@
-#include <stdbool.h>
 #include <stdlib.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)

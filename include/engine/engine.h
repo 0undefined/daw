@@ -58,8 +58,8 @@ typedef struct {
 /* Essential functions */
 Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
                       const f32 render_scale, const u32 flags,
-                      const usize initial_memory, const FontSpec* fonts[],
-                      const TextureSpec* textures[]);
+                      const usize initial_memory, const Asset_FontSpec* fonts[],
+                      const Asset_TextureSpec* textures[]);
 
 i32 engine_run(Platform* p, StateType initial_state);
 
@@ -75,6 +75,11 @@ void render_add_unit(RenderUnit* u);
 u32 get_time(void);
 v2_i32 get_windowsize(void);
 v2_i32* get_mousepos(void);
+
+/* Input handling */
+void engine_input_ctx_push(i_ctx* ctx);
+void engine_input_ctx_pop(void);
+void engine_input_ctx_reset(void);
 
 #include "rendering.h"
 
@@ -110,8 +115,8 @@ struct Resources {
   usize fontpaths_len;
 
   /* Paths for our sources, kept in case the user wants to reload them */
-  TextureSpec** texture_paths;
-  FontSpec** font_paths;
+  Asset_TextureSpec** texture_paths;
+  Asset_FontSpec** font_paths;
 
   /* Our actual sources */
   Texture** textures;

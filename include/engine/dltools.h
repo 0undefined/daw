@@ -1,6 +1,8 @@
 #ifndef DLTOOLS_H
 #define DLTOOLS_H
 
+#include <stdbool.h>
+
 /* Utility functions for handling runtime linked shared libraries */
 bool dynamic_library_close(void* shared_library);
 void* dynamic_library_open(const char* library_path);

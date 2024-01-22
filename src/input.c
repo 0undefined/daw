@@ -270,7 +270,7 @@ binding_t* get_action(i_ctx* c, action_t* a) {
   for (isize i = 0; i < c->len; i++) {
     if (c->bindings[i].action.type != a->type) continue;
 
-    switch (c->bindings[i].action) {
+    switch (c->bindings[i].action.type) {
     case InputType_error:
       return NULL;
 

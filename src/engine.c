@@ -64,13 +64,13 @@ v2_i32 get_canvas_size(SDL_Renderer* renderer) {
   return realsize;
 }
 
-Texture* load_texture(SDL_Renderer* render, const TextureSpec* ts) {
+Texture* load_texture(SDL_Renderer* render, const Asset_TextureSpec* ts) {
   SDL_Texture* new_texture = NULL;
   SDL_Surface* loaded_surface = NULL;
   Texture* t = NULL;
 
   if (ts == NULL) {
-    ERROR("Invalid TextureSpec\n");
+    ERROR("Invalid Asset_TextureSpec\n");
     return NULL;
   }
 
@@ -144,8 +144,8 @@ void engine_update_window(Window* w, SDL_WindowEvent* e) {
 
 Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
                       const f32 render_scale, const u32 flags,
-                      const usize initial_memory, const FontSpec* fonts[],
-                      const TextureSpec* textures[]) {
+                      const usize initial_memory, const Asset_FontSpec* fonts[],
+                      const Asset_TextureSpec* textures[]) {
 
 #ifdef BENCHMARK
   u32 init_start = SDL_GetTicks();
@@ -240,8 +240,8 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
     INFO("Number of fonts: " TERM_COLOR_YELLOW "%d" TERM_COLOR_RESET, n_fonts);
 
     /* Save the textures and fonts, if we should need to reload them later */
-    resources->texture_paths = (TextureSpec**)textures;
-    resources->font_paths = (FontSpec**)fonts;
+    resources->texture_paths = (Asset_TextureSpec**)textures;
+    resources->font_paths = (Asset_FontSpec**)fonts;
 
     /* Allocate memory for textures and fonts */
     resources->textures = (Texture**)malloc(sizeof(Texture*) * n_textures);
@@ -716,8 +716,10 @@ void stop(Platform* p) {
   SDL_Quit();
 }
 
+/* Set the maximum framerate */
 void engine_fps_max(u64 cap) { FPS_CAP = cap; }
 
+/* Pushes an input context onto the input handling stack */
 void engine_input_ctx_push(i_ctx* ctx) {
   if (GLOBAL_PLATFORM->bindings == NULL) {
     GLOBAL_PLATFORM->bindings = calloc(8, sizeof(i_ctx*));
@@ -758,12 +760,14 @@ void engine_input_ctx_push(i_ctx* ctx) {
   GLOBAL_PLATFORM->bindings[GLOBAL_PLATFORM->bindings_len++] = ctx;
 }
 
+/* Pops an input context from the input stack */
 void engine_input_ctx_pop(void) {
   if (GLOBAL_PLATFORM->bindings == NULL || GLOBAL_PLATFORM->bindings_sz == 0)
     return;
   i_ctx_t_free(GLOBAL_PLATFORM->bindings[--GLOBAL_PLATFORM->bindings_len]);
 }
 
+/* Removes all input contexts from the input stack */
 void engine_input_ctx_reset(void) {
   while (GLOBAL_PLATFORM->bindings_len > 0) {
     i_ctx_t_free(GLOBAL_PLATFORM->bindings[--GLOBAL_PLATFORM->bindings_len]);
