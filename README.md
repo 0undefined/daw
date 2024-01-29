@@ -34,4 +34,14 @@ and plan out a more solid organizational strategy for the project as a whole.
 
 See [this CMakeLists.txt][0] to get an idea of how to use this project.
 
+
+## Planned features
+
+This is an incomplete list of features that are either under development or
+planned to implement.
+
+* Audio
+* GLFW & Vulkan support
+* Better cross platform support (ie. windows)
+
 [0]: https://github.com/0undefined/rogue/blob/a947b0092d91920d56eb9af6a39bd1bd05e145fc/CMakeLists.txt
