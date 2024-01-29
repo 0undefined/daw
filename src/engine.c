@@ -1,6 +1,11 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+
+#include <GL/glew.h>
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -142,40 +147,16 @@ void engine_update_window(Window* w, SDL_WindowEvent* e) {
   return;
 }
 
-Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
-                      const f32 render_scale, const u32 flags,
-                      const usize initial_memory, const Asset_FontSpec* fonts[],
-                      const Asset_TextureSpec* textures[]) {
+struct sdl_ctx {SDL_Window* w; SDL_Renderer* r;} sdl_ctx;
+struct glfw_ctx {GLFWwindow* w;} glfw_ctx;
 
-#ifdef BENCHMARK
-  u32 init_start = SDL_GetTicks();
-#endif
-
-#if defined(__linux) || defined(__linux__) || defined(linux)
-  {
-    pid_t pid = getpid();
-    INFO("Starting with pid %lu", pid);
-  }
-#endif
-
-  Platform* p = (Platform*)malloc(sizeof(Platform));
-  Window* w = (Window*)malloc(sizeof(Window));
+struct sdl_ctx initialize_SDL(
+    const char* windowtitle, v2_i32 windowsize,
+    const u32 flags
+    ) {
   SDL_Window* window = NULL;
   SDL_Renderer* renderer = NULL;
 
-  /* initialize resources */
-  struct Resources* resources =
-      (struct Resources*)malloc(sizeof(struct Resources));
-  resources->textures_len = 0;
-  resources->fonts_len = 0;
-  resources->texturepaths_len = 0;
-  resources->fontpaths_len = 0;
-  resources->texture_paths = NULL;
-  resources->font_paths = NULL;
-  resources->textures = NULL;
-  resources->fonts = NULL;
-
-  { /* Init subsystems */
     INFO_("initializing sdl...");
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
       ERROR("failed to initialize sdl: %s\n", SDL_GetError());
@@ -222,7 +203,141 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
       exit(EXIT_FAILURE);
     } else
       printf("ok\n");
+
+  return (struct sdl_ctx){.w = window,.r = renderer};
+}
+
+
+/* GLFW And vulkan spaghetti boiler */
+void glfw_err_callback(int code, const char* description) {
+    ERROR("glfw [%d]: %s\n", code, description);
+    // Terminate?
+    exit(EXIT_FAILURE);
+}
+
+struct QueueFamilyIndices {
+  int64_t graphicsFamily;
+  int64_t presentFamily;
+};
+
+
+
+struct glfw_ctx initialize_GLFW(
+    const char* windowtitle, v2_i32 windowsize,
+    const u32 flags
+    ) {
+  GLFWwindow* window = NULL;
+
+  glfwSetErrorCallback(&glfw_err_callback);
+
+  INFO_("initializing glfw...");
+  if (glfwInit() == GLFW_FALSE) {
+    const char *desc;
+    int code = glfwGetError(&desc);
+    ERROR("failed to initialize glfw [%d]: %s\n", code, *desc);
+    exit(EXIT_FAILURE);
+  } else
+    printf("ok\n");
+
+
+  INFO_("initializing window...");
+  //glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+  glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
+  glfwWindowHint(GLFW_SAMPLES, 0); // Disable anti aliasing
+
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+  glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+  window = glfwCreateWindow(windowsize.x, windowsize.y, windowtitle, NULL, NULL);
+  if (window == NULL) {
+    ERROR("Failed to create GLFW window!\n");
+    const char *desc;
+    int code = glfwGetError(&desc);
+    ERROR("failed to initialize glfw window [%d]: %s\n", code, desc);
+    exit(EXIT_FAILURE);
+  } else
+    printf("ok\n");
+
+  glfwMakeContextCurrent(window);
+
+
+  glewExperimental = true;
+  if (glewInit() != GLEW_OK) {
+    ERROR("failed to initialize glew!\n");
+    exit(EXIT_FAILURE);
   }
+
+  // TODO: Replace with callback
+  //glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+
+  //while(!(glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS)) {
+
+  //  glClear( GL_COLOR_BUFFER_BIT );
+
+  //  glfwSwapBuffers(window);
+
+  //  glfwPollEvents();
+  //}
+
+  //glfwDestroyWindow(window);
+
+  //glfwTerminate();
+
+  return (struct glfw_ctx){.w = NULL};
+}
+
+
+/* Creates the window, initializes IO, Rendering, Fonts and engine-specific
+ * resources. */
+Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
+                      const f32 render_scale, const u32 flags,
+                      const usize initial_memory, const Asset_FontSpec* fonts[],
+                      const Asset_TextureSpec* textures[]) {
+
+#ifdef BENCHMARK
+  u32 init_start = glfwGetTime();
+#endif
+
+#if defined(__linux) || defined(__linux__) || defined(linux)
+  {
+    pid_t pid = getpid();
+    INFO("Starting with pid %lu", pid);
+  }
+#endif
+
+  Platform* p = (Platform*)malloc(sizeof(Platform));
+  Window* w = (Window*)malloc(sizeof(Window));
+  SDL_Window* window = NULL;
+  SDL_Renderer* renderer = NULL;
+
+  /* initialize resources */
+  struct Resources* resources =
+      (struct Resources*)malloc(sizeof(struct Resources));
+  resources->textures_len = 0;
+  resources->fonts_len = 0;
+  resources->texturepaths_len = 0;
+  resources->fontpaths_len = 0;
+  resources->texture_paths = NULL;
+  resources->font_paths = NULL;
+  resources->textures = NULL;
+  resources->fonts = NULL;
+
+  /* Init subsystems */
+  //{
+  //  struct sdl_ctx sdl_ctx = initialize_SDL(windowtitle, windowsize, flags);
+  //  window = sdl_ctx.w;
+  //  renderer = sdl_ctx.r;
+  //}
+  /* Init glfw haha */
+  {
+    struct glfw_ctx ctx = initialize_GLFW(windowtitle, windowsize, flags);
+  }
+  exit(0);
+
+
 
   { /* Resource loading */
 

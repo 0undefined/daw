@@ -13,6 +13,7 @@ else()
 endif()
 
 include(CMakeDependentOption)
+include(FetchContent)
 
 option(ASAN "Enable address sanitizer. Only enabled when DAW_BUILD_DEBUG=ON")
 option(UBSAN "Enable undefined behaviour sanitizer. Only enabled when DAW_BUILD_DEBUG=ON")
@@ -68,7 +69,7 @@ execute_process(COMMAND
   OUTPUT_STRIP_TRAILING_WHITESPACE
   )
 
-#
+## Versioning
 string(TIMESTAMP COMPILATION_DATE "%F")
 
 set(ENGINE_VERSION_MAJOR ${PROJECT_VERSION_MAJOR})
@@ -77,7 +78,16 @@ set(ENGINE_VERSION_PATCH ${PROJECT_VERSION_PATCH})
 set(ENGINE_VERSION_TWEAK ${GIT_SHA})
 string(TOLOWER "${CMAKE_BUILD_TYPE}" ENGINE_BUILD_TYPE)
 
-##
+## Packages
+find_package(glfw3 3.3 REQUIRED)
+find_package(GLEW 2.2 REQUIRED)
+FetchContent_Declare(cglm
+  GIT_REPOSITORY https://github.com/recp/cglm.git
+  GIT_TAG v0.9.2
+)
+FetchContent_MakeAvailable(cglm)
+
+## Compilation information
 
 set(ENGINE_SOURCES
   src/btree.c
@@ -108,6 +118,9 @@ target_include_directories(daw PUBLIC
 
 target_link_libraries(${PROJECT_NAME}
   SDL2 SDL2_image SDL2_ttf
+  glfw
+  GLEW
+  cglm
   $<$<NOT:$<PLATFORM_ID:Windows>>:m>
   $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:dl>
   $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_UBSAN}>>:ubsan>

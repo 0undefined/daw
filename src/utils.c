@@ -6,6 +6,8 @@
 #include <engine/logging.h>
 #include <engine/utils.h>
 
+/* These should all be in some external facing module "tools" */
+
 f32 lerp(f32 dt, f32 a, f32 b) { return (a * (1.0f - dt)) + (b * dt); }
 
 i32 int_lerp(f32 dt, i32 a, i32 b) {
