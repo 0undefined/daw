@@ -52,6 +52,8 @@ typedef struct {
   usize bindings_sz;
   usize bindings_len;
 
+  struct RenderObject *testobject;
+
   binding_t bindings_global[NUM_GLOBAL_BINDINGS];
 } Platform;
 
@@ -85,12 +87,12 @@ void engine_input_ctx_reset(void);
 
 #ifdef ENGINE_INTERNALS
 
-#define MAX(a, b) (a > b ? a : b)
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
 
 /* Window */
 struct Window {
-  SDL_Window* window;
-  SDL_Renderer* renderer;
+  GLFWwindow* window;
   f32 render_scale;
 
   v2_i32 windowsize;
@@ -100,7 +102,6 @@ struct Window {
 };
 
 typedef struct {
-  SDL_Texture* texture;
   const i32 tilesize;
   const i32 width;
   const i32 height;
@@ -120,7 +121,7 @@ struct Resources {
 
   /* Our actual sources */
   Texture** textures;
-  TTF_Font** fonts;
+  //TTF_Font** fonts;
 };
 
 #endif

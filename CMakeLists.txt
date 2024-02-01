@@ -79,13 +79,13 @@ set(ENGINE_VERSION_TWEAK ${GIT_SHA})
 string(TOLOWER "${CMAKE_BUILD_TYPE}" ENGINE_BUILD_TYPE)
 
 ## Packages
+set(GLFW_USE_WAYLAND ON)
 find_package(glfw3 3.3 REQUIRED)
 find_package(OpenGL REQUIRED)
 FetchContent_Declare(cglm
   GIT_REPOSITORY https://github.com/recp/cglm.git
   GIT_TAG v0.9.2
 )
-
 FetchContent_MakeAvailable(cglm)
 
 ## Compilation information
@@ -112,13 +112,16 @@ add_compile_options(${RELEASE_OPTS})
 add_link_options(${RELEASE_OPTS})
 
 add_library(daw
-  ${ENGINE_SOURCES})
+  ${CMAKE_BINARY_DIR}/include/glad/gl.h
+  ${ENGINE_SOURCES}
+  )
 
 target_include_directories(daw PUBLIC
-  include extern/glad/include ${CMAKE_BINARY_DIR}/include ${ENGINE_INCLUDE})
+  include
+  ${CMAKE_BINARY_DIR}/include
+  ${ENGINE_INCLUDE})
 
 target_link_libraries(${PROJECT_NAME}
-  SDL2 SDL2_image SDL2_ttf
   glfw
   OpenGL::GL
   cglm
@@ -169,11 +172,17 @@ if (NOT NOT_SUBPROJECT)
 endif()
 include(DawAddState)
 
-
-
-
-
-
+add_custom_command(
+  OUTPUT ${CMAKE_BINARY_DIR}/include/glad/gl.h
+  COMMAND
+  glad
+  --api gl:core=3.3
+  --out-path ${CMAKE_BINARY_DIR}
+  --reproducible
+  c
+  --header-only
+)
+  #--mx
 
 message("Configured ${PROJECT_NAME} ${PROJECT_VERSION}")
 message("version:          ${ENGINE_VERSION_MAJOR}.${ENGINE_VERSION_MINOR}.${ENGINE_VERSION_PATCH}-${ENGINE_VERSION_TWEAK} (${ENGINE_BUILD_TYPE} build)")

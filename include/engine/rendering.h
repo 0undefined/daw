@@ -22,6 +22,7 @@ typedef struct {
   v2_i32 coord;
 } Sprite;
 
+
 #include "engine.h"
 #include "ui.h"
 
@@ -49,6 +50,10 @@ Sprite sprite_new(u64 tid, u8 coord);
 #ifdef ENGINE_INTERNALS
 #include "engine.h"
 
+//#include <glad/gl.h>
+//#define GLFW_INCLUDE_NONE
+//#include <GLFW/glfw3.h>
+
 #define TEXTURES_INCREMENT 512
 
 typedef enum {
@@ -67,10 +72,16 @@ typedef struct {
       i32 x;
       i32 y;
       f32 scale;
-      SDL_Color mod;
     } sprite;
   } data;
 } RenderDrawCall;
+
+struct RenderObject {
+  u32 vao;
+  u32 vbo;
+  u32 shaderprogram;
+  f32 g_vertex_buffer_data[9];
+};
 
 void render_uitree(Window* w, UITree* t);
 

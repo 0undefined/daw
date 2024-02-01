@@ -35,7 +35,6 @@ typedef struct binding_t {
   action_t action;
 
   // Change type depending on input handling back-end. like u16 for GLFW_KEY
-  // enum SDL_Scancode keycode;
   scancode_t scancode;
   scancode_t scancode_alt;
 

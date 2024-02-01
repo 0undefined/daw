@@ -1,9 +1,8 @@
-Project & game architecture
+Project & engine architecture
 ---------------------------
 
-The different source files in the project is divided into several source files
-within the `src` directory of this repository with a (somewhat) corresponding
-name.
+This document is a collection of vaguely related ideas surrounding how some of
+the core functionality of the engine is designed.
 
 ## State Management [state.c](../src/state.c)
 
@@ -30,6 +29,10 @@ while((newstate = state_update(current_state)) != STATE_Exit) {
 
 ## Input Handling [keypress.h](../src/keypress.h)
 
+The input handling can be thought of as a stack of contexts. The method used in
+the engine is further described in
+["designing a robust input handling system for games"](https://www.gamedev.net/tutorials/programming/general-and-gameplay-programming/designing-a-robust-input-handling-system-for-games-r2975/)
+
 We use a null-terminated statically allocated list of structs containing the
 following:
 * `struct Key`: Takes a `uint16 modifier` and a `uint32 key`
@@ -51,7 +54,7 @@ for (int i = 0; i < len(keys) && keys[i] != NULL; i++) {
       time_pressed = now();
       keys[i].function_down(funarg_up);
 
-    }
+  }
 }
 ```
 And basically the same goes for keyup, except, we dont check any modifier keys,
@@ -63,6 +66,10 @@ It can be visualized by giving a pointer to a UI-part and setting it to visible,
 and toggling said visibility again once the key is released.
 
 ## Rendering
+
+### Window management
+
+The plan is to spawn a new thread for each window.
 
 ### Tile rendering
 

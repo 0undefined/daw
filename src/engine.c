@@ -3,21 +3,20 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include <GL/glew.h>
-#define GLFW_INCLUDE_NONE
+//#define GLAD_GL_IMPLEMENTATION
+//#include <glad/gl.h>
+//#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 /* include winapi */
+#include <Windows.h>
 #elif defined(__APPLE__)
 /* mac includes */
 #elif defined(__linux) || defined(__linux__) || defined(linux)
 
 #include <unistd.h>
+#include <sys/sysinfo.h>
 
 #endif
 
@@ -36,8 +35,8 @@
 #ifdef BENCHMARK
 #define BENCHEXPR(timevar, expr)                                               \
   {                                                                            \
-    u32 t = SDL_GetTicks();                                                    \
-    expr timevar += SDL_GetTicks() - t;                                        \
+    u32 t = glfwGetTime();                                                    \
+    expr timevar += glfwGetTime() - t;                                        \
   }
 
 extern i32 drawcall_len;
@@ -46,13 +45,146 @@ extern i32 drawcall_len;
 #define BENCHEXPR(timevar, expr) expr
 #endif
 
+
+// http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/
+GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_path){
+
+	// Create the shaders
+	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
+	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+
+	// Read the Vertex Shader code from the file
+	char* VertexShaderCode;
+	FILE* VertexShaderStream = fopen(vertex_file_path, "r");
+	if(VertexShaderStream != NULL){
+    fseek(VertexShaderStream, 0, SEEK_END);
+    const i64 size = ftell(VertexShaderStream);
+    rewind(VertexShaderStream);
+    VertexShaderCode = calloc(size + 1, sizeof(char));
+
+    // Assume the whole file is successfully read
+    fread(VertexShaderCode, sizeof(char), size, VertexShaderStream);
+    //LOG("vertex source is %d bytes\n%s\n", size, VertexShaderCode);
+
+    fclose(VertexShaderStream);
+  } else {
+    ERROR("Impossible to open %s. Are you in the right directory?\n", vertex_file_path);
+    getchar();
+    return 0;
+  }
+
+	// Read the Fragment Shader code from the file
+	char* FragmentShaderCode;
+	FILE* FragmentShaderStream = fopen(fragment_file_path, "r");
+	if(FragmentShaderStream != NULL){
+    fseek(FragmentShaderStream, 0, SEEK_END);
+    const i64 size = ftell(FragmentShaderStream);
+    rewind(FragmentShaderStream);
+    FragmentShaderCode = calloc(size + 1, sizeof(char));
+
+    // Assume the whole file is successfully read
+    fread(FragmentShaderCode, sizeof(char), size, FragmentShaderStream);
+    LOG("fragment source is %d bytes", size);
+
+    fclose(FragmentShaderStream);
+  } else {
+    ERROR("Impossible to open %s. Are you in the right directory?\n", fragment_file_path);
+    getchar();
+    return 0;
+  }
+
+	GLint Result = GL_FALSE;
+	int InfoLogLength;
+
+	// Compile Vertex Shader
+	INFO("Compiling shader: %s\n", vertex_file_path);
+	char const * VertexSourcePointer = VertexShaderCode;
+	glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
+	glCompileShader(VertexShaderID);
+
+	// Check Vertex Shader
+	glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
+	glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	if ( InfoLogLength > 0 ) {
+    char* msg = calloc(InfoLogLength + 1, sizeof(char));
+    glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, msg);
+    ERROR("Compiling shader: %s\n", msg);
+    free(msg);
+	}
+
+	// Compile Fragment Shader
+	INFO("Compiling shader: %s\n", fragment_file_path);
+	char const * FragmentSourcePointer = FragmentShaderCode;
+	glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
+	glCompileShader(FragmentShaderID);
+
+	// Check Fragment Shader
+	glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
+	glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	if ( InfoLogLength > 0 ){
+    char* msg = calloc(InfoLogLength + 1, sizeof(char));
+    glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, msg);
+    ERROR("Compiling shader: %s\n", msg);
+    free(msg);
+	}
+
+	// Link the program
+	INFO("Linking program\n");
+	GLuint ProgramID = glCreateProgram();
+	glAttachShader(ProgramID, VertexShaderID);
+	glAttachShader(ProgramID, FragmentShaderID);
+	glLinkProgram(ProgramID);
+
+	// Check the program
+	glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
+	glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	if ( InfoLogLength > 0 ){
+    char* msg = calloc(InfoLogLength + 1, sizeof(char));
+    glGetShaderInfoLog(ProgramID, InfoLogLength, NULL, msg);
+    ERROR("Compiling shader: %s\n", msg);
+    free(msg);
+	}
+
+	glDetachShader(ProgramID, VertexShaderID);
+	glDetachShader(ProgramID, FragmentShaderID);
+
+	glDeleteShader(VertexShaderID);
+	glDeleteShader(FragmentShaderID);
+
+
+  free(VertexShaderCode);
+  free(FragmentShaderCode);
+	return ProgramID;
+}
+
+
+
+
+
+
+
+
+
+
+
 static u64 FPS_CAP = 50;
 Platform* GLOBAL_PLATFORM = NULL;
 
 input_callback_t* callbacks[128];
 usize callbacks_len;
 
-i32 nproc(void) { return SDL_GetCPUCount(); }
+i32 nproc(void) {
+  return get_nprocs();
+}
+
+void delay( uint32_t ms )
+{
+#ifdef _WIN32
+    Sleep( ms );
+#else
+    usleep( ms * 1000 );
+#endif
+}
 
 i32 cmp_int(const void* a, const void* b) {
   const i32* x = a;
@@ -61,17 +193,15 @@ i32 cmp_int(const void* a, const void* b) {
   return *x - *y;
 }
 
-v2_i32 get_canvas_size(SDL_Renderer* renderer) {
+v2_i32 get_canvas_size(void* window) {
   v2_i32 realsize;
-  SDL_GetRendererOutputSize(renderer, &(realsize.x), &(realsize.y));
+  glfwGetWindowSize(window, &(realsize.x), &(realsize.y));
 
   /* Set logical render size */
   return realsize;
 }
 
-Texture* load_texture(SDL_Renderer* render, const Asset_TextureSpec* ts) {
-  SDL_Texture* new_texture = NULL;
-  SDL_Surface* loaded_surface = NULL;
+Texture* load_texture(void* render, const Asset_TextureSpec* ts) {
   Texture* t = NULL;
 
   if (ts == NULL) {
@@ -79,134 +209,28 @@ Texture* load_texture(SDL_Renderer* render, const Asset_TextureSpec* ts) {
     return NULL;
   }
 
-  loaded_surface = IMG_Load(ts->path);
-  if (loaded_surface == NULL) {
-    ERROR("Unable to load image \"%s\"!\n", ts->path);
-    ERROR("SDL_image Error: %s\n", IMG_GetError());
-    return NULL;
-  }
-
-  const i32 tw = loaded_surface->w / ts->width;
-
-  SDL_SetColorKey(loaded_surface, SDL_TRUE,
-                  SDL_MapRGB(loaded_surface->format, 0xFF, 0x00, 0xFF));
-
-  /*Create texture from surface pixels */
-  new_texture = SDL_CreateTextureFromSurface(render, loaded_surface);
-  if (new_texture == NULL) {
-    ERROR("Unable to create texture from \"%s\"!\n", ts->path);
-    ERROR("SDL Error: %s\n", SDL_GetError());
-  }
-
-  /*Get rid of old loaded surface */
-  SDL_FreeSurface(loaded_surface);
-
-  t = (Texture*)malloc(sizeof(Texture));
-  t->texture = new_texture;
-  /* Assigning const value */
-  *(i32*)&t->tilesize = tw;
-  *(i32*)&t->width = ts->width;
-  *(i32*)&t->height = ts->height;
+  //t = (Texture*)malloc(sizeof(Texture));
+  //t->texture = new_texture;
+  ///* Assigning const value */
+  //*(i32*)&t->tilesize = tw;
+  //*(i32*)&t->width = ts->width;
+  //*(i32*)&t->height = ts->height;
 
   return t;
 }
 
-void engine_update_window(Window* w, SDL_WindowEvent* e) {
-  switch (e->event) {
-  case SDL_WINDOWEVENT_NONE:
-  case SDL_WINDOWEVENT_SHOWN:
-  case SDL_WINDOWEVENT_HIDDEN:
-  case SDL_WINDOWEVENT_EXPOSED:
-  case SDL_WINDOWEVENT_MOVED:
-    break;
-  case SDL_WINDOWEVENT_RESIZED:
-    w->windowsize = get_canvas_size(w->renderer);
-    LOG("Resized window to %dx%d", w->windowsize.x, w->windowsize.y);
-    ui_resolve_constraints();
-    if (w->game_w != NULL && w->game_h != NULL) {
-      *w->game_h = w->windowsize.x;
-      *w->game_w = w->windowsize.y;
-    }
-    break;
-  case SDL_WINDOWEVENT_SIZE_CHANGED:
-  case SDL_WINDOWEVENT_MINIMIZED:
-  case SDL_WINDOWEVENT_MAXIMIZED:
-  case SDL_WINDOWEVENT_RESTORED:
-  case SDL_WINDOWEVENT_ENTER:
-  case SDL_WINDOWEVENT_LEAVE:
-  case SDL_WINDOWEVENT_FOCUS_GAINED:
-  case SDL_WINDOWEVENT_FOCUS_LOST:
-  case SDL_WINDOWEVENT_CLOSE:
-  case SDL_WINDOWEVENT_TAKE_FOCUS:
-  case SDL_WINDOWEVENT_HIT_TEST:
-    break;
+void engine_update_window(Window* w, void* e) {
+  switch ((i32)e) {
   default:
-    WARN("Unhandled window event 0x%04x", (i32)e->event);
+    WARN("Unhandled window event 0x%04x", (i32)e);
     break;
   }
   return;
 }
 
-struct sdl_ctx {SDL_Window* w; SDL_Renderer* r;} sdl_ctx;
-struct glfw_ctx {GLFWwindow* w;} glfw_ctx;
-
-struct sdl_ctx initialize_SDL(
-    const char* windowtitle, v2_i32 windowsize,
-    const u32 flags
-    ) {
-  SDL_Window* window = NULL;
-  SDL_Renderer* renderer = NULL;
-
-    INFO_("initializing sdl...");
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-      ERROR("failed to initialize sdl: %s\n", SDL_GetError());
-      exit(EXIT_FAILURE);
-    } else
-      printf("ok\n");
-
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-
-    INFO_("creating window...");
-    window = SDL_CreateWindow(
-        windowtitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-        windowsize.x, windowsize.y,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_INPUT_FOCUS |
-            SDL_WINDOW_MOUSE_FOCUS | flags);
-
-    if (window == NULL) {
-      ERROR("failed to create window: %s\n", SDL_GetError());
-      exit(EXIT_FAILURE);
-    } else
-      printf("ok\n");
-
-    INFO_("creating renderer...");
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL) {
-      ERROR("failed to create renderer: %s\n", SDL_GetError());
-      exit(EXIT_FAILURE);
-    } else
-      printf("ok\n");
-
-    INFO_("initializing sdl_image...");
-    if (IMG_Init(IMG_INIT_PNG) != IMG_INIT_PNG) {
-      ERROR("failed to initialize sdl_image png support\n");
-      exit(EXIT_FAILURE);
-    } else
-      printf("ok\n");
-
-    INFO_("initializing sdl_ttf...");
-    if (TTF_Init() == -1) {
-      ERROR("failed to initialize sdl_ttf: %s\n", TTF_GetError());
-      exit(EXIT_FAILURE);
-    } else
-      printf("ok\n");
-
-  return (struct sdl_ctx){.w = window,.r = renderer};
-}
-
+struct glfw_ctx {
+  GLFWwindow* w;
+} glfw_ctx;
 
 /* GLFW And vulkan spaghetti boiler */
 void glfw_err_callback(int code, const char* description) {
@@ -220,7 +244,17 @@ struct QueueFamilyIndices {
   int64_t presentFamily;
 };
 
-
+//GladGLContext* create_context(GLFWwindow *window) {
+//    glfwMakeContextCurrent(window);
+//
+//    GladGLContext* context = (GladGLContext*) calloc(1, sizeof(GladGLContext));
+//    if (!context) return NULL;
+//
+//    int version = gladLoadGLContext(context, glfwGetProcAddress);
+//    INFO("Loaded OpenGL %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+//
+//    return context;
+//}
 
 struct glfw_ctx initialize_GLFW(
     const char* windowtitle, v2_i32 windowsize,
@@ -244,13 +278,24 @@ struct glfw_ctx initialize_GLFW(
   //glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-  glfwWindowHint(GLFW_SAMPLES, 0); // Disable anti aliasing
+  glfwWindowHint(GLFW_SAMPLES, 4); // Disable anti aliasing
 
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+  // Use a modern opengl version
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+  //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+#ifdef __APPLE__
+  // To make MacOS happy; should not be needed
+  glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+#endif
+
+
+  /* "On Wayland specifically, you need to swap the buffers
+   *  of a window for it to become visible." */
   window = glfwCreateWindow(windowsize.x, windowsize.y, windowtitle, NULL, NULL);
   if (window == NULL) {
     ERROR("Failed to create GLFW window!\n");
@@ -263,26 +308,30 @@ struct glfw_ctx initialize_GLFW(
 
   glfwMakeContextCurrent(window);
 
+  // Remember to load GL :) (hours wasted because i forgot: approx 4)
+  int version = gladLoadGL(glfwGetProcAddress);
+  //printf("GL %d.%d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
-  gladLoadGL(glfwGetProcAddress);
+
+#ifdef _DEBUG
+  glClearColor((float)0x10 / 255.f, (float)0x0a / 255.f, (float)0x33 / 255.f, 0.f);
+#else
+  glClearColor(0x0, 0x0, 0x0, 0.f);
+#endif
 
   // TODO: Replace with callback
   //glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-  //while(!(glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE ) != GLFW_PRESS)) {
+  //while(!(glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)) {
 
-  //  glClear( GL_COLOR_BUFFER_BIT );
+  //glClear( GL_COLOR_BUFFER_BIT );
 
-  //  glfwSwapBuffers(window);
+  //glfwSwapBuffers(window);
 
-  //  glfwPollEvents();
+  //glfwPollEvents();
   //}
 
-  //glfwDestroyWindow(window);
-
-  //glfwTerminate();
-
-  return (struct glfw_ctx){.w = NULL};
+  return (struct glfw_ctx){.w = window};
 }
 
 
@@ -294,7 +343,7 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
                       const Asset_TextureSpec* textures[]) {
 
 #ifdef BENCHMARK
-  u32 init_start = SDL_GetTicks();
+  u32 init_start = glfwGetTime();
 #endif
 
 #if defined(__linux) || defined(__linux__) || defined(linux)
@@ -306,8 +355,6 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
 
   Platform* p = (Platform*)malloc(sizeof(Platform));
   Window* w = (Window*)malloc(sizeof(Window));
-  SDL_Window* window = NULL;
-  SDL_Renderer* renderer = NULL;
 
   /* initialize resources */
   struct Resources* resources =
@@ -319,21 +366,42 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
   resources->texture_paths = NULL;
   resources->font_paths = NULL;
   resources->textures = NULL;
-  resources->fonts = NULL;
+  //resources->fonts = NULL;
 
-  /* Init subsystems */
-  //{
-  //  struct sdl_ctx sdl_ctx = initialize_SDL(windowtitle, windowsize, flags);
-  //  window = sdl_ctx.w;
-  //  renderer = sdl_ctx.r;
-  //}
-  /* Init glfw haha */
   {
     struct glfw_ctx ctx = initialize_GLFW(windowtitle, windowsize, flags);
+    w->window = ctx.w;
   }
-  exit(0);
 
 
+  struct RenderObject *testobject = malloc(sizeof(struct RenderObject));
+
+  glGenVertexArrays(1, &(testobject->vao));
+  glBindVertexArray(testobject->vao);
+
+  p->testobject = testobject;
+
+  testobject->g_vertex_buffer_data[0] = -1.0f;
+  testobject->g_vertex_buffer_data[1] = -1.0f;
+  testobject->g_vertex_buffer_data[2] =  0.0f;
+
+  testobject->g_vertex_buffer_data[3] =  1.0f;
+  testobject->g_vertex_buffer_data[4] = -1.0f;
+  testobject->g_vertex_buffer_data[5] =  0.0f;
+
+  testobject->g_vertex_buffer_data[6] =  0.0f;
+  testobject->g_vertex_buffer_data[7] = -1.0f;
+  testobject->g_vertex_buffer_data[8] =  0.0f;
+
+  testobject->shaderprogram = LoadShaders("shader.vertexshader", "shader.fragmentshader");
+  INFO("Shaderprogram %d", testobject->shaderprogram);
+
+  // Generate 1 buffer, put the resulting identifier in vertexbuffer
+  glGenBuffers(1, &(testobject->vbo));
+  // The following commands will talk about our 'vertexbuffer' buffer
+  glBindBuffer(GL_ARRAY_BUFFER, testobject->vbo);
+  // Give our vertices to OpenGL.
+  glBufferData(GL_ARRAY_BUFFER, sizeof(testobject->g_vertex_buffer_data), testobject->g_vertex_buffer_data, GL_STATIC_DRAW);
 
   { /* Resource loading */
 
@@ -356,11 +424,11 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
 
     /* Allocate memory for textures and fonts */
     resources->textures = (Texture**)malloc(sizeof(Texture*) * n_textures);
-    resources->fonts = (TTF_Font**)malloc(sizeof(TTF_Font*) * n_fonts);
+    //resources->fonts = (TTF_Font**)malloc(sizeof(TTF_Font*) * n_fonts);
     resources->textures_size = n_textures;
 
     for (usize i = 0; i < n_textures; i++) resources->textures[i] = NULL;
-    for (usize i = 0; i < n_fonts; i++) resources->fonts[i] = NULL;
+    //for (usize i = 0; i < n_fonts; i++) resources->fonts[i] = NULL;
 
     /* Load textures */
     for (usize i = 0; i < n_textures; i++) {
@@ -369,27 +437,27 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
             "\"...",
             textures[i]->path);
 
-      t = load_texture(renderer, textures[i]);
-      if (t == NULL) {
-        puts("");
-        ERROR("failed to load texture\n");
-        exit(EXIT_FAILURE);
-      }
-
-      if (t->tilesize < 8) {
-        puts("");
-        ERROR("texture too small!\n");
-        exit(EXIT_FAILURE);
-      }
-
-      if (t->texture == NULL) {
-        puts("");
-        ERROR("failed to load texture\n");
-      } else {
-        printf("ok\n");
-        resources->textures[i] = t;
-        resources->textures_len++;
-      }
+//      t = load_texture(renderer, textures[i]);
+//      if (t == NULL) {
+//        puts("");
+//        ERROR("failed to load texture\n");
+//        exit(EXIT_FAILURE);
+//      }
+//
+//      if (t->tilesize < 8) {
+//        puts("");
+//        ERROR("texture too small!\n");
+//        exit(EXIT_FAILURE);
+//      }
+//
+      //if (t->texture == NULL) {
+      //  puts("");
+      //  ERROR("failed to load texture\n");
+      //} else {
+      //  printf("ok\n");
+      //  resources->textures[i] = t;
+      //  resources->textures_len++;
+      //}
     }
 
     /* Load fonts */
@@ -397,14 +465,14 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
       INFO_("loading font \"" TERM_COLOR_YELLOW "%s" TERM_COLOR_RESET "\"...",
             fonts[i]->font_path);
 
-      TTF_Font* font = TTF_OpenFont(fonts[i]->font_path, fonts[i]->ptsize);
-      if (!font) {
-        ERROR("failed to load font: %s\n", TTF_GetError());
-      } else {
-        printf("ok\n");
-        resources->fonts[i] = font;
-        resources->fonts_len++;
-      }
+      //TTF_Font* font = TTF_OpenFont(fonts[i]->font_path, fonts[i]->ptsize);
+      //if (!font) {
+      //  ERROR("failed to load font: %s\n", TTF_GetError());
+      //} else {
+      //  printf("ok\n");
+      //  resources->fonts[i] = font;
+      //  resources->fonts_len++;
+      //}
     }
 
     if (resources->textures_len != n_textures) {
@@ -425,17 +493,14 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
 
   { /* Adjust window and such */
     /* Set actual windowsize, which might be forced by OS */
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "0");
     INFO("Adjusting window size...");
-    windowsize = get_canvas_size(renderer);
-
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+    //windowsize = get_canvas_size(renderer);
 
     INFO("Windowsize: <%d,%d>", windowsize.x, windowsize.y);
   }
 
-  w->renderer = renderer;
-  w->window = window;
+  //w->renderer = renderer;
+  //w->window = window;
   w->render_scale = render_scale;
   w->windowsize = windowsize;
   w->game_w = NULL;
@@ -453,7 +518,6 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
 
   /* Getting the mouse coords now resolves the issue where a click "isn't
    * registered" when the mouse isn't moved before the user clicks */
-  SDL_GetMouseState(&p->mouse_pos.x, &p->mouse_pos.y);
 
   p->mousedown = (v2_i32){-1, -1};
   p->mouseup = (v2_i32){-1, -1};
@@ -474,7 +538,7 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
   // TODO: Add global bindings
 
 #ifdef BENCHMARK
-  u32 init_stop = SDL_GetTicks();
+  u32 init_stop = glfwGetTime();
   INFO("Initialization took %dms", init_stop - init_start);
 #endif
 
@@ -509,13 +573,13 @@ i32 engine_run(Platform* p, StateType initial_state) {
   StateType state = initial_state;
 
   {
-    u32 state_init_time = SDL_GetTicks();
+    u32 state_init_time = glfwGetTime();
     State_init(state, mem);
     INFO("Initializing state \"%s\" took %ldms", StateTypeStr[state],
-         SDL_GetTicks() - state_init_time);
+         glfwGetTime() - state_init_time);
   }
 
-  u32 time = SDL_GetTicks();
+  u32 time = glfwGetTime();
 
   // Update ticks
   u64 ticks = 0;
@@ -539,14 +603,15 @@ i32 engine_run(Platform* p, StateType initial_state) {
   StateType (*update_func)(void*) = State_updateFunc(state);
 
   /* Main loop */
+  INFO("Program: %d", p->testobject->shaderprogram);
   do {
-    const u32 now = SDL_GetTicks();
+    const u32 now = glfwGetTime();
     const u64 dt = now - time;
     time = now;
     /* Wait frame_interval */
     if (dt < frame_interval) {
 #ifndef BENCHMARK
-      SDL_Delay(frame_interval - dt);
+      delay(frame_interval - dt);
 
 #else
       /* We want to know how much time is spend sleeping */
@@ -590,194 +655,90 @@ i32 engine_run(Platform* p, StateType initial_state) {
     }
 #endif
 
+    glfwPollEvents();
     /* Events */
-    BENCHEXPR(profile_input, {
-      if (p->mouse_lclick) {
-        p->mouseup.x = -1;
-        p->mouseup.y = -1;
-        p->mousedown.x = -1;
-        p->mousedown.y = -1;
-        p->mouse_lclick = false;
-      }
-      if (p->mouse_rclick) {
-        p->mouse_rclick = false;
-      }
+//    if (p->mouse_lclick) {
+//      p->mouseup.x = -1;
+//      p->mouseup.y = -1;
+//      p->mousedown.x = -1;
+//      p->mousedown.y = -1;
+//      p->mouse_lclick = false;
+//    }
+//    if (p->mouse_rclick) {
+//      p->mouse_rclick = false;
+//    }
+//
+//    /* Window events */
+//    i32 num_events;
+//
+//    /* Mouse events */
+//
+//    if (p->bindings != NULL) {
+//      const i_ctx* bindings = *p->bindings;
+//      const usize bindings_len = p->bindings_len;
+//
+//    }
+//
+//    i_flush_bindings(callbacks_len, mem->data, callbacks);
+//    callbacks_len = 0;
+//
+//    /* update */
+//    StateType next_state;
+//      next_state = update_func((void*)(mem->data));
+//
+//    if (next_state != STATE_null) {
+//      if (next_state == STATE_quit) break;
+//
+//      drawcall_reset();
+//
+//      engine_window_resize_pointers_reset();
+//      State_free(state, mem);
+//      memory_clear(mem);
+//
+//      engine_input_ctx_reset();
+//
+//      state = next_state;
+//      update_func = State_updateFunc(state);
+//#ifdef BENCHMARK
+//      {
+//        f64 t = glfwGetTime();
+//        State_init(state, mem);
+//        LOG("Initializing %s took %dms", StateTypeStr[state],
+//            (int)((glfwGetTime() - t) * 1000.0));
+//      }
+//#else
+//      State_init(state, mem);
+//#endif
+//    } else {
+//#ifdef BENCHMARK
+//      profile_num_drawcalls += drawcall_len;
+//#endif
+//      //render_begin(p->window);
+  glClear(GL_COLOR_BUFFER_BIT );
 
-      /* Window events */
-      SDL_Event e[8];
-      i32 num_events;
-      SDL_PumpEvents();
-      while ((num_events = SDL_PeepEvents(e, 8, SDL_GETEVENT, SDL_FIRSTEVENT,
-                                          SDL_SYSWMEVENT)) > 0) {
-        for (i32 i = 0; i < num_events; i++) {
-          switch (e[i].type) {
-          case SDL_QUIT:
-            state = STATE_quit;
-            break;
-          case SDL_WINDOWEVENT:
-            engine_update_window(p->window, &e[i].window);
-            break;
-          default:
-            WARN("Unhandled event 0x%04x", (i32)e[i].type);
-          }
-        }
-      }
-
-      /* Mouse events */
-      while ((num_events = SDL_PeepEvents(e, 8, SDL_GETEVENT, SDL_MOUSEMOTION,
-                                          SDL_MOUSEWHEEL)) > 0) {
-        for (i32 i = 0; i < num_events; i++) {
-          switch (e[i].type) {
-          case SDL_MOUSEWHEEL:
-            break;
-          case SDL_MOUSEMOTION: {
-            SDL_MouseMotionEvent m = e[i].motion;
-            /* In case of a first-person game, use xrel and yrel */
-            p->mouse_pos.x = m.x;
-            p->mouse_pos.y = m.y;
-          } break;
-          case SDL_MOUSEBUTTONUP: {
-            switch (e[i].button.button) {
-            case SDL_BUTTON_LEFT:
-              p->mouseup = p->mouse_pos;
-
-              p->mouse_lclick = true;
-            case SDL_BUTTON_RIGHT:
-              break;
-            default:
-              break;
-            }
-          } break;
-          case SDL_MOUSEBUTTONDOWN:
-            switch (e[i].button.button) {
-            case SDL_BUTTON_LEFT:
-              p->mousedown = p->mouse_pos;
-              break;
-            case SDL_BUTTON_RIGHT:
-              break;
-            default:
-              break;
-            }
-            break;
-          default:
-            WARN("Unhandled mouse event 0x%04x", (i32)e[i].type);
-            break;
-          }
-        }
-      }
-
-      BENCHEXPR(profile_input_handling, {
-        if (p->bindings != NULL) {
-          const i_ctx* bindings = *p->bindings;
-          const usize bindings_len = p->bindings_len;
-
-          while ((num_events = SDL_PeepEvents(e, 8, SDL_GETEVENT, SDL_KEYDOWN,
-                                              SDL_KEYUP)) > 0) {
-            for (i32 i = 0; i < num_events; i++) {
-              switch (e[i].type) {
-              case SDL_KEYDOWN:
-                if (e[i].key.keysym.sym == SDLK_F7) {
-                  INFO("Reloading %s", StateTypeStr[state]);
-                  if (!State_reload(state, p->bindings, p->bindings_len)) {
-                    ERROR("Failed to reload state library!");
-                  } else {
-                    update_func = State_updateFunc(state);
-                  }
-                  break;
-                }
-                for (usize b = 0; b < bindings_len; b++) {
-                  const action_t a =
-                      i_get_action(&bindings[b], e[i].key.timestamp,
-                                   e[i].key.keysym.scancode);
-
-                  switch (a.type) {
-                  case InputType_action:
-                    if (a.action.callback != NULL) {
-                      callbacks[callbacks_len++] = a.action.callback;
-                    }
-                    break;
-
-                  case InputType_state:
-                    if (!e[i].key.repeat && a.state.activate != NULL) {
-                      callbacks[callbacks_len++] = a.state.activate;
-                    }
-                    break;
-
-                  case InputType_range:
-                    WARN("Range inputs not supported yet!");
-                    break;
-                  case InputType_error:
-                    WARN("Unhandled scancode: %lu", e[i].key.keysym.scancode);
-
-                  default:
-                    break;
-                  }
-                }
-                break;
-
-              case SDL_KEYUP:
-                for (usize b = 0; b < bindings_len; b++) {
-                  const action_t a =
-                      i_get_action(&bindings[b], e[i].key.timestamp,
-                                   e[i].key.keysym.scancode);
-                  if (a.type == InputType_state && a.state.deactivate != NULL &&
-                      !e[i].key.repeat) {
-                    callbacks[callbacks_len++] = a.state.deactivate;
-                  }
-                }
-                break;
-              default:
-                WARN("Unhandled mouse event 0x%04x", (i32)e[i].type);
-                break;
-              }
-            }
-          }
-        }
-      });
-    });
-
-    i_flush_bindings(callbacks_len, mem->data, callbacks);
-    callbacks_len = 0;
-
-    /* update */
-    StateType next_state;
-    BENCHEXPR(profile_gameloop, {
-      next_state = update_func((void*)(mem->data));
-    });  // State_update(state, mem);});
-
-    if (next_state != STATE_null) {
-      if (next_state == STATE_quit) break;
-
-      drawcall_reset();
-
-      engine_window_resize_pointers_reset();
-      State_free(state, mem);
-      memory_clear(mem);
-
-      engine_input_ctx_reset();
-
-      state = next_state;
-      update_func = State_updateFunc(state);
-#ifdef BENCHMARK
-      {
-        u32 t = SDL_GetTicks();
-        State_init(state, mem);
-        LOG("Initializing %s took %dms", StateTypeStr[state],
-            SDL_GetTicks() - t);
-      }
-#else
-      State_init(state, mem);
-#endif
-    } else {
-#ifdef BENCHMARK
-      profile_num_drawcalls += drawcall_len;
-#endif
-      render_begin(p->window);
-      BENCHEXPR(profile_rendering, { render_present(p->window); })
-    }
+      glUseProgram(p->testobject->shaderprogram);
+      glEnableVertexAttribArray(0);
+      glBindBuffer(GL_ARRAY_BUFFER, p->testobject->vbo);
+      glVertexAttribPointer(
+          0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+          3,                  // size
+          GL_FLOAT,           // type
+          GL_FALSE,           // normalized?
+          0,                  // stride
+          (void*)0            // array buffer offset
+          );
+      glUseProgram(p->testobject->shaderprogram);
+      // Draw the triangle !
+      glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+      glDisableVertexAttribArray(0);
+  glfwSwapBuffers(p->window->window);
+      //render_present(p->window);
+//    }
 
     ticks++;
-  } while (state != STATE_quit);
+  } while(
+      !glfwWindowShouldClose(p->window->window)
+      && state != STATE_quit);
 
   return 0;
 }
@@ -791,40 +752,18 @@ void stop(Platform* p) {
       /* Destroy textures */
       for (usize i = 0; i < r->textures_len; i++) {
         if (r->textures[i] != NULL) {
-          SDL_DestroyTexture(r->textures[i]->texture);
           r->textures[i] = NULL;
         }
       }
       free(r->textures);
 
       /* Destroy Fonts */
-      for (usize i = 0; i < r->fonts_len; i++) {
-        if (r->fonts[i] != NULL) {
-          TTF_CloseFont(r->fonts[i]);
-          r->fonts[i] = NULL;
-        }
-      }
-      free(r->fonts);
     }
   }
 
-  { /* Deallocate window */
-    Window* w = p->window;
-    if (w != NULL) {
-      if (w->window != NULL) {
-        SDL_DestroyWindow(w->window);
-        w->window = NULL;
-      }
-      if (w->renderer != NULL) {
-        SDL_DestroyRenderer(w->renderer);
-        w->renderer = NULL;
-      }
-    }
-  }
+  glfwDestroyWindow(p->window->window);
+  glfwTerminate();
 
-  TTF_Quit();
-  IMG_Quit();
-  SDL_Quit();
 }
 
 /* Set the maximum framerate */
@@ -885,6 +824,6 @@ void engine_input_ctx_reset(void) {
   }
 }
 
-u32 get_time(void) { return SDL_GetTicks(); }
+u32 get_time(void) { return glfwGetTime(); }
 v2_i32 get_windowsize(void) { return GLOBAL_PLATFORM->window->windowsize; }
 v2_i32* get_mousepos(void) { return &GLOBAL_PLATFORM->mouse_pos; }

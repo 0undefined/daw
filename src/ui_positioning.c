@@ -1,12 +1,9 @@
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
-
 #include <stdint.h>
 #define ENGINE_INTERNALS
 
 #include <engine/btree.h>
 #include <engine/engine.h>
+#include <engine/utils.h>
 
 static Engine_color DEFAULT_FG = {0xFF, 0xFF, 0xFF, 0xFF};
 static Engine_color DEFAULT_BG = {0x00, 0x00, 0x00, 0xFF};
@@ -870,19 +867,15 @@ void ui_container_attach(UITree* root, UITree* child) {
 
 void ui_button_enable(UITree_button* b) {
   b->enabled = true;
-  SDL_Texture* t = ((struct Resources*)GLOBAL_PLATFORM->data)
-                       ->textures[b->text_texture_index]
-                       ->texture;
-  SDL_SetTextureColorMod(t, 0xff, 0xff, 0xff);
+  //                     ->textures[b->text_texture_index]
+  //                     ->texture;
 }
 
 void ui_button_disable(UITree_button* b) {
   b->enabled = false;
 
-  SDL_Texture* t = ((struct Resources*)GLOBAL_PLATFORM->data)
-                       ->textures[b->text_texture_index]
-                       ->texture;
-  SDL_SetTextureColorMod(t, 0x7f, 0x7f, 0x7f);
+  //                     ->textures[b->text_texture_index]
+  //                     ->texture;
 }
 
 void ui_set_default_colors(Engine_color fg, Engine_color bg) {
@@ -895,50 +888,49 @@ void ui_set_default_padding(i32 padding) { DEFAULT_PADDING = padding; }
 Engine_color ui_get_default_fg(void) { return DEFAULT_FG; }
 Engine_color ui_get_default_bg(void) { return DEFAULT_BG; }
 
-bool check_point_in_rect(const v2_i32* p, const SDL_Rect* r) {
-  if (p->x > r->x && p->x < r->x + r->w && p->y > r->y && p->y < r->y + r->h)
-    return true;
+bool check_point_in_rect(const v2_i32* p, const /* */ int r) {
+  //if (p->x > r->x && p->x < r->x + r->w && p->y > r->y && p->y < r->y + r->h)
+  //  return true;
   return false;
 }
 
 u64 ui_check_click_internal(UITree* root, v2_i32 pos) {
   v2_i32 ps = get_pos(root);
   v2_i32 sz = get_size(root);
-  SDL_Rect elem_rect = {.x = ps.x, .y = ps.y, .w = sz.x, .h = sz.y};
   /* */
-  switch (root->type) {
-  case uitype_container:
-    if (root->container.children != NULL && root->container.children_len > 0) {
-      const UITree_container* container = &root->container;
+  //switch (root->type) {
+  //case uitype_container:
+  //  if (root->container.children != NULL && root->container.children_len > 0) {
+  //    const UITree_container* container = &root->container;
 
-      if (check_point_in_rect(&pos, &elem_rect)) {
+  //    if (check_point_in_rect(&pos, &elem_rect)) {
 
-        for (usize i = 0; i < container->children_len; i++) {
-          u64 res = ui_check_click_internal(container->children[i], pos);
-          if (res != (u64)ELEM_NOT_FOUND) {
-            return res;
-          }
-        }
-      }
-    }
-    break;
-  case uitype_button:
-    if (root->button.enabled) {
-      WARN("Checking button");
-      elem_rect.h += root->button.padding * 2;
-      elem_rect.w += root->button.padding * 2;
-      WARN("Button specs:	<%d,%d>+%d,%d", elem_rect.w, elem_rect.h,
-           elem_rect.x, elem_rect.y);
-      if (check_point_in_rect(&pos, &elem_rect)) {
-        return root->button.id;
-      }
-    }
-    break;
-  case uitype_title:
-  case uitype_text:
-  default:
-    break;
-  }
+  //      for (usize i = 0; i < container->children_len; i++) {
+  //        u64 res = ui_check_click_internal(container->children[i], pos);
+  //        if (res != (u64)ELEM_NOT_FOUND) {
+  //          return res;
+  //        }
+  //      }
+  //    }
+  //  }
+  //  break;
+  //case uitype_button:
+  //  if (root->button.enabled) {
+  //    WARN("Checking button");
+  //    elem_rect.h += root->button.padding * 2;
+  //    elem_rect.w += root->button.padding * 2;
+  //    WARN("Button specs:	<%d,%d>+%d,%d", elem_rect.w, elem_rect.h,
+  //         elem_rect.x, elem_rect.y);
+  //    if (check_point_in_rect(&pos, &elem_rect)) {
+  //      return root->button.id;
+  //    }
+  //  }
+  //  break;
+  //case uitype_title:
+  //case uitype_text:
+  //default:
+  //  break;
+  //}
   return ELEM_NOT_FOUND;
 }
 
