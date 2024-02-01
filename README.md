@@ -1,6 +1,13 @@
 Daw
 ===
 
+This branch contains the work of moving the engine to OpenGL, using GLFW & GLEW.
+
+Major changes are made to the structure and will require changes to downstream
+projects once done.
+
+---
+
 Daw is yet another hobby WIP game engine.
 
 It is written in C99 and can be compiled and linked to easily in any CMake
