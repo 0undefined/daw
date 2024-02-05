@@ -39,8 +39,8 @@
 #ifdef BENCHMARK
 #define BENCHEXPR(timevar, expr)                                               \
   {                                                                            \
-    u32 t = glfwGetTime();                                                    \
-    expr timevar += glfwGetTime() - t;                                        \
+    f64 t = get_time();                                                    \
+    expr timevar += get_time() - t;                                        \
   }
 
 extern i32 drawcall_len;
@@ -323,6 +323,7 @@ struct glfw_ctx initialize_GLFW(
   }
 
   glfwSetFramebufferSizeCallback(window, window_size_callback);
+  glfwSwapInterval(0);
 
 #ifdef _DEBUG
   ctx->ClearColor((float)0x10 / 255.f, (float)0x0a / 255.f, (float)0x33 / 255.f, 0.f);
@@ -345,7 +346,7 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
                       const Asset_TextureSpec* textures[]) {
 
 #ifdef BENCHMARK
-  u32 init_start = glfwGetTime();
+  f64 init_start = get_time();
 #endif
 
 #if defined(__linux) || defined(__linux__) || defined(linux)
@@ -630,7 +631,7 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
   // TODO: Add global bindings
 
 #ifdef BENCHMARK
-  u32 init_stop = glfwGetTime();
+  f64 init_stop = get_time();
   INFO("Initialization took %dms", init_stop - init_start);
 #endif
 
@@ -665,13 +666,13 @@ i32 engine_run(Platform* p, StateType initial_state) {
   StateType state = initial_state;
 
   {
-    u32 state_init_time = glfwGetTime();
+    f64 state_init_time = get_time();
     State_init(state, mem);
     INFO("Initializing state \"%s\" took %ldms", StateTypeStr[state],
-         glfwGetTime() - state_init_time);
+         get_time() - state_init_time);
   }
 
-  u32 time = glfwGetTime();
+  f64 time = get_time();
 
   // Update ticks
   u64 ticks = 0;
@@ -694,22 +695,29 @@ i32 engine_run(Platform* p, StateType initial_state) {
 
   StateType (*update_func)(void*) = State_updateFunc(state);
 
+  f64 last_fps_measurement = get_time();
+
   /* Main loop */
   INFO("Program: %d", p->testobject->shaderprogram);
   GladGLContext *gl = p->window->context;
   do {
-    const u32 now = glfwGetTime();
-    const u64 dt = now - time;
+    const f64 now = get_time();
+    const f64 dt = now - time;
     time = now;
     /* Wait frame_interval */
     if (dt < frame_interval) {
 #ifndef BENCHMARK
-      delay(frame_interval - dt);
+      //delay(frame_interval - dt);
 
 #else
       /* We want to know how much time is spend sleeping */
       // profile_slack += frame_interval - dt;
 #endif
+    }
+
+    if (now - last_fps_measurement > 1.000) {
+      last_fps_measurement = now;
+      printf("\n FPS: %.1f  \t ticks: %lu", (double)ticks / now, ticks);
     }
 
 #ifdef BENCHMARK
@@ -794,10 +802,10 @@ i32 engine_run(Platform* p, StateType initial_state) {
 //      update_func = State_updateFunc(state);
 //#ifdef BENCHMARK
 //      {
-//        f64 t = glfwGetTime();
+//        f64 t = get_time();
 //        State_init(state, mem);
 //        LOG("Initializing %s took %dms", StateTypeStr[state],
-//            (int)((glfwGetTime() - t) * 1000.0));
+//            (int)((get_time() - t) * 1000.0));
 //      }
 //#else
 //      State_init(state, mem);
@@ -827,7 +835,7 @@ i32 engine_run(Platform* p, StateType initial_state) {
         { mat4 t;
           //modelviewprojection = p * v * model
           glm_mat4_mul(v, model, t);
-          glm_rotate_at(t, (vec3){0,0,0}, glfwGetTime() / 2.f, (vec3){0,1,0}); //, (vec3)({0,1,0}));
+          glm_rotate_at(t, (vec3){0,0,0}, get_time() / 2.f, (vec3){0,1,0}); //, (vec3)({0,1,0}));
           glm_mat4_mul(per, t, modelviewprojection);
         }
 
@@ -963,6 +971,6 @@ void engine_input_ctx_reset(void) {
   }
 }
 
-u32 get_time(void) { return glfwGetTime(); }
+f64 get_time(void) { return glfwGetTime(); }
 v2_i32 get_windowsize(void) { return GLOBAL_PLATFORM->window->windowsize; }
 v2_i32* get_mousepos(void) { return &GLOBAL_PLATFORM->mouse_pos; }

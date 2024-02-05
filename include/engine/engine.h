@@ -74,7 +74,7 @@ void render_set_zoom(f32 new_zoom);
 void render_adjust_zoom(f32 diff);
 void render_add_unit(RenderUnit* u);
 
-u32 get_time(void);
+f64 get_time(void);
 v2_i32 get_windowsize(void);
 v2_i32* get_mousepos(void);
 
