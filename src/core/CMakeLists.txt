@@ -1,10 +1,12 @@
 add_library(daw_core
-  cleanup.c
-  dltools.c
-  harness.c
-  init.c
-  logging.c
-  loop.c
-  memory.c
-  state.c
+  src/cleanup.c
+  src/dltools.c
+  src/harness.c
+  src/init.c
+  src/logging.c
+  src/loop.c
+  src/memory.c
+  src/state.c
   )
+
+target_include_directories(daw_core PRIVATE include)

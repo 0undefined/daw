@@ -1,5 +1,7 @@
 add_library(daw_resources
-  fonts.c
-  scripts.c
-  textures.c
+  src/fonts.c
+  src/scripts.c
+  src/textures.c
   )
+
+target_include_directories(daw_resources PRIVATE include)

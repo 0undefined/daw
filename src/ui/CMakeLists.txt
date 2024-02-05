@@ -1,4 +1,6 @@
 add_library(daw_ui
-  positioning.c
-  rendering.c
+  src/positioning.c
+  src/rendering.c
   )
+
+target_include_directories(daw_ui PRIVATE include)
