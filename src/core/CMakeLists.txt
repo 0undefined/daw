@@ -1,0 +1,10 @@
+add_library(daw_core
+  cleanup.c
+  dltools.c
+  harness.c
+  init.c
+  logging.c
+  loop.c
+  memory.c
+  state.c
+  )

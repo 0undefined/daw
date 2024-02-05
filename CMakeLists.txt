@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.24)
-project(daw VERSION 0.0.1 LANGUAGES C)
+project(daw
+  VERSION 0.0.1
+  DESCRIPTION "A Simple Hobby Game Engine"
+  LANGUAGES C)
 
 # We really don't want any in-source builds
 set(CMAKE_DISABLE_IN_SOURCE_BUILD ON CACHE BOOL "Prevents cmake -S. -B.")
@@ -89,34 +92,19 @@ FetchContent_Declare(cglm
 FetchContent_MakeAvailable(cglm)
 
 ## Compilation information
-
-set(ENGINE_SOURCES
-  src/btree.c
-  src/dltools.c
-  src/engine.c
-  src/fov.c
-  src/hashmap.c
-  src/input.c
-  src/logging.c
-  src/memory.c
-  src/rendering.c
-  src/stack.c
-  src/state.c
-  src/ui_positioning.c
-  src/ui_rendering.c
-  src/utils.c
-  src/vector.c
-)
+add_subdirectory(src)
 
 add_compile_options(${RELEASE_OPTS})
 add_link_options(${RELEASE_OPTS})
 
-add_library(daw
+add_library(${PROJECT_NAME}
   ${CMAKE_BINARY_DIR}/include/glad/gl.h
-  ${ENGINE_SOURCES}
+  #${ENGINE_SOURCES}
   )
 
-target_include_directories(daw PUBLIC
+set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
   include
   ${CMAKE_BINARY_DIR}/include
   ${ENGINE_INCLUDE})
@@ -125,7 +113,13 @@ target_link_libraries(${PROJECT_NAME}
   glfw
   OpenGL::GL
   cglm
-  $<$<NOT:$<PLATFORM_ID:Windows>>:m>
+  daw_core
+  daw_rendering
+  daw_ctrl
+  daw_resources
+  daw_ui
+  daw_utils
+  NOT:$<PLATFORM_ID:Windows>>:m>
   $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:dl>
   $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_UBSAN}>>:ubsan>
 )
