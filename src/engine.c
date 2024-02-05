@@ -264,11 +264,7 @@ struct glfw_ctx initialize_GLFW(
   glfwMakeContextCurrent(window);
 
 
-  glewExperimental = true;
-  if (glewInit() != GLEW_OK) {
-    ERROR("failed to initialize glew!\n");
-    exit(EXIT_FAILURE);
-  }
+  gladLoadGL(glfwGetProcAddress);
 
   // TODO: Replace with callback
   //glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
@@ -298,7 +294,7 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
                       const Asset_TextureSpec* textures[]) {
 
 #ifdef BENCHMARK
-  u32 init_start = glfwGetTime();
+  u32 init_start = SDL_GetTicks();
 #endif
 
 #if defined(__linux) || defined(__linux__) || defined(linux)

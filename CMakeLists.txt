@@ -80,11 +80,12 @@ string(TOLOWER "${CMAKE_BUILD_TYPE}" ENGINE_BUILD_TYPE)
 
 ## Packages
 find_package(glfw3 3.3 REQUIRED)
-find_package(GLEW 2.2 REQUIRED)
+find_package(OpenGL REQUIRED)
 FetchContent_Declare(cglm
   GIT_REPOSITORY https://github.com/recp/cglm.git
   GIT_TAG v0.9.2
 )
+
 FetchContent_MakeAvailable(cglm)
 
 ## Compilation information
@@ -114,12 +115,12 @@ add_library(daw
   ${ENGINE_SOURCES})
 
 target_include_directories(daw PUBLIC
-  include ${CMAKE_BINARY_DIR}/include ${ENGINE_INCLUDE})
+  include extern/glad/include ${CMAKE_BINARY_DIR}/include ${ENGINE_INCLUDE})
 
 target_link_libraries(${PROJECT_NAME}
   SDL2 SDL2_image SDL2_ttf
   glfw
-  GLEW
+  OpenGL::GL
   cglm
   $<$<NOT:$<PLATFORM_ID:Windows>>:m>
   $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:dl>
