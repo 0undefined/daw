@@ -28,7 +28,7 @@ i32 drawcall_len = 0;
 void render_begin(Window* w) {
   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glfwMakeContextCurrent(w->window);
-  w->context->Clear(GL_COLOR_BUFFER_BIT);
+  w->context->Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void render_present(Window* w) {
@@ -68,6 +68,14 @@ void render_present(Window* w) {
 }
 
 void drawcall_reset(void) { drawcall_len = 0; }
+
+void window_size_callback(GLFWwindow* window, int width, int height) {
+  GLOBAL_PLATFORM->window->context->Viewport(0,0, width, height);
+  //*GLOBAL_PLATFORM->window->game_w = width;
+  //*GLOBAL_PLATFORM->window->game_h = height;
+  GLOBAL_PLATFORM->window->windowsize.x = width;
+  GLOBAL_PLATFORM->window->windowsize.y = height;
+}
 
 void engine_window_resize_pointers(i32* w, i32* h) {
   GLOBAL_PLATFORM->window->game_w = w;

@@ -4,6 +4,9 @@
 #include "types.h"
 #include "vector.h"
 
+#define GLFW_INCLUDE_NONE
+#include <GLFW/glfw3.h>
+
 /* Definitions */
 #define RGBA(_r, _g, _b, _a)                                                   \
   ((Engine_color){.r = _r, .g = _g, .b = _b, .a = _a})
@@ -33,6 +36,7 @@ void drawcall_reset(void);
 void render(Window* w);
 
 /* Misc */
+void window_size_callback(GLFWwindow* window, i32 width, i32 height);
 void engine_window_resize_pointers(i32* w, i32* h);
 void engine_window_resize_pointers_reset(void);
 
@@ -79,6 +83,7 @@ typedef struct {
 struct RenderObject {
   u32 vao;
   u32 vbo;
+  u32 col;
   u32 shaderprogram;
   f32 g_vertex_buffer_data[9];
 };
