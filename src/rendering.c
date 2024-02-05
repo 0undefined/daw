@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define GLAD_GL_IMPLEMENTATION
+//#define GLAD_GL_IMPLEMENTATION
 #include <glad/gl.h>
 //#define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -27,7 +27,8 @@ i32 drawcall_len = 0;
  * To be used inbetween draw calls */
 void render_begin(Window* w) {
   //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-  glClear(GL_COLOR_BUFFER_BIT );
+  glfwMakeContextCurrent(w->window);
+  w->context->Clear(GL_COLOR_BUFFER_BIT);
 }
 
 void render_present(Window* w) {

@@ -3,9 +3,11 @@
 #include <string.h>
 #include <stdbool.h>
 
-//#define GLAD_GL_IMPLEMENTATION
-//#include <glad/gl.h>
-//#define GLFW_INCLUDE_NONE
+#define GLAD_GL_IMPLEMENTATION
+#include <glad/gl.h>
+#undef GLAD_GL_IMPLEMENTATION
+
+#undef GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
@@ -47,11 +49,11 @@ extern i32 drawcall_len;
 
 
 // http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/
-GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_path){
+GLuint LoadShaders(const GladGLContext* gl, const char * vertex_file_path, const char * fragment_file_path){
 
 	// Create the shaders
-	GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
-	GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint VertexShaderID = gl->CreateShader(GL_VERTEX_SHADER);
+	GLuint FragmentShaderID = gl->CreateShader(GL_FRAGMENT_SHADER);
 
 	// Read the Vertex Shader code from the file
 	char* VertexShaderCode;
@@ -99,15 +101,15 @@ GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_pat
 	// Compile Vertex Shader
 	INFO("Compiling shader: %s\n", vertex_file_path);
 	char const * VertexSourcePointer = VertexShaderCode;
-	glShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
-	glCompileShader(VertexShaderID);
+	gl->ShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
+	gl->CompileShader(VertexShaderID);
 
 	// Check Vertex Shader
-	glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
-	glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	gl->GetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
+	gl->GetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 	if ( InfoLogLength > 0 ) {
     char* msg = calloc(InfoLogLength + 1, sizeof(char));
-    glGetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, msg);
+    gl->GetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, msg);
     ERROR("Compiling shader: %s\n", msg);
     free(msg);
 	}
@@ -115,41 +117,41 @@ GLuint LoadShaders(const char * vertex_file_path, const char * fragment_file_pat
 	// Compile Fragment Shader
 	INFO("Compiling shader: %s\n", fragment_file_path);
 	char const * FragmentSourcePointer = FragmentShaderCode;
-	glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
-	glCompileShader(FragmentShaderID);
+	gl->ShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
+	gl->CompileShader(FragmentShaderID);
 
 	// Check Fragment Shader
-	glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
-	glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	gl->GetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
+	gl->GetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 	if ( InfoLogLength > 0 ){
     char* msg = calloc(InfoLogLength + 1, sizeof(char));
-    glGetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, msg);
+    gl->GetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, msg);
     ERROR("Compiling shader: %s\n", msg);
     free(msg);
 	}
 
 	// Link the program
 	INFO("Linking program\n");
-	GLuint ProgramID = glCreateProgram();
-	glAttachShader(ProgramID, VertexShaderID);
-	glAttachShader(ProgramID, FragmentShaderID);
-	glLinkProgram(ProgramID);
+	GLuint ProgramID = gl->CreateProgram();
+	gl->AttachShader(ProgramID, VertexShaderID);
+	gl->AttachShader(ProgramID, FragmentShaderID);
+	gl->LinkProgram(ProgramID);
 
 	// Check the program
-	glGetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
-	glGetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+	gl->GetProgramiv(ProgramID, GL_LINK_STATUS, &Result);
+	gl->GetProgramiv(ProgramID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 	if ( InfoLogLength > 0 ){
     char* msg = calloc(InfoLogLength + 1, sizeof(char));
-    glGetShaderInfoLog(ProgramID, InfoLogLength, NULL, msg);
+    gl->GetShaderInfoLog(ProgramID, InfoLogLength, NULL, msg);
     ERROR("Compiling shader: %s\n", msg);
     free(msg);
 	}
 
-	glDetachShader(ProgramID, VertexShaderID);
-	glDetachShader(ProgramID, FragmentShaderID);
+	gl->DetachShader(ProgramID, VertexShaderID);
+	gl->DetachShader(ProgramID, FragmentShaderID);
 
-	glDeleteShader(VertexShaderID);
-	glDeleteShader(FragmentShaderID);
+	gl->DeleteShader(VertexShaderID);
+	gl->DeleteShader(FragmentShaderID);
 
 
   free(VertexShaderCode);
@@ -230,6 +232,7 @@ void engine_update_window(Window* w, void* e) {
 
 struct glfw_ctx {
   GLFWwindow* w;
+  GladGLContext* c;
 } glfw_ctx;
 
 /* GLFW And vulkan spaghetti boiler */
@@ -244,17 +247,17 @@ struct QueueFamilyIndices {
   int64_t presentFamily;
 };
 
-//GladGLContext* create_context(GLFWwindow *window) {
-//    glfwMakeContextCurrent(window);
-//
-//    GladGLContext* context = (GladGLContext*) calloc(1, sizeof(GladGLContext));
-//    if (!context) return NULL;
-//
-//    int version = gladLoadGLContext(context, glfwGetProcAddress);
-//    INFO("Loaded OpenGL %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
-//
-//    return context;
-//}
+GladGLContext* create_context(GLFWwindow *window) {
+    glfwMakeContextCurrent(window);
+
+    GladGLContext* context = (GladGLContext*) calloc(1, sizeof(GladGLContext));
+    if (!context) return NULL;
+
+    int version = gladLoadGLContext(context, glfwGetProcAddress);
+    INFO("Loaded OpenGL %d.%d", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
+
+    return context;
+}
 
 struct glfw_ctx initialize_GLFW(
     const char* windowtitle, v2_i32 windowsize,
@@ -278,13 +281,11 @@ struct glfw_ctx initialize_GLFW(
   //glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
-  glfwWindowHint(GLFW_SAMPLES, 4); // Disable anti aliasing
+  glfwWindowHint(GLFW_SAMPLES, 0); // Disable anti aliasing
 
   // Use a modern opengl version
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-  //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-  //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
 
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
@@ -306,32 +307,27 @@ struct glfw_ctx initialize_GLFW(
   } else
     printf("ok\n");
 
-  glfwMakeContextCurrent(window);
+  //glfwMakeContextCurrent(window);
 
   // Remember to load GL :) (hours wasted because i forgot: approx 4)
-  int version = gladLoadGL(glfwGetProcAddress);
+  GladGLContext *ctx = create_context(window);
   //printf("GL %d.%d\n", GLAD_VERSION_MAJOR(version), GLAD_VERSION_MINOR(version));
 
 
+  //ctx->Viewport(0, 0, 200, 200);
+
+  if (ctx == NULL) {
+    ERROR("Failed to create glad context");
+    exit(EXIT_FAILURE);
+  }
+
 #ifdef _DEBUG
-  glClearColor((float)0x10 / 255.f, (float)0x0a / 255.f, (float)0x33 / 255.f, 0.f);
+  ctx->ClearColor((float)0x10 / 255.f, (float)0x0a / 255.f, (float)0x33 / 255.f, 0.f);
 #else
-  glClearColor(0x0, 0x0, 0x0, 0.f);
+  ctx->ClearColor(0x0, 0x0, 0x0, 0.f);
 #endif
 
-  // TODO: Replace with callback
-  //glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
-  //while(!(glfwWindowShouldClose(window) && glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS)) {
-
-  //glClear( GL_COLOR_BUFFER_BIT );
-
-  //glfwSwapBuffers(window);
-
-  //glfwPollEvents();
-  //}
-
-  return (struct glfw_ctx){.w = window};
+  return (struct glfw_ctx){.w = window, .c = ctx};
 }
 
 
@@ -371,13 +367,15 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
   {
     struct glfw_ctx ctx = initialize_GLFW(windowtitle, windowsize, flags);
     w->window = ctx.w;
+    w->context = ctx.c;
   }
 
+  const GladGLContext *gl = w->context;
 
   struct RenderObject *testobject = malloc(sizeof(struct RenderObject));
 
-  glGenVertexArrays(1, &(testobject->vao));
-  glBindVertexArray(testobject->vao);
+  gl->GenVertexArrays(1, &(testobject->vao));
+  gl->BindVertexArray(testobject->vao);
 
   p->testobject = testobject;
 
@@ -390,18 +388,28 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
   testobject->g_vertex_buffer_data[5] =  0.0f;
 
   testobject->g_vertex_buffer_data[6] =  0.0f;
-  testobject->g_vertex_buffer_data[7] = -1.0f;
+  testobject->g_vertex_buffer_data[7] =  1.0f;
   testobject->g_vertex_buffer_data[8] =  0.0f;
 
-  testobject->shaderprogram = LoadShaders("shader.vertexshader", "shader.fragmentshader");
-  INFO("Shaderprogram %d", testobject->shaderprogram);
+  static const float bufdata[] = {
+    -1.0f, -1.0f, 0.0f,
+    1.0f, -1.0f, 0.0f,
+    0.0f,  1.0f, 0.0f,
+  };
+
+  LOG("sizeof(bufdata) = %lu", sizeof(bufdata));
+  LOG("sizeof(g_vertex_buffer_data) = %lu", sizeof(testobject->g_vertex_buffer_data));
+
 
   // Generate 1 buffer, put the resulting identifier in vertexbuffer
-  glGenBuffers(1, &(testobject->vbo));
+  gl->GenBuffers(1, &(testobject->vbo));
   // The following commands will talk about our 'vertexbuffer' buffer
-  glBindBuffer(GL_ARRAY_BUFFER, testobject->vbo);
+  gl->BindBuffer(GL_ARRAY_BUFFER, testobject->vbo);
   // Give our vertices to OpenGL.
-  glBufferData(GL_ARRAY_BUFFER, sizeof(testobject->g_vertex_buffer_data), testobject->g_vertex_buffer_data, GL_STATIC_DRAW);
+  gl->BufferData(GL_ARRAY_BUFFER, sizeof(float) * 9, testobject->g_vertex_buffer_data, GL_STATIC_DRAW);
+
+  testobject->shaderprogram = LoadShaders(gl, "shader.vertexshader", "shader.fragmentshader");
+  INFO("Shaderprogram %d", testobject->shaderprogram);
 
   { /* Resource loading */
 
@@ -604,6 +612,7 @@ i32 engine_run(Platform* p, StateType initial_state) {
 
   /* Main loop */
   INFO("Program: %d", p->testobject->shaderprogram);
+  GladGLContext *gl = p->window->context;
   do {
     const u32 now = glfwGetTime();
     const u64 dt = now - time;
@@ -713,13 +722,12 @@ i32 engine_run(Platform* p, StateType initial_state) {
 //#ifdef BENCHMARK
 //      profile_num_drawcalls += drawcall_len;
 //#endif
-//      //render_begin(p->window);
-  glClear(GL_COLOR_BUFFER_BIT );
+      render_begin(p->window);
 
-      glUseProgram(p->testobject->shaderprogram);
-      glEnableVertexAttribArray(0);
-      glBindBuffer(GL_ARRAY_BUFFER, p->testobject->vbo);
-      glVertexAttribPointer(
+      gl->UseProgram(p->testobject->shaderprogram);
+      gl->EnableVertexAttribArray(0);
+      gl->BindBuffer(GL_ARRAY_BUFFER, p->testobject->vbo);
+      gl->VertexAttribPointer(
           0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
           3,                  // size
           GL_FLOAT,           // type
@@ -727,12 +735,13 @@ i32 engine_run(Platform* p, StateType initial_state) {
           0,                  // stride
           (void*)0            // array buffer offset
           );
-      glUseProgram(p->testobject->shaderprogram);
+      gl->UseProgram(p->testobject->shaderprogram);
       // Draw the triangle !
-      glDrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
-      glDisableVertexAttribArray(0);
-  glfwSwapBuffers(p->window->window);
-      //render_present(p->window);
+      gl->DrawArrays(GL_TRIANGLES, 0, 3); // Starting from vertex 0; 3 vertices total -> 1 triangle
+
+      gl->DisableVertexAttribArray(0);
+
+      render_present(p->window);
 //    }
 
     ticks++;

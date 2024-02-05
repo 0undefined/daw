@@ -181,8 +181,8 @@ add_custom_command(
   --reproducible
   c
   --header-only
+  --mx
 )
-  #--mx
 
 message("Configured ${PROJECT_NAME} ${PROJECT_VERSION}")
 message("version:          ${ENGINE_VERSION_MAJOR}.${ENGINE_VERSION_MINOR}.${ENGINE_VERSION_PATCH}-${ENGINE_VERSION_TWEAK} (${ENGINE_BUILD_TYPE} build)")

@@ -87,12 +87,14 @@ void engine_input_ctx_reset(void);
 
 #ifdef ENGINE_INTERNALS
 
+#include <glad/gl.h>
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
 /* Window */
 struct Window {
   GLFWwindow* window;
+  GladGLContext* context;
   f32 render_scale;
 
   v2_i32 windowsize;
