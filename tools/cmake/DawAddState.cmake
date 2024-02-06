@@ -40,7 +40,7 @@ macro(daw_add_state STATENAME)
 
   # TODO: When state reloading is implemented properly, add MODULE library
   # option. In general, this should only be available when debugging.
-  if(BUILD_SHARED_LIBS)
+  if(BUILD_SHARED_LIBS OR DAW_BUILD_HOTRELOAD)
     if(DAW_BUILD_HOTRELOAD)
       add_library(${STATENAME} MODULE ${STATE_SOURCES})
     else()
@@ -50,7 +50,7 @@ macro(daw_add_state STATENAME)
     set_property(TARGET ${STATENAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   else()
-    add_library(${STATENAME} OBJECT ${STATE_SOURCES})
+    add_library(${STATENAME} STATIC ${STATE_SOURCES})
   endif()
 
   target_include_directories(${STATENAME} PUBLIC

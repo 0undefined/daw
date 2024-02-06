@@ -27,7 +27,7 @@ cmake_dependent_option(DAW_BUILD_DEBUG
 
 cmake_dependent_option(DAW_BUILD_HOTRELOAD
   "Compile daw engine with hot reloading enabled" ON
-  "NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME;CMAKE_BUILD_TYPE STREQUAL Debug;NOT WIN32;BUILD_SHARED_LIBS" OFF)
+  "NOT CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME;CMAKE_BUILD_TYPE STREQUAL Debug;NOT WIN32" OFF)
 
 cmake_dependent_option(DAW_BUILD_ASAN
   "Compile daw engine with address sanitizer (asan)" ON
