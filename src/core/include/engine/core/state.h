@@ -21,7 +21,7 @@ StateType State_update(StateType type, memory* mem);
 
 /* Reloads shared object file associated with state */
 #ifdef DAW_BUILD_HOTRELOAD
-#include <engine/input.h>
+#include <engine/ctrl/input.h>
 bool State_reload(StateType type, i_ctx** ctx, usize ctx_len);
 
 #else
