@@ -389,9 +389,6 @@ i32 engine_run(Platform* p, StateType initial_state) {
   // Update ticks
   u64 ticks = 0;
 
-  /* Profiling values */
-  const f64 frame_interval = 1000.0 / FPS_CAP;
-
   StateType (*update_func)(void*) = State_updateFunc(state);
 
   f64 last_fps_measurement = get_time();
@@ -601,7 +598,7 @@ void engine_stop(Platform* p) {
 }
 
 /* Set the maximum framerate */
-void engine_fps_max(u64 cap) { FPS_CAP = cap; }
+void engine_fps_max(u64 cap) { /* does nothing */ }
 
 /* Pushes an input context onto the input handling stack */
 void engine_input_ctx_push(i_ctx* ctx) {
