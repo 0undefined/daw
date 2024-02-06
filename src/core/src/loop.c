@@ -70,7 +70,7 @@ void engine_update_window(Window* w, void* e) {
 
 /* Creates the window, initializes IO, Rendering, Fonts and engine-specific
  * resources. */
-Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
+Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight,
                       const f32 render_scale, const u32 flags,
                       const usize initial_memory, const Asset_FontSpec* fonts[],
                       const Asset_TextureSpec* textures[]) {
@@ -81,6 +81,7 @@ Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
     INFO("Starting with pid %lu", pid);
   }
 #endif
+ v2_i32 windowsize = (v2_i32){.x = windowWidth, .y = windowHeight};
 
   Platform* p = (Platform*)malloc(sizeof(Platform));
   Window w = (Window)malloc(sizeof(Window));

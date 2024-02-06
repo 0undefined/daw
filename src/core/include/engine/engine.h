@@ -61,7 +61,7 @@ typedef struct {
 } Platform;
 
 /* Essential functions */
-Platform* engine_init(const char* windowtitle, v2_i32 windowsize,
+Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight,
                       const f32 render_scale, const u32 flags,
                       const usize initial_memory, const Asset_FontSpec* fonts[],
                       const Asset_TextureSpec* textures[]);
