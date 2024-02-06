@@ -2,7 +2,7 @@
 # The directories contents will be compiled into a shared object file and linked
 # to the main daw library, unless you compile statically, or link during runtime.
 #
-# Say you want to add a new state, called ${STATENAME} to your project, localted
+# Say you want to add a new state, called ${STATENAME} to your project, located
 # at ${PROJECT_ROOT}, Then your directory structure for your main project should
 # be as follows:
 #     ${PROJECT_ROOT}/
@@ -33,8 +33,13 @@ macro(daw_add_state STATENAME)
     state_${STATENAME}/src/*.c
   )
 
+  file(GLOB DAW_INCLUDE_DIRS
+    LIST_DIRECTORIES true
+    ${daw_SOURCE_DIR}/src/*/include
+  )
+
   # TODO: When state reloading is implemented properly, add MODULE library
-  # option In general, this should only be available when debugging.
+  # option. In general, this should only be available when debugging.
   if(BUILD_SHARED_LIBS)
     if(DAW_BUILD_DEBUG AND DAW_BUILD_HOTRELOAD)
       add_library(${STATENAME} MODULE ${STATE_SOURCES})
@@ -53,8 +58,8 @@ macro(daw_add_state STATENAME)
 
   target_include_directories(${STATENAME} PUBLIC
     state_${STATENAME}/include
-    ${daw_SOURCE_DIR}/include
     ${CMAKE_BINARY_DIR}/include
+    ${DAW_INCLUDE_DIRS}
     include
     )
 
