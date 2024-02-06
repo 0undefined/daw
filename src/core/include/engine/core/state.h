@@ -23,9 +23,12 @@ StateType State_update(StateType type, memory* mem);
 #ifdef DAW_BUILD_HOTRELOAD
 #include <engine/ctrl/input.h>
 bool State_reload(StateType type, i_ctx** ctx, usize ctx_len);
+bool state_refresh_input_ctx(void* lib, i_ctx** ctx, usize ctx_len);
 
 #else
 #define State_reload(_, _0, _1) true
+#define state_refresh_input_ctx(_0, _1, _2) true
+
 #endif
 
 #endif

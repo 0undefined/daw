@@ -175,4 +175,74 @@ bool State_reload(StateType type, i_ctx** ctx, usize ctx_len) {
   }
   return state_refresh_input_ctx(libptr, ctx, ctx_len);
 }
+
+
+bool state_refresh_input_ctx(void* lib, i_ctx** ctx, usize ctx_len) {
+  if (ctx == NULL) return true;
+  if (ctx_len > 0 && ctx[0] == NULL) return false;
+  if (lib == NULL) return false;
+
+  for (usize c = 0; c < ctx_len; c++) {
+    LOG("ctx[%d]->len = %d", c, ctx[c]->len);
+    for (isize b = 0; b < ctx[c]->len; b++) {
+      switch (ctx[c]->bindings[b].action.type) {
+      case InputType_error:
+        break;
+      case InputType_action:
+        if (strcmp("NULL", ctx[c]->bindings[b].action.action.callback_str) !=
+            0) {
+
+          ctx[c]->bindings[b].action.action.callback =
+              (input_callback_t*)dynamic_library_get_symbol(
+                  lib, ctx[c]->bindings[b].action.action.callback_str);
+
+          if (ctx[c]->bindings[b].action.action.callback == NULL) {
+            ERROR("Failed to get binding for %s: %s",
+                  ctx[c]->bindings[b].action.action.callback_str,
+                  dynamic_library_get_error());
+            return false;
+          }
+        }
+        break;
+      case InputType_state:
+        if (strcmp("NULL", ctx[c]->bindings[b].action.state.activate_str) !=
+            0) {
+
+          ctx[c]->bindings[b].action.state.activate =
+              (input_callback_t*)dynamic_library_get_symbol(
+                  lib, ctx[c]->bindings[b].action.state.activate_str);
+
+          if (ctx[c]->bindings[b].action.state.activate == NULL) {
+            ERROR("Failed to get binding for %s: %s",
+                  ctx[c]->bindings[b].action.state.activate_str,
+                  dynamic_library_get_error());
+            return false;
+          }
+        }
+
+        if (strcmp("NULL", ctx[c]->bindings[b].action.state.deactivate_str) !=
+            0) {
+
+          ctx[c]->bindings[b].action.state.deactivate =
+              (input_callback_t*)dynamic_library_get_symbol(
+                  lib, ctx[c]->bindings[b].action.state.deactivate_str);
+
+          if (ctx[c]->bindings[b].action.state.deactivate == NULL) {
+            ERROR("Failed to get binding for %s: %s",
+                  ctx[c]->bindings[b].action.state.deactivate_str,
+                  dynamic_library_get_error());
+            return false;
+          }
+        }
+        break;
+      case InputType_range:
+      default:
+        break;
+      }
+    }
+  }
+
+  return true;
+}
+
 #endif
