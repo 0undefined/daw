@@ -15,7 +15,7 @@
 # Then call `daw_add_state(${STATENAME}) for each of your states.
 macro(daw_add_state STATENAME)
   # Add state include directory to the engines target
-  set_property(TARGET daw
+  set_property(TARGET daw_core
     APPEND PROPERTY INCLUDE_DIRECTORIES
     ${CMAKE_SOURCE_DIR}/state_${STATENAME}/include)
 
