@@ -101,7 +101,6 @@ add_link_options(${RELEASE_OPTS})
 #set_property(SOURCE src/core/include/engine/engine.h APPEND PROPERTY OBJECT_DEPENDS ${GLAD_HEADER})
 
 add_library(${PROJECT_NAME}
-  src/main.c
   ${GLAD_HEADER}
   )
 
@@ -112,7 +111,6 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   include
   ${CMAKE_BINARY_DIR}/include
   ${ENGINE_INCLUDE})
-
 
 # Add the modules
 add_subdirectory(src)

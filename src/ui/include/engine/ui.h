@@ -5,6 +5,8 @@
 #include <engine/utils/list.h>
 #include <engine/utils/vector.h>
 
+#include <engine/rendering/rendering.h>
+
 #define DIRECTION_HORIZONTAL true
 #define DIRECTION_VERTICAL false
 
@@ -260,5 +262,8 @@ Engine_color ui_get_default_bg(void);
 #define NO_CLICK (-2)
 /* Returns -1 if not found */
 u64 ui_check_click(UITree* root);
+
+void engine_draw_uitree(UITree* t);
+void render_uitree(Window w, UITree* t);
 
 #endif

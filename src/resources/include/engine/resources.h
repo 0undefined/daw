@@ -3,6 +3,7 @@
 
 #include <engine/core/types.h>
 
+// TODO
 /* We need some "global resources", available to all states.
  * These are resources such as common fonts, GUI frames, button background
  * images.
@@ -49,6 +50,29 @@ typedef union {
   Asset_AudioSpec audio;
 } asset_t;
 
+// The resource spec
+struct Resources {
+  // Was:
+//  usize textures_len;
+//  usize textures_size;
+//  usize fonts_len;
+//
+//  usize texturepaths_len;
+//  usize fontpaths_len;
+//
+//  /* Paths for our sources, kept in case the user wants to reload them */
+//  Asset_TextureSpec** texture_paths;
+//  Asset_FontSpec** font_paths;
+//
+//  /* Our actual sources */
+//  Texture** textures;
+//  //TTF_Font** fonts;
+
+  // But with the new way:
+  // usize assets_len;
+  // asset_t assets*;
+};
+
 #define Resource_FontDefinition(_path, _fontsize)                              \
   (const Asset_FontSpec) {                                                     \
     .type = Asset_font, .font_path = _path, .ptsize = _fontsize                \
@@ -75,5 +99,7 @@ isize resource_load_audio(Asset_AudioSpec audio_def);
 /* Makes a resource globally available. This must be called **BEFORE** any call
  * to `engine_run` */
 isize resource_make_global(isize resource_id);
+
+#include <engine/resources/texture.h>
 
 #endif

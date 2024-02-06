@@ -4,6 +4,7 @@
 #include <engine/engine.h>
 #include <engine/utils/btree.h>
 #include <engine/utils.h>
+#include <engine/ui.h>
 
 static Engine_color DEFAULT_FG = {0xFF, 0xFF, 0xFF, 0xFF};
 static Engine_color DEFAULT_BG = {0x00, 0x00, 0x00, 0xFF};
@@ -57,11 +58,11 @@ v2_i32 get_pos(UITree* t);
 v2_i32 get_size(UITree* t);
 
 f32 ui_size_pixel_to_percent_width(i32 pixels) {
-  return (f32)pixels / (f32)GLOBAL_PLATFORM->window->windowsize.x;
+  return (f32)pixels / (f32)GLOBAL_PLATFORM->window->windowsize[0];
 }
 
 f32 ui_size_pixel_to_percent_height(i32 pixels) {
-  return (f32)pixels / (f32)GLOBAL_PLATFORM->window->windowsize.y;
+  return (f32)pixels / (f32)GLOBAL_PLATFORM->window->windowsize[1];
 }
 
 f32 ui_size_pixel_to_percent(i32 pixels) {
@@ -69,11 +70,11 @@ f32 ui_size_pixel_to_percent(i32 pixels) {
 }
 
 i32 ui_size_percent_width_to_pixel(f32 percent) {
-  return (i32)(percent * GLOBAL_PLATFORM->window->windowsize.x);
+  return (i32)(percent * GLOBAL_PLATFORM->window->windowsize[0]);
 }
 
 i32 ui_size_percent_height_to_pixel(f32 percent) {
-  return (i32)(percent * GLOBAL_PLATFORM->window->windowsize.y);
+  return (i32)(percent * GLOBAL_PLATFORM->window->windowsize[1]);
 }
 
 i32 ui_size_percent_to_pixel(f32 percent) {
@@ -818,8 +819,12 @@ void ui_resolve_constraints(void) {
   it = btree_iter_t_new(GLOBAL_UIROOTS);
 
   while ((i = btree_iter(GLOBAL_UIROOTS, it)) != NULL) {
+    v2_i32 sz = (v2_i32){
+      .x = GLOBAL_PLATFORM->window->windowsize[0],
+      .y = GLOBAL_PLATFORM->window->windowsize[1]
+    };
     ui_rearrange((UITree*)*i, (v2_i32){0, 0},
-                 GLOBAL_PLATFORM->window->windowsize);
+                 sz);
   }
   free(it);
 }

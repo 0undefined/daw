@@ -2,16 +2,22 @@
 #include <stdio.h>
 #include <string.h>
 
-#define ENGINE_INTERNALS
+#include <cglm/cglm.h>
 
-#include <engine/engine.h>
+//#include <engine/engine.h>
 #include <engine/rendering/rendering.h>
 
-extern Platform* GLOBAL_PLATFORM;
+//extern Platform* GLOBAL_PLATFORM;
 
 extern const char* uitype_str[];
 
-void render_uitree(Window* w, UITree* t) {
+void render_container(Window w, UITree_container* t);
+void render_button(Window w, UITree_button* t);
+void render_title(Window w, UITree_title* t);
+void render_text(Window w, UITree_text* t);
+v2_i32 elem_size(UITree root);
+
+void render_uitree(Window w, UITree* t) {
   switch (t->type) {
   case uitype_container:
     render_container(w, &t->container);
@@ -35,7 +41,7 @@ void render_uitree(Window* w, UITree* t) {
   }
 }
 
-void render_container(Window* w, UITree_container* t) {
+void render_container(Window w, UITree_container* t) {
 
   if (t->children != NULL && t->children_len > 0) {
     for (usize i = 0; i < t->children_len; i++) {
@@ -44,13 +50,13 @@ void render_container(Window* w, UITree_container* t) {
   }
 }
 
-void render_button(Window* w, UITree_button* t) {
+void render_button(Window w, UITree_button* t) {
 }
 
-void render_title(Window* w, UITree_title* t) {
+void render_title(Window w, UITree_title* t) {
 }
 
-void render_text(Window* w, UITree_text* t) {
+void render_text(Window w, UITree_text* t) {
 }
 
 i64 add_texture(struct Resources* resptr, Texture* t) {
