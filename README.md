@@ -41,6 +41,26 @@ and plan out a more solid organizational strategy for the project as a whole.
 
 See [this CMakeLists.txt][0] to get an idea of how to use this project.
 
+## Building
+
+_At the moment building with statically linking is borked._
+
+Generate the build files using
+```
+cmake -S . -B build
+```
+
+And build the project with
+```
+cmake --build build
+```
+
+This should, in theory, build the engine as a shared library and run without any
+warnings nor errors.
+
+The way the engine is designed, it is very useless as a shared library, and does
+nothing if it is not configured as a subproject of the "game" itself.
+See [tools/cmake/DawAddState.cmake](tools/cmake/DawAddState.cmake) for more information.
 
 ## Planned features
 
@@ -48,7 +68,7 @@ This is an incomplete list of features that are either under development or
 planned to implement.
 
 * Audio
-* GLFW & Vulkan support
+* GLFW & OpenGL
 * Better cross platform support (ie. windows)
 
 [0]: https://github.com/0undefined/rogue/blob/a947b0092d91920d56eb9af6a39bd1bd05e145fc/CMakeLists.txt
