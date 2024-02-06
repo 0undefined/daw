@@ -50,7 +50,15 @@ macro(daw_add_state STATENAME)
     set_property(TARGET ${STATENAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
   else()
-    add_library(${STATENAME} STATIC ${STATE_SOURCES})
+    add_library(${STATENAME} OBJECT ${STATE_SOURCES})
+
+    # The game-state source is withing the core module
+    set_property(TARGET daw_core
+      APPEND PROPERTY INCLUDE_DIRECTORIES
+      ${CMAKE_SOURCE_DIR}/state_${STATENAME}/include)
+    set_property(TARGET daw_core
+      APPEND PROPERTY LINK_LIBRARIES
+      ${STATENAME})
   endif()
 
   target_include_directories(${STATENAME} PUBLIC
@@ -60,7 +68,7 @@ macro(daw_add_state STATENAME)
     include
     )
 
-  if(NOT DAW_BUILD_HOTRELOAD)
+  if(NOT (DAW_BUILD_HOTRELOAD OR BUILD_SHARED_LIBS))
     set_property(TARGET daw
       APPEND PROPERTY LINK_LIBRARIES
       ${STATENAME})
