@@ -36,7 +36,7 @@ void window_size_callback(GLFWwindow* window, int width, int height) {
 GladGLContext* create_context(GLFWwindow *window) {
     glfwMakeContextCurrent(window);
 
-    GladGLContext* context = (GladGLContext*) calloc(1, sizeof(GladGLContext));
+    GladGLContext* context = (GladGLContext*)malloc(sizeof(GladGLContext));
     if (!context) return NULL;
 
     int version = gladLoadGLContext(context, glfwGetProcAddress);
@@ -97,9 +97,6 @@ Window init_window_glfw(
   // Setup callbacks
   // TODO: input handler callback
   glfwSetFramebufferSizeCallback(window, window_size_callback);
-
-  // Minor tweaks
-  glfwSwapInterval(0);
 
   // Create the window datastructure
   ret = (Window)calloc(1, sizeof(Window));
