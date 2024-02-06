@@ -1,6 +1,8 @@
 #include <engine/core/logging.h>
 #include <engine/resources.h>
 
+// Use the engine/render.h backend to create a renderer-specific texture
+
 Texture* load_texture(void* render, const Asset_TextureSpec* ts) {
   Texture* t = NULL;
 

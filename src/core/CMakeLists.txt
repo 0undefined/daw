@@ -7,6 +7,7 @@ add_library(daw_core
   src/loop.c
   src/memory.c
   src/state.c
+  src/thread.c
   )
 
 set_property(SOURCE src/loop.c APPEND PROPERTY OBJECT_DEPENDS ${GLAD_HEADER})

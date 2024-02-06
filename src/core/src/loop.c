@@ -29,32 +29,6 @@
 
 #define DEFAULT_NUM_PROCS 8
 
-#ifdef BENCHMARK
-#define BENCHEXPR(timevar, expr)                                               \
-  {                                                                            \
-    f64 t = get_time();                                                    \
-    expr timevar += get_time() - t;                                        \
-  }
-
-extern i32 drawcall_len;
-
-#else
-#define BENCHEXPR(timevar, expr) expr
-#endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-static u64 FPS_CAP = 50;
 Platform* GLOBAL_PLATFORM = NULL;
 
 input_callback_t* callbacks[128];
