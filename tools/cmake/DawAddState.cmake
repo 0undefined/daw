@@ -47,8 +47,9 @@ macro(daw_add_state STATENAME)
       add_library(${STATENAME} SHARED ${STATE_SOURCES})
     endif()
 
-    set_property(TARGET ${STATENAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
+    target_link_libraries(${STATENAME} PUBLIC daw)
 
+    set_property(TARGET ${STATENAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
   else()
     add_library(${STATENAME} OBJECT ${STATE_SOURCES})
 

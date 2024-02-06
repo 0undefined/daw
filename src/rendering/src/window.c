@@ -99,11 +99,10 @@ Window init_window_glfw(
   glfwSetFramebufferSizeCallback(window, window_size_callback);
 
   // Create the window datastructure
-  ret = (Window)calloc(1, sizeof(Window));
+  ret = (Window)calloc(1, sizeof(struct Window));
   ret->framework = WINDOW_FRAMEWORK_GLFW;
   ret->renderer = WINDOW_RENDERER_NONE;
-  ret->windowsize[0] = windowsize[0];
-  ret->windowsize[1] = windowsize[1];
+  glm_ivec2_copy(windowsize, ret->windowsize);
   ret->window = window;
   // Last parameter is used for the renderer
   ret->context = NULL;

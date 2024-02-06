@@ -51,6 +51,10 @@ if(DAW_BUILD_DEBUG AND NOT_SUBPROJECT)
   set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 endif()
 
+if(DAW_BUILD_HOTRELOAD)
+  set(BUILD_SHARED_LIBS ON)
+endif()
+
 if(DAW_BUILD_UBSAN AND DAW_BUILD_ASAN)
   message(FATAL_ERROR "You cannot build both asan and ubsan")
 endif()

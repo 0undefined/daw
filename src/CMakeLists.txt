@@ -45,7 +45,6 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 target_compile_features(${PROJECT_NAME} PRIVATE c_std_99)
-set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 if(DAW_BUILD_ASAN AND NOT C_COMPILER_ID STREQUAL MSVC)
   add_compile_options(-fsanitize=address -fsanitize=leak -fsanitize-address-use-after-scope)
