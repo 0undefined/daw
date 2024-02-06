@@ -14,3 +14,7 @@ set_property(SOURCE src/loop.c APPEND PROPERTY OBJECT_DEPENDS ${GLAD_HEADER})
 
 target_include_directories(daw_core PRIVATE ${DAW_INCLUDE_DIRS})
 target_link_libraries(daw_core PRIVATE cglm)
+
+target_compile_definitions(daw_core PUBLIC
+  $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:DAW_BUILD_HOTRELOAD>
+)

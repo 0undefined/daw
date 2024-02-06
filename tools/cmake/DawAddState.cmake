@@ -41,11 +41,8 @@ macro(daw_add_state STATENAME)
   # TODO: When state reloading is implemented properly, add MODULE library
   # option. In general, this should only be available when debugging.
   if(BUILD_SHARED_LIBS)
-    if(DAW_BUILD_DEBUG AND DAW_BUILD_HOTRELOAD)
+    if(DAW_BUILD_HOTRELOAD)
       add_library(${STATENAME} MODULE ${STATE_SOURCES})
-      target_compile_definitions(${STATENAME} PUBLIC
-        $<$<BOOL:${DAW_BUILD_DEBUG}>:_DEBUG>
-      )
     else()
       add_library(${STATENAME} SHARED ${STATE_SOURCES})
     endif()
