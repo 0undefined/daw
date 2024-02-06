@@ -1,8 +1,8 @@
 #ifndef ENGINE_FOV_H
 #define ENGINE_FOV_H
 
-#include "types.h"
-#include "vector.h"
+#include <engine/core/types.h>
+#include <engine/utils/vector.h>
 #include <stdbool.h>
 
 /* `fov_shadowcast`: */

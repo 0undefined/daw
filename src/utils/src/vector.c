@@ -1,5 +1,5 @@
 #include <engine/utils.h>
-#include <engine/vector.h>
+#include <engine/utils/vector.h>
 
 bool v2_i32_eq(const v2_i32 a, const v2_i32 b) {
   return (a.x == b.x) && (a.y == b.y);

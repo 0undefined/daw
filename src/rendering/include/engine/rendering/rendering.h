@@ -1,8 +1,8 @@
 #ifndef RENDERING_H
 #define RENDERING_H
 
-#include "types.h"
-#include "vector.h"
+#include <engine/core/types.h>
+#include <engine/utils/vector.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -26,8 +26,8 @@ typedef struct {
 } Sprite;
 
 
-#include "engine.h"
-#include "ui.h"
+#include <engine/engine.h>
+#include <engine/ui.h>
 
 /* Rendering functions */
 void render_begin(Window* w);
@@ -52,7 +52,7 @@ void engine_draw_sprite_ex(Sprite* s, v2_i32* pos, f32 scale,
 Sprite sprite_new(u64 tid, u8 coord);
 
 #ifdef ENGINE_INTERNALS
-#include "engine.h"
+#include <engine/engine.h>
 
 //#include <glad/gl.h>
 //#define GLFW_INCLUDE_NONE

@@ -1,8 +1,8 @@
 #ifndef ENGINE_UTILS_H
 #define ENGINE_UTILS_H
 
-#include "types.h"
-#include "vector.h"
+#include <engine/core/types.h>
+#include <engine/utils/vector.h>
 
 #define MIN(a, b) ((a < b) ? (a) : (b))
 #define MAX(a, b) ((a > b) ? (a) : (b))

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdbool.h>
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
 /* include winapi */
@@ -6,8 +7,8 @@
 #include <dlfcn.h>
 #endif
 
-#include <engine/dltools.h>
-#include <engine/logging.h>
+#include <engine/core/dltools.h>
+#include <engine/core/logging.h>
 
 bool dynamic_library_close(void* shared_library) {
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)

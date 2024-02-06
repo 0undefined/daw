@@ -9,7 +9,7 @@
 
 #define ENGINE_INTERNALS
 #include <engine/engine.h>
-#include <engine/rendering.h>
+#include <engine/rendering/rendering.h>
 
 /* Extern globals */
 extern Platform* GLOBAL_PLATFORM;

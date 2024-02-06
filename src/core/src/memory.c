@@ -2,9 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <engine/logging.h>
-
-#include <engine/memory.h>
+#include <engine/core/logging.h>
+#include <engine/core/memory.h>
 
 memory* memory_new(usize max_size) {
   memory* m = malloc(sizeof(memory));

@@ -1,6 +1,6 @@
-#include <engine/dltools.h>
-#include <engine/input.h>
-#include <engine/logging.h>
+#include <engine/core/dltools.h>
+#include <engine/core/logging.h>
+#include <engine/ctrl/input.h>
 #include <string.h>
 
 /* Lazy binds, used internally. They are similar to BindAction and friends.

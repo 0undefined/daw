@@ -25,14 +25,12 @@
 #endif
 
 #define ENGINE_INTERNALS
-#include <engine/btree.h>
 #include <engine/engine.h>
-#include <engine/hashmap.h>
-#include <engine/list.h>
+#include <engine/utils/btree.h>
+#include <engine/utils/hashmap.h>
+#include <engine/utils/list.h>
 
-#include <engine/state.h>
-// #include <states/titlescreen.h>
-// #include <states/gameover.h>
+#include <engine/core/state.h>
 
 #define DEFAULT_NUM_PROCS 8
 

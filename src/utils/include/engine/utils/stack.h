@@ -25,7 +25,7 @@
 #ifndef STACK_H
 #define STACK_H
 
-#include "types.h"
+#include <engine/core/types.h>
 
 typedef struct {
   isize head;             /* current number of elements */

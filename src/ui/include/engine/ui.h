@@ -1,9 +1,9 @@
 #ifndef ENGINE_UI_H
 #define ENGINE_UI_H
 
-#include "list.h"
-#include "types.h"
-#include "vector.h"
+#include <engine/core/types.h>
+#include <engine/utils/list.h>
+#include <engine/utils/vector.h>
 
 #define DIRECTION_HORIZONTAL true
 #define DIRECTION_VERTICAL false

@@ -1,7 +1,7 @@
 #ifndef INPUT_H
 #define INPUT_H
 
-#include <engine/types.h>
+#include <engine/core/types.h>
 
 typedef void input_callback_t(void*);
 typedef i32 scancode_t;

@@ -1,7 +1,7 @@
 #ifndef RESOURCES_H
 #define RESOURCES_H
 
-#include <engine/types.h>
+#include <engine/core/types.h>
 
 /* We need some "global resources", available to all states.
  * These are resources such as common fonts, GUI frames, button background

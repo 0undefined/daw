@@ -5,7 +5,7 @@
 #define ENGINE_INTERNALS
 
 #include <engine/engine.h>
-#include <engine/rendering.h>
+#include <engine/rendering/rendering.h>
 
 extern Platform* GLOBAL_PLATFORM;
 

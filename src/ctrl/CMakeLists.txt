@@ -6,4 +6,4 @@ add_library(daw_ctrl
   src/mouse.c
   )
 
-target_include_directories(daw_ctrl PRIVATE include)
+target_include_directories(daw_ctrl PRIVATE ${DAW_INCLUDE_DIRS})

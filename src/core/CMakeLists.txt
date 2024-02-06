@@ -9,4 +9,7 @@ add_library(daw_core
   src/state.c
   )
 
-target_include_directories(daw_core PRIVATE include)
+set_property(SOURCE src/loop.c APPEND PROPERTY OBJECT_DEPENDS ${GLAD_HEADER})
+
+target_include_directories(daw_core PRIVATE ${DAW_INCLUDE_DIRS})
+target_link_libraries(daw_core PRIVATE cglm)

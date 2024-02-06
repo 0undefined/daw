@@ -1,8 +1,8 @@
 #include <stdint.h>
 #define ENGINE_INTERNALS
 
-#include <engine/btree.h>
 #include <engine/engine.h>
+#include <engine/utils/btree.h>
 #include <engine/utils.h>
 
 static Engine_color DEFAULT_FG = {0xFF, 0xFF, 0xFF, 0xFF};

@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "types.h"
+#include <engine/core/types.h>
 
 #if defined __linux__ || defined __APPLE__
 #define TERM_COLOR_RESET "\033[0m"

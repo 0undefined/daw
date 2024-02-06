@@ -1,7 +1,7 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include <engine/memory.h>
+#include <engine/core/memory.h>
 
 typedef enum StateType {
   STATE_null,

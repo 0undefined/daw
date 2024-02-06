@@ -1,5 +1,5 @@
-#include <engine/logging.h>
-#include <engine/stack.h>
+#include <engine/core/logging.h>
+#include <engine/utils/stack.h>
 #include <stdlib.h>
 
 Stack stack_new_ex(const usize element_size, const usize size) {

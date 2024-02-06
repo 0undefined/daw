@@ -91,16 +91,20 @@ FetchContent_Declare(cglm
 )
 FetchContent_MakeAvailable(cglm)
 
-## Compilation information
-add_subdirectory(src)
+## Glad
+set(GLAD_HEADER ${CMAKE_BINARY_DIR}/include/glad/gl.h)
 
+## Compilation information
 add_compile_options(${RELEASE_OPTS})
 add_link_options(${RELEASE_OPTS})
 
+#set_property(SOURCE src/core/include/engine/engine.h APPEND PROPERTY OBJECT_DEPENDS ${GLAD_HEADER})
+
 add_library(${PROJECT_NAME}
-  ${CMAKE_BINARY_DIR}/include/glad/gl.h
-  #${ENGINE_SOURCES}
+  src/main.c
+  ${GLAD_HEADER}
   )
+
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C)
 
@@ -108,6 +112,10 @@ target_include_directories(${PROJECT_NAME} PUBLIC
   include
   ${CMAKE_BINARY_DIR}/include
   ${ENGINE_INCLUDE})
+
+
+# Add the modules
+add_subdirectory(src)
 
 target_link_libraries(${PROJECT_NAME}
   glfw
@@ -119,7 +127,7 @@ target_link_libraries(${PROJECT_NAME}
   daw_resources
   daw_ui
   daw_utils
-  NOT:$<PLATFORM_ID:Windows>>:m>
+  $<$<NOT:$<PLATFORM_ID:Windows>>:m>
   $<$<BOOL:${DAW_BUILD_HOTRELOAD}>:dl>
   $<$<AND:$<NOT:$<C_COMPILER_ID:MSVC>>,$<BOOL:${DAW_BUILD_UBSAN}>>:ubsan>
 )
@@ -165,18 +173,6 @@ if (NOT NOT_SUBPROJECT)
   set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH}" PARENT_SCOPE)
 endif()
 include(DawAddState)
-
-add_custom_command(
-  OUTPUT ${CMAKE_BINARY_DIR}/include/glad/gl.h
-  COMMAND
-  glad
-  --api gl:core=3.3
-  --out-path ${CMAKE_BINARY_DIR}
-  --reproducible
-  c
-  --header-only
-  --mx
-)
 
 message("Configured ${PROJECT_NAME} ${PROJECT_VERSION}")
 message("version:          ${ENGINE_VERSION_MAJOR}.${ENGINE_VERSION_MINOR}.${ENGINE_VERSION_PATCH}-${ENGINE_VERSION_TWEAK} (${ENGINE_BUILD_TYPE} build)")

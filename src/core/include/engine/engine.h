@@ -3,14 +3,17 @@
 
 #include <stdbool.h>
 
-#include <engine/input.h>
-#include <engine/logging.h>
-#include <engine/memory.h>
+// TODO: Cleanup the includes, ideally this header file should only include all
+// "public-facing" headers.
+
+#include <engine/core/types.h>
+#include <engine/core/logging.h>
+#include <engine/core/memory.h>
+#include <engine/core/state.h>
+#include <engine/ctrl/input.h>
 #include <engine/resources.h>
-#include <engine/stack.h>
-#include <engine/state.h>
-#include <engine/types.h>
-#include <engine/vector.h>
+#include <engine/utils/stack.h>
+#include <engine/utils/vector.h>
 
 typedef struct {
   u32 texture_id;
@@ -83,7 +86,7 @@ void engine_input_ctx_push(i_ctx* ctx);
 void engine_input_ctx_pop(void);
 void engine_input_ctx_reset(void);
 
-#include "rendering.h"
+#include <engine/rendering/rendering.h>
 
 #ifdef ENGINE_INTERNALS
 

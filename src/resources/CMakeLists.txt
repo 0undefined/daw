@@ -4,4 +4,4 @@ add_library(daw_resources
   src/textures.c
   )
 
-target_include_directories(daw_resources PRIVATE include)
+target_include_directories(daw_resources PRIVATE ${DAW_INCLUDE_DIRS})

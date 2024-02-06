@@ -3,7 +3,7 @@
 
 #include <string.h>
 
-#include <engine/logging.h>
+#include <engine/core/logging.h>
 #include <engine/utils.h>
 
 /* These should all be in some external facing module "tools" */

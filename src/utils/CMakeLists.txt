@@ -7,4 +7,4 @@ add_library(daw_utils
   src/vector.c
   )
 
-target_include_directories(daw_utils PRIVATE include)
+target_include_directories(daw_utils PRIVATE ${DAW_INCLUDE_DIRS})

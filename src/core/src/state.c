@@ -1,9 +1,9 @@
 #include <string.h>
 
-#include <engine/dltools.h>
-#include <engine/input.h>
-#include <engine/logging.h>
-#include <engine/state.h>
+#include <engine/core/dltools.h>
+#include <engine/core/logging.h>
+#include <engine/core/state.h>
+#include <engine/ctrl/input.h>
 
 typedef StateType state_update_t(void*);
 

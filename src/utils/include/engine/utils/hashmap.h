@@ -1,11 +1,11 @@
 #ifndef ENGINE_HASHMAP_H
 #define ENGINE_HASHMAP_H
 
-#include "types.h"
-
-#include "list.h"
-#include "memory.h"
 #include <stdlib.h>
+
+#include <engine/core/types.h>
+#include <engine/core/memory.h>
+#include <engine/utils/list.h>
 
 i32 lolhash(const usize s, i32 v);
 

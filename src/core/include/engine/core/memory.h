@@ -1,8 +1,7 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
-#include "types.h"
-// #include <stdlib.h>
+#include <engine/core/types.h>
 
 typedef struct memory {
   void* data;
