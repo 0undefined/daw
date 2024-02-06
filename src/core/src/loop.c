@@ -407,43 +407,7 @@ i32 engine_run(Platform* p, StateType initial_state) {
       //printf("\n FPS: %.1f  \t ticks: %lu", (double)ticks / now, ticks);
     }
 
-#ifdef BENCHMARK
-    if (time - profile_interval_timer > profile_interval_ms) {
-      /* Ticks/frames since last measurement */
-      u32 fps = (ticks - profile_tick_counter) / profile_interval_scale;
-      u64 drawcalls = profile_num_drawcalls / profile_interval_scale / fps;
-
-      u32 sum = +profile_rendering
-                //+ profile_slack
-                + profile_input + profile_input_handling + profile_gameloop;
-
-      /* Log fps and slack percentage */
-      LOG("fps:%d\t"
-          "rendering:%.2f%%\t"
-          //"slack:%.2f%%\t"
-          "input:%.2f%% (%.2f%%)\t"
-          "gameloop:%.2f%%\t"
-          "unaccounted:%llu / %llu ms\t"
-          "avg drawcalls:%llu",
-          fps, 100.0f * (f32)profile_rendering / (f32)sum,
-          // 100.0f * (f32)profile_slack          / (f32)sum,
-          100.0f * (f32)profile_input / (f32)sum,
-          100.0f * (f32)profile_input_handling / (f32)sum,
-          100.0f * (f32)profile_gameloop / (f32)sum,
-          time - profile_interval_timer - sum, sum, drawcalls);
-      /* Reset values */
-      profile_tick_counter = ticks;
-      profile_interval_timer = time;
-      // profile_slack          = 0;
-      profile_rendering = 0;
-      profile_gameloop = 0;
-      profile_input = 0;
-      profile_input_handling = 0;
-      profile_num_drawcalls = 0;
-    }
-#endif
-
-    //glfwPollEvents();
+    glfwPollEvents();
     /* Events */
 //    if (p->mouse_lclick) {
 //      p->mouseup.x = -1;
@@ -471,22 +435,21 @@ i32 engine_run(Platform* p, StateType initial_state) {
 //    callbacks_len = 0;
 //
 //    /* update */
-//    StateType next_state;
-//      next_state = update_func((void*)(mem->data));
-//
-//    if (next_state != STATE_null) {
-//      if (next_state == STATE_quit) break;
-//
-//      drawcall_reset();
-//
-//      engine_window_resize_pointers_reset();
-//      State_free(state, mem);
-//      memory_clear(mem);
-//
-//      engine_input_ctx_reset();
-//
-//      state = next_state;
-//      update_func = State_updateFunc(state);
+    StateType next_state;
+      next_state = update_func((void*)(mem->data));
+
+    if (next_state != STATE_null) {
+      if (next_state == STATE_quit) break;
+
+      drawcall_reset();
+
+      State_free(state, mem);
+      memory_clear(mem);
+
+      engine_input_ctx_reset();
+
+      state = next_state;
+      update_func = State_updateFunc(state);
 //#ifdef BENCHMARK
 //      {
 //        f64 t = get_time();
@@ -495,9 +458,9 @@ i32 engine_run(Platform* p, StateType initial_state) {
 //            (int)((get_time() - t) * 1000.0));
 //      }
 //#else
-//      State_init(state, mem);
+      State_init(state, mem);
 //#endif
-//    } else {
+    } else {
 //#ifdef BENCHMARK
 //      profile_num_drawcalls += drawcall_len;
 //#endif
@@ -567,7 +530,7 @@ i32 engine_run(Platform* p, StateType initial_state) {
       //gl->DisableVertexAttribArray(1);
 
       render_present(p->window);
-//    }
+    }
 
     ticks++;
   } while(
@@ -596,6 +559,7 @@ void engine_stop(Platform* p) {
   //}
 
 
+  destroy_window(p->window);
 }
 
 /* Set the maximum framerate */
@@ -655,7 +619,5 @@ void engine_input_ctx_reset(void) {
     i_ctx_t_free(GLOBAL_PLATFORM->bindings[--GLOBAL_PLATFORM->bindings_len]);
   }
 }
-
-f64 get_time(void) { return glfwGetTime(); }
 //ivec2 get_windowsize(void) { return GLOBAL_PLATFORM->window->windowsize; }
 v2_i32* get_mousepos(void) { return &GLOBAL_PLATFORM->mouse_pos; }

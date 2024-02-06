@@ -6,6 +6,7 @@
 #include <engine/core/types.h>
 #include <engine/core/logging.h>
 
+#define ENGINE_RENDERING_WINDOW_H_EXCLUDE_EXTERNS
 #include <engine/rendering/window.h>
 
 #define GLAD_GL_IMPLEMENTATION
@@ -18,6 +19,9 @@
 #include <cglm/cglm.h>
 
 extern Platform* GLOBAL_PLATFORM;
+
+void *window_poll_events = NULL;
+f64 (*get_time)(void) = NULL;
 
 /* GLFW And vulkan spaghetti boiler */
 void glfw_err_callback(int code, const char* description) {
@@ -106,6 +110,9 @@ Window init_window_glfw(
   ret->window = window;
   // Last parameter is used for the renderer
   ret->context = NULL;
+
+  window_poll_events = &glfwPollEvents;
+  get_time = &glfwGetTime;
 
   return ret;
 }

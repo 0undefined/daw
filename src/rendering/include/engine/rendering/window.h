@@ -4,6 +4,11 @@
 #include <engine/core/types.h>
 #include <cglm/cglm.h>
 
+#ifndef ENGINE_RENDERING_WINDOW_H_EXCLUDE_EXTERNS
+extern void* window_poll_events;
+extern f64 (*get_time)(void);
+#endif
+
 enum Window_framework {
   WINDOW_FRAMEWORK_NONE = 0,
   WINDOW_FRAMEWORK_GLFW,
@@ -40,4 +45,5 @@ void destroy_window(Window w);
 // Renderer intializer(s)
 void init_render_opengl(Window w);
 
+#undef API
 #endif
