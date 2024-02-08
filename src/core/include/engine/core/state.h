@@ -15,8 +15,8 @@ extern const char* StateTypeStr[];
 
 StateType (*State_updateFunc(StateType type))(void*);
 
-void State_init(StateType type, memory* mem);
-void State_free(StateType type, memory* mem);
+void State_init(StateType type, memory* mem, void* arg);
+void* State_free(StateType type, memory* mem);
 StateType State_update(StateType type, memory* mem);
 
 /* Reloads shared object file associated with state */

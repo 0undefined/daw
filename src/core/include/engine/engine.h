@@ -30,7 +30,7 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
                       const usize initial_memory, const Asset_FontSpec* fonts[],
                       const Asset_TextureSpec* textures[]);
 
-i32 engine_run(Platform* p, StateType initial_state);
+i32 engine_run(Platform* p, StateType initial_state, void* state_arg);
 
 void engine_stop(Platform* p);
 

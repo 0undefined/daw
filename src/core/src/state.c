@@ -5,6 +5,8 @@
 #include <engine/core/state.h>
 #include <engine/ctrl/input.h>
 
+//typedef void state_init_t(void*,void*);
+//typedef void* (state_free_t(void*));
 typedef StateType state_update_t(void*);
 
 const char* StateTypeStr[] = {
@@ -18,8 +20,8 @@ const char* StateTypeStr[] = {
 // Setup API for states
 #define State(name)                                                            \
   typedef struct name##_state name##_state;                                    \
-  typedef void(state_##name##_init_t)(name##_state*);                          \
-  typedef void(state_##name##_free_t)(name##_state*);                          \
+  typedef void(state_##name##_init_t)(name##_state*,void*);                    \
+  typedef void*(state_##name##_free_t)(name##_state*);                         \
   typedef StateType(state_##name##_update_t)(name##_state*);
 #include <states/list_of_states.h>
 #undef State
@@ -49,13 +51,11 @@ const char* StateTypeStr[] = {
 
 #include <states/all_states.h>
 
-void binding_t_free(binding_t* b);
-
-void State_init(StateType type, memory* mem) {
+void State_init(StateType type, memory* mem, void* arg) {
   switch (type) {
 #define State(name)                                                            \
   case (STATE_##name): {                                                       \
-    name##_init(memory_allocate(mem, sizeof(name##_state)));                   \
+    name##_init(memory_allocate(mem, sizeof(name##_state)), arg);              \
     break;                                                                     \
   }
 #include <states/list_of_states.h>
@@ -69,11 +69,12 @@ void State_init(StateType type, memory* mem) {
   }
 }
 
-void State_free(StateType type, memory* mem) {
+void* State_free(StateType type, memory* mem) {
+  void* state_retval = NULL;
   switch (type) {
 #define State(name)                                                            \
   case (STATE_##name): {                                                       \
-    name##_free(mem->data);                                                    \
+    state_retval = name##_free(mem->data);                                     \
     break;                                                                     \
   }
 #include <states/list_of_states.h>
@@ -86,6 +87,7 @@ void State_free(StateType type, memory* mem) {
     exit(EXIT_FAILURE);
   }
   memory_clear(mem);
+  return state_retval;
 }
 
 StateType (*State_updateFunc(StateType type))(void*) {

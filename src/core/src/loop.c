@@ -40,7 +40,7 @@ i32 nproc(void) {
 
 void delay( uint32_t ms )
 {
-#ifdef _WIN32
+#if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
     Sleep( ms );
 #else
     usleep( ms * 1000 );
@@ -367,7 +367,7 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
   return p;
 }
 
-i32 engine_run(Platform* p, StateType initial_state) {
+i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
   if (p == NULL) {
     ERROR("Platform is uninitialized.\n");
     INFO("initialize with `engine_init`");
@@ -380,7 +380,7 @@ i32 engine_run(Platform* p, StateType initial_state) {
 
   {
     f64 state_init_time = get_time();
-    State_init(state, mem);
+    State_init(state, mem, state_arg);
     INFO("Initializing state \"%s\" took %.1fms", StateTypeStr[state],
          (get_time() - state_init_time) * 1000.0);
   }
@@ -443,23 +443,19 @@ i32 engine_run(Platform* p, StateType initial_state) {
 
       drawcall_reset();
 
-      State_free(state, mem);
+      void* retval = State_free(state, mem);
       memory_clear(mem);
 
       engine_input_ctx_reset();
 
       state = next_state;
       update_func = State_updateFunc(state);
-//#ifdef BENCHMARK
-//      {
-//        f64 t = get_time();
-//        State_init(state, mem);
-//        LOG("Initializing %s took %dms", StateTypeStr[state],
-//            (int)((get_time() - t) * 1000.0));
-//      }
-//#else
-      State_init(state, mem);
-//#endif
+      {
+        f64 state_init_time = get_time();
+        State_init(state, mem, retval);
+        INFO("Initializing state \"%s\" took %.1fms", StateTypeStr[state],
+            (get_time() - state_init_time) * 1000.0);
+      }
     } else {
 //#ifdef BENCHMARK
 //      profile_num_drawcalls += drawcall_len;
