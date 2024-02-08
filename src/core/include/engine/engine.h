@@ -48,4 +48,7 @@ void engine_input_ctx_pop(void);
 void engine_input_ctx_reset(void);
 v2_i32* get_mousepos(void);
 
+/* move this */
+void delay(uint32_t ms);
+
 #endif
