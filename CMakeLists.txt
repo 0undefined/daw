@@ -98,12 +98,7 @@ FetchContent_Declare(cglm
   GIT_REPOSITORY https://github.com/recp/cglm.git
   GIT_TAG v0.9.2
 )
-FetchContent_Declare(assimp
-  GIT_REPOSITORY https://github.com/assimp/assimp.git
-  GIT_TAG v5.3.1
-)
 FetchContent_MakeAvailable(cglm)
-FetchContent_MakeAvailable(assimp)
 
 ## Glad
 set(GLAD_HEADER ${CMAKE_BINARY_DIR}/include/glad/gl.h)
