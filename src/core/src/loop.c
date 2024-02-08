@@ -381,8 +381,8 @@ i32 engine_run(Platform* p, StateType initial_state) {
   {
     f64 state_init_time = get_time();
     State_init(state, mem);
-    INFO("Initializing state \"%s\" took %ldms", StateTypeStr[state],
-         get_time() - state_init_time);
+    INFO("Initializing state \"%s\" took %.1fms", StateTypeStr[state],
+         (get_time() - state_init_time) * 1000.0);
   }
 
   f64 time = get_time();
