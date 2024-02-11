@@ -25,6 +25,25 @@ typedef struct {
   v2_i32 coord;
 } Sprite;
 
+typedef struct {
+  /* Shader proram */
+  u32 program;
+} Shader;
+
+typedef struct {
+  /* Shader proram */
+  Shader shader;
+  /* Vertex Array Object */
+  u32 vao;
+  /* Vertex Buffer Object */
+  u32 vbo;
+  /* Index Buffer Object */
+  u32 ibo;
+  /* Color (?) */
+  u32 col;
+  /* MVP (a uniform from the shader) */
+  u32 mvp;
+} RenderObject;
 
 #include <engine/engine.h>
 #include <engine/ui.h>
@@ -78,14 +97,9 @@ typedef struct {
     } sprite;
   } data;
 } RenderDrawCall;
-//
-//struct RenderObject {
-//  u32 vao;
-//  u32 vbo;
-//  u32 col;
-//  u32 shaderprogram;
-//  f32 g_vertex_buffer_data[9];
-//};
+
+RenderObject RenderObject_new();
+
 //
 //
 //#endif

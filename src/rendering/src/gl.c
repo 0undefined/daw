@@ -6,95 +6,95 @@
 #include <engine/core/types.h>
 #include <engine/core/logging.h>
 
+isize f_get_sz(FILE* f) {
+  if (f == NULL) {
+    ERROR("File was null!");
+    return 0;
+  }
+
+  const isize pos = ftell(f);
+
+  fseek(f, 0, SEEK_END);
+  const i64 size = ftell(f);
+
+  // Reset the position to the position prior to calling f_get_sz
+  fseek(f, pos, SEEK_SET);
+
+  return size;
+}
+
+const GLuint
+compile_shader(const GladGLContext *gl, const char* file_path, const GLenum shader_type) {
+  GLuint shaderID = 0;
+
+  if (file_path == NULL) {
+    WARN("Empty path to shader");
+    return (GLuint)0;
+  }
+
+  GLint Result = GL_FALSE;
+  int InfoLogLength;
+
+  char* source;
+  FILE* file = fopen(file_path, "r");
+
+  shaderID = gl->CreateShader(shader_type);
+
+  if(file != NULL) {
+    const i64 size = f_get_sz(file);
+
+    source = calloc(size + 1, sizeof(char));
+
+    // Assume the whole file is successfully read
+    fread(source, sizeof(char), size, file);
+
+    fclose(file);
+  } else {
+    ERROR("Cannot open %s.\n", file_path);
+    return 0;
+  }
+
+  // Compile shader
+  INFO("Compiling shader: %s\n", file_path);
+  char const * src_ptr = source;
+  gl->ShaderSource(shaderID, 1, &src_ptr , NULL);
+  gl->CompileShader(shaderID);
+
+  // Check shader
+  gl->GetShaderiv(shaderID, GL_COMPILE_STATUS, &Result);
+  gl->GetShaderiv(shaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
+  if ( InfoLogLength > 0 ) {
+    char* msg = calloc(InfoLogLength + 1, sizeof(char));
+    gl->GetShaderInfoLog(shaderID, InfoLogLength, NULL, msg);
+    ERROR("Failed to compile shader: %s\n", msg);
+    free(msg);
+  }
+  free(source);
+
+  return shaderID;
+}
+
+
 // http://www.opengl-tutorial.org/beginners-tutorials/tutorial-2-the-first-triangle/
 GLuint LoadShaders(
     const GladGLContext* gl,
     const char * vertex_file_path,
     const char * fragment_file_path) {
 
-  // Create the shaders
-  GLuint VertexShaderID = gl->CreateShader(GL_VERTEX_SHADER);
-  GLuint FragmentShaderID = gl->CreateShader(GL_FRAGMENT_SHADER);
-
-  // Read the Vertex Shader code from the file
-  char* VertexShaderCode;
-  FILE* VertexShaderStream = fopen(vertex_file_path, "r");
-  if(VertexShaderStream != NULL){
-    fseek(VertexShaderStream, 0, SEEK_END);
-    const i64 size = ftell(VertexShaderStream);
-    rewind(VertexShaderStream);
-    VertexShaderCode = calloc(size + 1, sizeof(char));
-
-    // Assume the whole file is successfully read
-    fread(VertexShaderCode, sizeof(char), size, VertexShaderStream);
-
-    fclose(VertexShaderStream);
-  } else {
-    ERROR("Impossible to open %s. Are you in the right directory?\n", vertex_file_path);
-    getchar();
-    return 0;
-  }
-
-  // Read the Fragment Shader code from the file
-  char* FragmentShaderCode;
-  FILE* FragmentShaderStream = fopen(fragment_file_path, "r");
-  if(FragmentShaderStream != NULL){
-    fseek(FragmentShaderStream, 0, SEEK_END);
-    const i64 size = ftell(FragmentShaderStream);
-    rewind(FragmentShaderStream);
-    FragmentShaderCode = calloc(size + 1, sizeof(char));
-
-    // Assume the whole file is successfully read
-    fread(FragmentShaderCode, sizeof(char), size, FragmentShaderStream);
-    LOG("fragment source is %d bytes", size);
-
-    fclose(FragmentShaderStream);
-  } else {
-    ERROR("Impossible to open %s. Are you in the right directory?\n", fragment_file_path);
-    getchar();
-    return 0;
-  }
-
   GLint Result = GL_FALSE;
   int InfoLogLength;
 
-  // Compile Vertex Shader
-  INFO("Compiling shader: %s\n", vertex_file_path);
-  char const * VertexSourcePointer = VertexShaderCode;
-  gl->ShaderSource(VertexShaderID, 1, &VertexSourcePointer , NULL);
-  gl->CompileShader(VertexShaderID);
-
-  // Check Vertex Shader
-  gl->GetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
-  gl->GetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-  if ( InfoLogLength > 0 ) {
-    char* msg = calloc(InfoLogLength + 1, sizeof(char));
-    gl->GetShaderInfoLog(VertexShaderID, InfoLogLength, NULL, msg);
-    ERROR("Compiling shader: %s\n", msg);
-    free(msg);
-  }
-
-  // Compile Fragment Shader
-  INFO("Compiling shader: %s\n", fragment_file_path);
-  char const * FragmentSourcePointer = FragmentShaderCode;
-  gl->ShaderSource(FragmentShaderID, 1, &FragmentSourcePointer , NULL);
-  gl->CompileShader(FragmentShaderID);
-
-  // Check Fragment Shader
-  gl->GetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
-  gl->GetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
-  if ( InfoLogLength > 0 ){
-    char* msg = calloc(InfoLogLength + 1, sizeof(char));
-    gl->GetShaderInfoLog(FragmentShaderID, InfoLogLength, NULL, msg);
-    ERROR("Compiling shader: %s\n", msg);
-    free(msg);
-  }
+  // Create the shaders
+  const GLuint vertexShader = compile_shader(gl, vertex_file_path, GL_VERTEX_SHADER);
+  const GLuint fragmentShader = compile_shader(gl, vertex_file_path, GL_FRAGMENT_SHADER);
 
   // Link the program
   INFO("Linking program\n");
   GLuint ProgramID = gl->CreateProgram();
-  gl->AttachShader(ProgramID, VertexShaderID);
-  gl->AttachShader(ProgramID, FragmentShaderID);
+
+  if (vertex_file_path != NULL) gl->AttachShader(ProgramID, vertexShader);
+  if (fragment_file_path != NULL) gl->AttachShader(ProgramID, fragmentShader);
+
   gl->LinkProgram(ProgramID);
 
   // Check the program
@@ -107,13 +107,11 @@ GLuint LoadShaders(
     free(msg);
   }
 
-  gl->DetachShader(ProgramID, VertexShaderID);
-  gl->DetachShader(ProgramID, FragmentShaderID);
+  gl->DetachShader(ProgramID, vertexShader);
+  gl->DetachShader(ProgramID, fragmentShader);
 
-  gl->DeleteShader(VertexShaderID);
-  gl->DeleteShader(FragmentShaderID);
+  gl->DeleteShader(vertexShader);
+  gl->DeleteShader(fragmentShader);
 
-  free(VertexShaderCode);
-  free(FragmentShaderCode);
   return ProgramID;
 }
