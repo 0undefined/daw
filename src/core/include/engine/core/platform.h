@@ -5,6 +5,7 @@
 #include <engine/core/memory.h>
 #include <engine/ctrl/input.h>
 #include <engine/rendering/window.h>
+#include <engine/resources.h>
 #include <engine/utils/vector.h>
 
 #define NUM_GLOBAL_BINDINGS 1
@@ -15,8 +16,6 @@
  * not quite thread safe.
  */
 typedef struct Platform {
-  void* data; /* Contains textures and such */
-  u64 data_len;
 
   Window window;
   bool quit;
@@ -35,6 +34,9 @@ typedef struct Platform {
 
   i32 camera_x;
   i32 camera_y;
+
+  /* Global resources that live from engine_init to engine_free */
+  Resources* resources;
 
   /* Text input/editing is currently not used/implemented */
   char* edit_text;

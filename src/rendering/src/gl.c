@@ -6,6 +6,11 @@
 #include <engine/core/types.h>
 #include <engine/core/logging.h>
 
+#include <engine/rendering/rendering.h>
+#include <engine/core/platform.h>
+
+extern Platform* GLOBAL_PLATFORM;
+
 isize f_get_sz(FILE* f) {
   if (f == NULL) {
     ERROR("File was null!");

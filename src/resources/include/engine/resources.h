@@ -1,7 +1,8 @@
-#ifndef RESOURCES_H
-#define RESOURCES_H
+#ifndef ENGINE_RESOURCES_H
+#define ENGINE_RESOURCES_H
 
 #include <engine/core/types.h>
+#include <engine/rendering/rendering.h>
 
 // TODO
 /* We need some "global resources", available to all states.
@@ -51,7 +52,7 @@ typedef union {
 } asset_t;
 
 // The resource spec
-struct Resources {
+typedef struct {
   // Was:
 //  usize textures_len;
 //  usize textures_size;
@@ -73,7 +74,7 @@ struct Resources {
   // asset_t assets*;
   Shader* shaders;
   usize shaders_len;
-};
+} Resources;
 
 #define Resource_FontDefinition(_path, _fontsize)                              \
   (const Asset_FontSpec) {                                                     \

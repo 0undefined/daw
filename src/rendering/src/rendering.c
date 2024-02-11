@@ -32,12 +32,6 @@ void render_present(Window w) {
 //  for (i32 i = 0; i < drawcall_len; i++) {
 //    RenderDrawCall dc = drawcalls[i];
 //    switch (dc.type) {
-//    case RenderDrawCallType_UITree:
-//      render_uitree(w, dc.data.data);
-//      break;
-//    case RenderDrawCallType_Text:
-//      LOG("RenderDrawCallType_Text rendering not implemented!");
-//      break;
 //    case RenderDrawCallType_Sprite: {
 //#ifdef _DEBUG
 //      if (dc.data.sprite.sprite == NULL) {
@@ -74,12 +68,6 @@ void engine_window_resize_pointers(i32* w, i32* h) {
 void engine_window_resize_pointers_reset(void) {
   //GLOBAL_PLATFORM->window->game_w = NULL;
   //GLOBAL_PLATFORM->window->game_h = NULL;
-}
-
-void engine_draw_uitree(UITree* t) {
-  if (drawcall_len + 1 >= drawcall_limit) return;
-  drawcalls[drawcall_len++] = (RenderDrawCall){
-      .type = RenderDrawCallType_UITree, .data.data = (void*)t};
 }
 
 void engine_draw_sprite(Sprite* s, v2_i32* pos, f32 scale) {

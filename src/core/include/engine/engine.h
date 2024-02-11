@@ -1,5 +1,5 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef ENGINE_ENGINE_H
+#define ENGINE_ENGINE_H
 
 #include <stdbool.h>
 
@@ -12,7 +12,6 @@
 #include <engine/core/memory.h>
 #include <engine/core/state.h>
 #include <engine/ctrl/input.h>
-#include <engine/resources.h>
 #include <engine/utils/stack.h>
 #include <engine/utils/vector.h>
 
@@ -27,8 +26,7 @@ typedef struct {
 /* Essential functions */
 Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight,
                       const f32 render_scale, const u32 flags,
-                      const usize initial_memory, const Asset_FontSpec* fonts[],
-                      const Asset_TextureSpec* textures[]);
+                      const usize initial_memory);
 
 i32 engine_run(Platform* p, StateType initial_state, void* state_arg);
 

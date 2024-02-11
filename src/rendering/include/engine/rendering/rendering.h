@@ -1,8 +1,9 @@
-#ifndef RENDERING_H
-#define RENDERING_H
+#ifndef ENGINE_RENDERING_RENDERING_H
+#define ENGINE_RENDERING_RENDERING_H
 
 #include <engine/core/types.h>
 #include <engine/utils/vector.h>
+#include <engine/rendering/window.h>
 
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
@@ -45,9 +46,6 @@ typedef struct {
   u32 mvp;
 } RenderObject;
 
-#include <engine/engine.h>
-#include <engine/ui.h>
-
 /* Rendering functions */
 void render_begin(Window w);
 void render_present(Window w);
@@ -59,28 +57,13 @@ void render(Window w);
 //void engine_window_resize_pointers(i32* w, i32* h);
 //void engine_window_resize_pointers_reset(void);
 
-/* UI rendering */
-/* See rendering_ui.c for implementation */
-i64 engine_render_text(i32 font_id, Engine_color fg, char* text,
-                       v2_i32* size_out, bool wrapped);
 void engine_draw_sprite(Sprite* s, v2_i32* pos, f32 scale);
 void engine_draw_sprite_ex(Sprite* s, v2_i32* pos, f32 scale,
                            Engine_color colormod);
 
 Sprite sprite_new(u64 tid, u8 coord);
 
-//#ifdef ENGINE_INTERNALS
-//#include <engine/engine.h>
-//
-////#include <glad/gl.h>
-////#define GLFW_INCLUDE_NONE
-////#include <GLFW/glfw3.h>
-//
-//#define TEXTURES_INCREMENT 512
-//
 typedef enum {
-  RenderDrawCallType_UITree,
-  /*RenderDrawCallType_UIButton,*/
   RenderDrawCallType_Text,
   RenderDrawCallType_Sprite,
 } RenderDrawCallType;
@@ -99,9 +82,5 @@ typedef struct {
 } RenderDrawCall;
 
 RenderObject RenderObject_new();
-
-//
-//
-//#endif
 
 #endif

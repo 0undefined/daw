@@ -12,7 +12,7 @@ add_library(daw_resources
   )
 
 target_include_directories(daw_resources PRIVATE ${DAW_INCLUDE_DIRS})
-target_link_libraries(
-  daw_resources
+target_link_libraries(daw_resources PRIVATE
   assimp
+  cglm
   )

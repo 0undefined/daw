@@ -23,6 +23,8 @@
 #include <engine/utils/hashmap.h>
 #include <engine/utils/list.h>
 
+#include <engine/resources.h>
+
 #include <engine/rendering/window.h>
 #include <engine/rendering/rendering.h>
 
@@ -72,8 +74,7 @@ void engine_update_window(Window* w, void* e) {
  * resources. */
 Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight,
                       const f32 render_scale, const u32 flags,
-                      const usize initial_memory, const Asset_FontSpec* fonts[],
-                      const Asset_TextureSpec* textures[]) {
+                      const usize initial_memory) {
 
 #if defined(__linux) || defined(__linux__) || defined(linux)
   {
@@ -87,16 +88,8 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
   Window w = (Window)malloc(sizeof(Window));
 
   /* initialize resources */
-  struct Resources* resources =
-      (struct Resources*)malloc(sizeof(struct Resources));
-  //resources->textures_len = 0;
-  //resources->fonts_len = 0;
-  //resources->texturepaths_len = 0;
-  //resources->fontpaths_len = 0;
-  //resources->texture_paths = NULL;
-  //resources->font_paths = NULL;
-  //resources->textures = NULL;
-  //resources->fonts = NULL;
+  Resources* resources = malloc(sizeof(Resources));
+  // TODO: Initialize them :)
 
   w = init_window_glfw(windowtitle, (ivec2){windowsize.x, windowsize.y}, flags);
   // Dont forget to init the renderer
@@ -317,10 +310,10 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
   //  INFO("Windowsize: <%d,%d>", windowsize.x, windowsize.y);
   //}
 
-  p->data = (void*)resources;
-  p->data_len = sizeof(struct Resources);
   p->window = w;
   p->quit = false;
+
+  p->resources = resources;
 
   p->frame = 0;
   p->fps_target = 60;
