@@ -8,6 +8,8 @@
 #define GLFW_INCLUDE_NONE
 #include <GLFW/glfw3.h>
 
+#include <cglm/cglm.h>
+
 /* Definitions */
 #define RGBA(_r, _g, _b, _a)                                                   \
   ((Engine_color){.r = _r, .g = _g, .b = _b, .a = _a})
@@ -60,12 +62,14 @@ void render(Window w);
 void engine_draw_sprite(Sprite* s, v2_i32* pos, f32 scale);
 void engine_draw_sprite_ex(Sprite* s, v2_i32* pos, f32 scale,
                            Engine_color colormod);
+void engine_draw_model(RenderObject* o, vec2 pos);
 
 Sprite sprite_new(u64 tid, u8 coord);
 
 typedef enum {
   RenderDrawCallType_Text,
   RenderDrawCallType_Sprite,
+  RenderDrawCallType_Model,
 } RenderDrawCallType;
 //
 typedef struct {
@@ -78,6 +82,11 @@ typedef struct {
       i32 y;
       f32 scale;
     } sprite;
+    struct {
+      RenderObject* model;
+      vec2 pos;
+      f32 scale;
+    } model;
   } data;
 } RenderDrawCall;
 

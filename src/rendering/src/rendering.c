@@ -103,6 +103,24 @@ void engine_draw_sprite_ex(Sprite* s, v2_i32* pos, f32 scale,
       }};
 }
 
+void engine_draw_model(RenderObject* o, vec2 pos) {
+  if (drawcall_len + 1 >= drawcall_limit) return;
+#ifdef _DEBUG
+  if (o == NULL) __asm__("int3;");
+#endif
+  RenderDrawCall dc = {
+      .type = RenderDrawCallType_Model,
+      .data.model = {
+          .model = o,
+          .scale = 1.f,
+      }};
+
+
+  glm_vec2_copy(pos, dc.data.model.pos);
+
+  drawcalls[drawcall_len++] = dc;
+}
+
 Sprite sprite_new(u64 tid, u8 coord) {
   const i32 ts = 16;
   // FIXME; used to be
