@@ -47,8 +47,6 @@ typedef struct Platform {
   usize bindings_sz;
   usize bindings_len;
 
-  struct RenderObject *testobject;
-
   binding_t bindings_global[NUM_GLOBAL_BINDINGS];
 } Platform;
 

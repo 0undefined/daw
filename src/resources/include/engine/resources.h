@@ -71,6 +71,8 @@ struct Resources {
   // But with the new way:
   // usize assets_len;
   // asset_t assets*;
+  Shader* shaders;
+  usize shaders_len;
 };
 
 #define Resource_FontDefinition(_path, _fontsize)                              \

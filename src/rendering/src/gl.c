@@ -115,3 +115,34 @@ GLuint LoadShaders(
 
   return ProgramID;
 }
+
+/* Prototype it for now, */
+GLuint LoadShaders(
+    const GladGLContext* gl,
+    const char * vertex_file_path,
+    const char * fragment_file_path);
+
+RenderObject RenderObject_new() {
+  GladGLContext *gl = GLOBAL_PLATFORM->window->context;
+  RenderObject o;
+
+  static const float quad[8] = {
+    0.f, 0.f,
+    1.f, 0.f,
+    1.f, 1.f,
+    0.f, 1.f,
+  };
+
+  // TODO: implement index buffer!
+
+  gl->GenVertexArrays(1, &(o.vao));
+  gl->BindVertexArray(o.vao);
+
+  gl->GenBuffers(1, &(o.vbo));
+  gl->BindBuffer(GL_ARRAY_BUFFER, o.vbo);
+  gl->BufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
+
+  o.shader.program = LoadShaders(gl, "shader.vertexshader", "shader.fragmentshader");
+
+  return o;
+}

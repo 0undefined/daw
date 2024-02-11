@@ -395,8 +395,6 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
   f64 last_fps_measurement = get_time();
 
   /* Main loop */
-  //INFO("Program: %d", p->testobject->shaderprogram);
-  //GladGLContext *gl = p->window->context;
   do {
     const f64 now = get_time();
     const f64 dt = now - time;
@@ -457,9 +455,7 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
             (get_time() - state_init_time) * 1000.0);
       }
     } else {
-//#ifdef BENCHMARK
-//      profile_num_drawcalls += drawcall_len;
-//#endif
+
       render_begin(p->window);
 
 
