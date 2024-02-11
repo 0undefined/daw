@@ -121,16 +121,9 @@ GLuint LoadShaders(
   return ProgramID;
 }
 
-RenderObject RenderObject_new() {
+RenderObject RenderObject_new(float* model, usize sz) {
   GladGLContext *gl = GLOBAL_PLATFORM->window->context;
   RenderObject o;
-
-  static const float quad[8] = {
-    0.f, 0.f,
-    1.f, 0.f,
-    1.f, 1.f,
-    0.f, 1.f,
-  };
 
   // TODO: implement index buffer!
 
@@ -139,7 +132,11 @@ RenderObject RenderObject_new() {
 
   gl->GenBuffers(1, &(o.vbo));
   gl->BindBuffer(GL_ARRAY_BUFFER, o.vbo);
-  gl->BufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
+  gl->BufferData(GL_ARRAY_BUFFER, sz, model, GL_STATIC_DRAW);
+
+  //gl->GenBuffers(1, &(o.ibo));
+  //gl->BindBuffer(GL_ARRAY_BUFFER, o.ibo);
+  //gl->BufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
 
   o.shader.program = LoadShaders(gl, "shader.vertexshader", "shader.fragmentshader");
 

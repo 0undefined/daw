@@ -81,6 +81,6 @@ typedef struct {
   } data;
 } RenderDrawCall;
 
-RenderObject RenderObject_new();
+RenderObject RenderObject_new(float* model, usize sz);
 
 #endif
