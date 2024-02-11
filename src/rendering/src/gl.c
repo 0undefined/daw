@@ -55,12 +55,12 @@ compile_shader(const GladGLContext *gl, const char* file_path, const GLenum shad
 
     fclose(file);
   } else {
-    ERROR("Cannot open %s.\n", file_path);
+    ERROR("Cannot open \"" TERM_COLOR_YELLOW "%s" TERM_COLOR_RESET"\".", file_path);
     return 0;
   }
 
   // Compile shader
-  INFO("Compiling shader: %s\n", file_path);
+  INFO("Compiling shader \"" TERM_COLOR_YELLOW "%s" TERM_COLOR_RESET"\".", file_path);
   char const * src_ptr = source;
   gl->ShaderSource(shaderID, 1, &src_ptr , NULL);
   gl->CompileShader(shaderID);
@@ -71,7 +71,7 @@ compile_shader(const GladGLContext *gl, const char* file_path, const GLenum shad
   if ( InfoLogLength > 0 ) {
     char* msg = calloc(InfoLogLength + 1, sizeof(char));
     gl->GetShaderInfoLog(shaderID, InfoLogLength, NULL, msg);
-    ERROR("Failed to compile shader: %s\n", msg);
+    ERROR("Failed to compile shader: " TERM_COLOR_YELLOW "%s" TERM_COLOR_RESET, msg);
     free(msg);
   }
   free(source);
@@ -91,10 +91,10 @@ GLuint LoadShaders(
 
   // Create the shaders
   const GLuint vertexShader = compile_shader(gl, vertex_file_path, GL_VERTEX_SHADER);
-  const GLuint fragmentShader = compile_shader(gl, vertex_file_path, GL_FRAGMENT_SHADER);
+  const GLuint fragmentShader = compile_shader(gl, fragment_file_path, GL_FRAGMENT_SHADER);
 
   // Link the program
-  INFO("Linking program\n");
+  INFO("Linking program");
   GLuint ProgramID = gl->CreateProgram();
 
   if (vertex_file_path != NULL) gl->AttachShader(ProgramID, vertexShader);
@@ -108,7 +108,7 @@ GLuint LoadShaders(
   if ( InfoLogLength > 0 ){
     char* msg = calloc(InfoLogLength + 1, sizeof(char));
     gl->GetShaderInfoLog(ProgramID, InfoLogLength, NULL, msg);
-    ERROR("Compiling shader: %s\n", msg);
+    ERROR("Compiling shader: " TERM_COLOR_YELLOW "%s" TERM_COLOR_RESET, msg);
     free(msg);
   }
 
@@ -120,12 +120,6 @@ GLuint LoadShaders(
 
   return ProgramID;
 }
-
-/* Prototype it for now, */
-GLuint LoadShaders(
-    const GladGLContext* gl,
-    const char * vertex_file_path,
-    const char * fragment_file_path);
 
 RenderObject RenderObject_new() {
   GladGLContext *gl = GLOBAL_PLATFORM->window->context;
