@@ -17,7 +17,7 @@
  */
 typedef struct Platform {
 
-  Window window;
+  Window* window;
   bool quit;
 
   u64 frame;

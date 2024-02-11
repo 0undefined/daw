@@ -49,10 +49,10 @@ typedef struct {
 } RenderObject;
 
 /* Rendering functions */
-void render_begin(Window w);
-void render_present(Window w);
+void render_begin(Window* w);
+void render_present(Window* w);
 void drawcall_reset(void);
-void render(Window w);
+void render(Window* w);
 
 /* Misc */
 //void window_size_callback(GLFWwindow* window, i32 width, i32 height);
@@ -62,7 +62,7 @@ void render(Window w);
 void engine_draw_sprite(Sprite* s, v2_i32* pos, f32 scale);
 void engine_draw_sprite_ex(Sprite* s, v2_i32* pos, f32 scale,
                            Engine_color colormod);
-void engine_draw_model(RenderObject* o, vec2 pos);
+void engine_draw_model(RenderObject* o, vec3 pos);
 
 Sprite sprite_new(u64 tid, u8 coord);
 
@@ -84,7 +84,7 @@ typedef struct {
     } sprite;
     struct {
       RenderObject* model;
-      vec2 pos;
+      vec3 pos;
       f32 scale;
     } model;
   } data;

@@ -49,11 +49,11 @@ GladGLContext* create_context(GLFWwindow *window) {
     return context;
 }
 
-Window init_window_glfw(
+Window* init_window_glfw(
     const char* windowtitle, ivec2 windowsize,
     const u32 flags
     ) {
-  Window ret = NULL;
+  Window* ret = NULL;
   GLFWwindow* window = NULL;
 
   glfwSetErrorCallback(&glfw_err_callback);
@@ -102,8 +102,11 @@ Window init_window_glfw(
   // TODO: input handler callback
   glfwSetFramebufferSizeCallback(window, window_size_callback);
 
+  glfwMakeContextCurrent(window);
+  glfwSwapInterval(0);
+
   // Create the window datastructure
-  ret = (Window)calloc(1, sizeof(struct Window));
+  ret = (Window*)calloc(1, sizeof(Window));
   ret->framework = WINDOW_FRAMEWORK_GLFW;
   ret->renderer = WINDOW_RENDERER_NONE;
   glm_ivec2_copy(windowsize, ret->windowsize);
@@ -118,7 +121,7 @@ Window init_window_glfw(
 }
 
 // Initializes opengl using the window
-void init_render_opengl(Window w) {
+void init_render_opengl(Window* w) {
   if (w == NULL || w->window == NULL) {
     ERROR("Window is not initialized");
     return;
@@ -167,7 +170,7 @@ void destroy_window_glfw(GLFWwindow* w) {
   glfwTerminate();
 }
 
-void destroy_window(Window w) {
+void destroy_window(Window* w) {
   switch(w->framework) {
     case WINDOW_FRAMEWORK_GLFW:
       destroy_window_glfw(w->window);

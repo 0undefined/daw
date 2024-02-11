@@ -85,7 +85,7 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
  v2_i32 windowsize = (v2_i32){.x = windowWidth, .y = windowHeight};
 
   Platform* p = (Platform*)malloc(sizeof(Platform));
-  Window w = (Window)malloc(sizeof(Window));
+  Window* w = (Window*)malloc(sizeof(Window));
 
   /* initialize resources */
   Resources* resources = malloc(sizeof(Resources));
@@ -395,7 +395,7 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
 
     if (now - last_fps_measurement > 1.000) {
       last_fps_measurement = now;
-      //printf("\n FPS: %.1f  \t ticks: %lu", (double)ticks / now, ticks);
+      printf("\n FPS: %.1f  \t ticks: %lu", (double)ticks / now, ticks);
     }
 
     glfwPollEvents();

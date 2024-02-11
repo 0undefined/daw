@@ -9,21 +9,17 @@ extern void* window_poll_events;
 extern f64 (*get_time)(void);
 #endif
 
-enum Window_framework {
+typedef enum {
   WINDOW_FRAMEWORK_NONE = 0,
   WINDOW_FRAMEWORK_GLFW,
-};
+} Window_framework;
 
-typedef enum Window_framework Window_framework;
-
-enum Window_renderer {
+typedef enum {
   WINDOW_RENDERER_NONE = 0,
   WINDOW_RENDERER_OPENGL,
-};
+} Window_renderer;
 
-typedef enum Window_renderer Window_renderer;
-
-struct Window {
+typedef struct {
   // Specifies the framwork & renderer combo used.
   Window_framework framework;
   Window_renderer renderer;
@@ -34,16 +30,14 @@ struct Window {
   // Subject to change to a union of backend-dependent structs
   void* window;
   void* context;
-};
-
-typedef struct Window* Window;
+} Window;
 
 // Window function
-Window init_window_glfw(const char* windowtitle, ivec2 windowsize, const u32 flags);
-void destroy_window(Window w);
+Window* init_window_glfw(const char* windowtitle, ivec2 windowsize, const u32 flags);
+void destroy_window(Window* w);
 
 // Renderer intializer(s)
-void init_render_opengl(Window w);
+void init_render_opengl(Window* w);
 
 #undef API
 #endif
