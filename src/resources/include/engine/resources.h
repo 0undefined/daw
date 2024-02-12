@@ -6,8 +6,8 @@
 
 // TODO
 /* We need some "global resources", available to all states.
- * These are resources such as common fonts, GUI frames, button background
- * images.
+ * These are resources used throughout the applications lifetime, such as common
+ * fonts, GUI frames, button background images.
  *
  * We need to define state-specific resources as well.
  * - Can both be defined alike?
@@ -16,21 +16,47 @@
  *   font?
  * - Then declare to the engine, in the main function for the game, that these
  *   resources are to be made available throughout?
- * - Make all resource specifications A UNION?! 🤯
+ * - Shaders, oh boy oh shaders.
+ *   We need to make some meta-shader declaration, so we can declare a set of
+ *   shaders, that are used to link with other shaders, s.t. we can free up the
+ *   shaders after compilation.
+ * - Make all resource specifications a union.
  * */
 
 enum Asset {
   Asset_error,
-  Asset_font,
-  Asset_texture,
   Asset_audio,
+  Asset_font,
+  Asset_shader,
+  Asset_shaderprog,
+  Asset_texture,
 };
 
 typedef struct {
   enum Asset type;
-  const char* font_path;
-  i32 ptsize;
+  const char* path;
+} Asset_AudioSpec;
+
+typedef struct {
+  enum Asset type;
+  const char* path;
 } Asset_FontSpec;
+
+// if a shader is declared GLOBALLY, we should not destroy it when done with the
+// "main" shader compilations.
+typedef struct {
+  enum Asset type;
+  // Assume shader type from filename
+  const char* path;
+} Asset_ShaderSpec;
+
+// Use list of gluint shader program ids to link against. This translates to a
+// call to compose_shader.
+typedef struct {
+  enum Asset type;
+  const u32* shader;
+  const usize shader_len;
+} Asset_ShaderProgramSpec;
 
 typedef struct {
   enum Asset type;
@@ -39,58 +65,35 @@ typedef struct {
   i32 height;
 } Asset_TextureSpec;
 
-typedef struct {
-  enum Asset type;
-  const char* path;
-} Asset_AudioSpec;
-
 typedef union {
   enum Asset type;
-  Asset_FontSpec font;
-  Asset_TextureSpec texture;
   Asset_AudioSpec audio;
+  Asset_FontSpec font;
+  Asset_ShaderSpec shader;
+  Asset_ShaderProgramSpec shaderprog;
+  Asset_TextureSpec texture;
 } asset_t;
 
 // The resource spec
 typedef struct {
-  // Was:
-//  usize textures_len;
-//  usize textures_size;
-//  usize fonts_len;
-//
-//  usize texturepaths_len;
-//  usize fontpaths_len;
-//
-//  /* Paths for our sources, kept in case the user wants to reload them */
-//  Asset_TextureSpec** texture_paths;
-//  Asset_FontSpec** font_paths;
-//
-//  /* Our actual sources */
-//  Texture** textures;
-//  //TTF_Font** fonts;
+  /* Assorted asset specification, makes reloading them easier. */
+  usize assets_len;
+  asset_t* assets;
 
-  // But with the new way:
-  // usize assets_len;
-  // asset_t assets*;
-  Shader* shaders;
-  usize shaders_len;
+  /* Translation from `assets`'s indices to type-specific loaded assets: */
+  usize* get; // Let r=Resources, then use as: `r.shader[ r.get[ MyShader ] ]`
+
+  /* Loaded assets */
+  usize shader_len;
+  Shader* shader;
 } Resources;
 
-#define Resource_FontDefinition(_path, _fontsize)                              \
-  (const Asset_FontSpec) {                                                     \
-    .type = Asset_font, .font_path = _path, .ptsize = _fontsize                \
-  }
-
-#define Resource_TextureAtlasDefinition(_path, _subtexture_width,              \
-                                        _subtexture_height)                    \
-  (const Asset_TextureSpec) {                                                  \
-    .type = Asset_texture, .width = _subtexture_width,                         \
-    .height = _subtexture_height, .path = _path                                \
-  }
-
 #define TextureDefinition(_path, ...) unimplemented
-
 #define Resource_AudioDefinition(_path, ...) unimplemented
+#define Declare_Shader(_path) (const asset_t){.shader = {.type = Asset_shader, .path=_path}}
+#define Declare_ShaderProgram(SHADERS, NUMSHADERS) (const asset_t){.shaderprog = {.type = Asset_shaderprog, .shader=SHADERS, .shader_len=NUMSHADERS}}
+
+void* get_asset(Resources* r, u32 idx);
 
 /* Each of resource_load_font, resource_load_texture, and resource_load_audio
  * loads a given resource into the engines memory and returns an identifier.
@@ -98,6 +101,10 @@ typedef struct {
 isize resource_load_font(Asset_FontSpec font_def);
 isize resource_load_texture(Asset_TextureSpec texture_def);
 isize resource_load_audio(Asset_AudioSpec audio_def);
+
+// Loads all resources specified in `assets` and populates corresponding
+// resources members.
+i32 resources_load(Resources *resources);
 
 /* Makes a resource globally available. This must be called **BEFORE** any call
  * to `engine_run` */

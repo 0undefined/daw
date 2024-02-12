@@ -28,8 +28,20 @@ typedef struct {
   v2_i32 coord;
 } Sprite;
 
+typedef enum {
+  //GL_COMPUTE_SHADER, GL_VERTEX_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER
+  Shader_Error,
+  Shader_Program, /* Collection of shaders */
+  Shader_Vertex,
+  Shader_Tessellation,
+  Shader_Geometry,
+  Shader_Fragment,
+  Shader_Compute,
+} ShaderType;
+
 typedef struct {
   /* Shader proram */
+  ShaderType type;
   u32 program;
 } Shader;
 
@@ -71,7 +83,7 @@ typedef enum {
   RenderDrawCallType_Sprite,
   RenderDrawCallType_Model,
 } RenderDrawCallType;
-//
+
 typedef struct {
   RenderDrawCallType type;
   union {
@@ -90,6 +102,13 @@ typedef struct {
   } data;
 } RenderDrawCall;
 
-RenderObject RenderObject_new(float* model, usize sz, float* uv, usize uv_sz);
+RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz);
+
+Shader compile_shader(const char* file_path, const ShaderType shader_type);
+Shader compose_shader(Shader *shaders, usize shaders_len);
+
+u32 ComposeShader(u32 *shaders, usize shaders_len);
+
+ShaderType guess_shadertype_from_filename(const char *restrict fname);
 
 #endif

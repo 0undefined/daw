@@ -6,6 +6,7 @@
 #FetchContent_MakeAvailable(assimp)
 
 add_library(daw_resources
+  src/resources.c
   src/fonts.c
   src/scripts.c
   src/textures.c
