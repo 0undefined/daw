@@ -76,7 +76,7 @@ void render_present(Window* w) {
 
 
       {
-        vec3 cam = {3., 2., 3.}; // perspective
+        vec3 cam = {-3., 2., -3.}; // perspective
         mat4 per; // perspective
         mat4 v; // view
         mat4 model = GLM_MAT4_IDENTITY_INIT;
@@ -122,16 +122,16 @@ void render_present(Window* w) {
           );
 
       //// Do the color buffer (?)
-      //gl->EnableVertexAttribArray(1);
-      //gl->BindBuffer(GL_ARRAY_BUFFER, p->testobject->col);
-      //gl->VertexAttribPointer(
-      //    1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-      //    3,                                // size
-      //    GL_FLOAT,                         // type
-      //    GL_FALSE,                         // normalized?
-      //    0,                                // stride
-      //    (void*)0                          // array buffer offset
-      //    );
+      gl->EnableVertexAttribArray(1);
+      gl->BindBuffer(GL_ARRAY_BUFFER, o->col);
+      gl->VertexAttribPointer(
+          1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+          2,                                // size
+          GL_FLOAT,                         // type
+          GL_FALSE,                         // normalized?
+          0,                                // stride
+          (void*)0                          // array buffer offset
+          );
 
 
 

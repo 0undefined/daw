@@ -121,7 +121,7 @@ GLuint LoadShaders(
   return ProgramID;
 }
 
-RenderObject RenderObject_new(float* model, usize sz) {
+RenderObject RenderObject_new(float* model, usize sz, float* uv, usize uv_sz) {
   GladGLContext *gl = GLOBAL_PLATFORM->window->context;
   RenderObject o;
 
@@ -134,11 +134,14 @@ RenderObject RenderObject_new(float* model, usize sz) {
   gl->BindBuffer(GL_ARRAY_BUFFER, o.vbo);
   gl->BufferData(GL_ARRAY_BUFFER, sz, model, GL_STATIC_DRAW);
 
+  gl->GenBuffers(1, &(o.col));
+  gl->BindBuffer(GL_ARRAY_BUFFER, o.col);
+  gl->BufferData(GL_ARRAY_BUFFER, uv_sz, uv, GL_STATIC_DRAW);
   //gl->GenBuffers(1, &(o.ibo));
   //gl->BindBuffer(GL_ARRAY_BUFFER, o.ibo);
   //gl->BufferData(GL_ARRAY_BUFFER, sizeof(quad), quad, GL_STATIC_DRAW);
 
-  o.shader.program = LoadShaders(gl, "shader.vertexshader", "shader.fragmentshader");
+  o.shader.program = LoadShaders(gl, "shader.vert", "shader.frag");
 
   return o;
 }

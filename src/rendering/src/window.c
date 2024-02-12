@@ -102,8 +102,8 @@ Window* init_window_glfw(
   // TODO: input handler callback
   glfwSetFramebufferSizeCallback(window, window_size_callback);
 
-  glfwMakeContextCurrent(window);
-  glfwSwapInterval(0);
+  //glfwMakeContextCurrent(window);
+  //glfwSwapInterval(0);
 
   // Create the window datastructure
   ret = (Window*)calloc(1, sizeof(Window));
