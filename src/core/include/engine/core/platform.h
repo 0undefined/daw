@@ -32,8 +32,7 @@ typedef struct Platform {
   bool mouse_lclick;
   bool mouse_rclick;
 
-  i32 camera_x;
-  i32 camera_y;
+  Camera *cam;
 
   /* Global resources that live from engine_init to engine_free */
   Resources* resources;

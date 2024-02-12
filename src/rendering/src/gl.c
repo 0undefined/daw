@@ -190,8 +190,6 @@ RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv,
 
   //DEBUG("RenderObject got %d: %s\n", shader->program, ShaderType_str[shader->type]);
 
-  // TODO: implement index buffer!
-
   gl->GenVertexArrays(1, &(o.vao));
   gl->BindVertexArray(o.vao);
 

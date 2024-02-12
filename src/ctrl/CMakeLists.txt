@@ -7,3 +7,4 @@ add_library(daw_ctrl
   )
 
 target_include_directories(daw_ctrl PRIVATE ${DAW_INCLUDE_DIRS})
+target_link_libraries(daw_ctrl PRIVATE cglm glfw)

@@ -101,7 +101,7 @@ Window* init_window_glfw(
   // Setup callbacks
   // TODO: input handler callback
   glfwSetFramebufferSizeCallback(window, window_size_callback);
-
+  glfwSetKeyCallback(window, (GLFWkeyfun)key_callback);
   //glfwMakeContextCurrent(window);
   //glfwSwapInterval(0);
 

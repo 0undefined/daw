@@ -1,9 +1,10 @@
-#ifndef INPUT_H
-#define INPUT_H
+#ifndef ENGINE_CTRL_INPUT_H
+#define ENGINE_CTRL_INPUT_H
 
 #include <engine/core/types.h>
+#include <engine/ctrl/scancodes.h>
 
-typedef void input_callback_t(void*);
+typedef void input_callback_t(f64, void*);
 typedef i32 scancode_t;
 
 typedef enum InputType {
@@ -49,8 +50,10 @@ typedef struct i_ctx {
 void i_ctx_t_free(i_ctx* c);
 /* Executes all callbacks that has been pushed onto the callstack and resets the
  * callstack */
-void i_flush_bindings(usize numcalls, void* state_mem, input_callback_t* c[]);
+void i_flush_bindings(f64 dt, usize numcalls, input_callback_t* c[], void* state_mem);
 action_t i_get_action(const i_ctx* restrict ctx, u32 time, scancode_t scancode);
+
+void key_callback(void* window, int key, int scancode, int action, int mods);
 
 void i_ctx_push(i_ctx* ctx);
 void i_ctx_pop(void);

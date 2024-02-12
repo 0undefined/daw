@@ -1,8 +1,13 @@
 #include <engine/core/dltools.h>
 #include <engine/core/logging.h>
+#include <engine/core/platform.h>
 #include <engine/ctrl/input.h>
 #include <string.h>
 
+extern input_callback_t* callbacks[128];
+extern usize callbacks_len;
+
+extern Platform* GLOBAL_PLATFORM;
 /* Lazy binds, used internally. They are similar to BindAction and friends.
  * The only difference is that we set callbacks and such to NULL, but populate
  * the function name strings such that can be reloaded. */
@@ -29,6 +34,60 @@
                              }},                                               \
     .scancode = key, .scancode_alt = altkey, .since_last_activation = 0        \
   }
+
+void key_callback(void* window, int key, int scancode, int action, int mods) {
+
+  const i_ctx* bindings = *GLOBAL_PLATFORM->bindings;
+  const usize bindings_len = GLOBAL_PLATFORM->bindings_len;
+
+  const f64 now = get_time();
+
+  for (usize b = 0; b < bindings_len; b++) {
+    const action_t a = i_get_action(&bindings[b], now, scancode);
+    switch (action) {
+    case GLFW_PRESS:
+
+      switch (a.type) {
+        case InputType_action:
+          if (a.action.callback != NULL) {
+            callbacks[callbacks_len++] = a.action.callback;
+          }
+          break;
+
+        case InputType_state:
+          if (a.state.activate != NULL) {
+            callbacks[callbacks_len++] = a.state.activate;
+          }
+          break;
+        case InputType_range:
+          WARN("Range inputs not supported yet!");
+          break;
+        case InputType_error:
+          WARN("Unhandled scancode: %lu", scancode);
+
+        default:
+          break;
+        }
+      break;
+
+    case GLFW_RELEASE:
+      switch (a.type) {
+        case InputType_state:
+          if (a.state.deactivate != NULL) {
+            callbacks[callbacks_len++] = a.state.deactivate;
+          }
+          break;
+        default:break;
+      }
+      break;
+    case GLFW_REPEAT:
+      /* unhandled so far */
+      break;
+    default:
+      break;
+  }
+  }
+}
 
 void binding_t_free(binding_t* b) {
   switch (b->action.type) {
@@ -129,10 +188,12 @@ bool i_update_unique_binding(i_ctx* ctx, binding_t* binding) {
   return false;
 }
 
-void i_flush_bindings(usize numcalls, void* state_mem, input_callback_t* c[]) {
+void i_flush_bindings(f64 dt, usize numcalls, input_callback_t* c[], void* state_mem) {
   for (usize i = 0; i < numcalls; i++) {
-    (c[i])(state_mem);
+    (c[i])(dt, state_mem);
   }
+  // reset callback len and be ready for more
+  callbacks_len = 0;
 }
 
 action_t i_get_action(const i_ctx* restrict ctx, u32 time,

@@ -60,6 +60,14 @@ typedef struct {
   u32 mvp;
 } RenderObject;
 
+typedef struct {
+  /* Position of the camera in world-space. */
+  vec3 pos;
+  /* Perspective matrix. Initialize with r_perspective_ortho or r_perspective. */
+  /* Alternatively, use `glm_perspective` or `glm_ortho`. */
+  mat4 per;
+} Camera;
+
 /* Rendering functions */
 void render_begin(Window* w);
 void render_present(Window* w);
@@ -67,6 +75,11 @@ void drawcall_reset(void);
 void render(Window* w);
 
 /* Misc */
+void r_perspective(f32 ratio, f32 fov, Camera *c);
+void r_perspective_ortho(f32 ratio, f32 sz, Camera *c);
+
+void r_set_camera(Camera* c);
+
 //void window_size_callback(GLFWwindow* window, i32 width, i32 height);
 //void engine_window_resize_pointers(i32* w, i32* h);
 //void engine_window_resize_pointers_reset(void);

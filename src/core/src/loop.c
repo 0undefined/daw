@@ -36,6 +36,10 @@
 
 Platform* GLOBAL_PLATFORM = NULL;
 
+static Camera default_camera = {
+  .pos = {3, 0, 0},
+};
+
 input_callback_t* callbacks[128];
 usize callbacks_len;
 
@@ -235,15 +239,15 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
   p->mouse_lclick = false;
   p->mouse_rclick = false;
 
-  p->camera_x = 0;
-  p->camera_y = 0;
-
   p->edit_text = NULL;
   p->edit_pos = 0;
 
   p->bindings = NULL;
   p->bindings_sz = 0;
   p->bindings_len = 0;
+
+  p->cam = &default_camera;
+  glm_ortho_default(45.f, p->cam->per);
 
   {
     int x,y,n;
@@ -351,8 +355,7 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
 //
 //    }
 //
-//    i_flush_bindings(callbacks_len, mem->data, callbacks);
-//    callbacks_len = 0;
+    i_flush_bindings(dt, callbacks_len, callbacks, mem->data);
 //
 //    /* update */
     StateType next_state;
@@ -368,6 +371,9 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
 
       engine_input_ctx_reset();
 
+      // Reset camera to default camera
+      p->cam = &default_camera;
+
       state = next_state;
       update_func = State_updateFunc(state);
       {
@@ -379,35 +385,6 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
     } else {
 
       render_begin(p->window);
-
-
-      //gl->UseProgram(p->testobject->shaderprogram);
-
-      //{
-      //  vec3 cam = {4., 3., 3.}; // perspective
-      //  mat4 per; // perspective
-      //  mat4 v; // view
-      //  mat4 model = GLM_MAT4_IDENTITY_INIT;
-      //  mat4 modelviewprojection;
-
-      //  f32 ratio = (float)p->window->windowsize.x / (float)p->window->windowsize.y;
-      //  //glm_perspective(45.f , 600.f / 400.f, 0.1, 100.0f, per);
-      //  glm_ortho(-10 * ratio, 10 * ratio, -10, 10, -10, 10, per);
-
-      //  glm_lookat(cam, GLM_VEC3_ZERO, GLM_YUP, v);
-
-      //  { mat4 t;
-      //    //modelviewprojection = p * v * model
-      //    glm_mat4_mul(v, model, t);
-      //    glm_rotate_at(t, (vec3){0,0,0}, get_time() / 2.f, (vec3){0,1,0}); //, (vec3)({0,1,0}));
-      //    glm_mat4_mul(per, t, modelviewprojection);
-      //  }
-
-      //  // TODO: Do this only once during initialization
-      //  u32 matrix = gl->GetUniformLocation(p->testobject->shaderprogram, "MVP");
-
-      //  gl->UniformMatrix4fv(matrix, 1, GL_FALSE, &modelviewprojection[0][0]);
-      //}
 
 
       //gl->EnableVertexAttribArray(0);

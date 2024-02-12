@@ -32,6 +32,7 @@ void render_present(Window* w) {
   /* This is GL specific, TODO: move the GL-specific code elsewhere. Maybe make
    * this whole present GL specific? assign it as a fn ptr in the Window struct? */
   GladGLContext *gl = w->context;
+  Camera c = *GLOBAL_PLATFORM->cam;
   const f32 ratio = (float)w->windowsize[0] / (float)w->windowsize[1];
 
   for (i32 i = 0; i < drawcall_len; i++) {
@@ -76,31 +77,25 @@ void render_present(Window* w) {
 
 
       {
-        vec3 cam = {-3., 2., -3.}; // perspective
-        mat4 per; // perspective
         mat4 v; // view
         mat4 model = GLM_MAT4_IDENTITY_INIT;
         mat4 modelviewprojection;
-        const float sz = 10.f;
 
-        //LOG("<%.1f, %.1f, %.1f>", pos[0], pos[1], pos[2]);
         model[3][0] = pos[0];
         model[3][1] = pos[1];
         model[3][2] = pos[2];
 
-        //glm_perspective(45.f , 600.f / 400.f, 0.1, 100.0f, per);
-        glm_ortho(-sz * ratio, sz * ratio, -sz, sz, -sz, sz, per);
-
         /* Lookat zero should be changed to whatever later */
-        glm_lookat(cam, GLM_VEC3_ZERO, GLM_YUP, v);
+        glm_lookat(c.pos, GLM_VEC3_ZERO, GLM_YUP, v);
 
         { mat4 t;
           //modelviewprojection = p * v * model
           glm_mat4_mul(v, model, t);
-          // TODO: Remove this later
-          glm_rotate_at(t, (vec3){0,0,0}, get_time() / 2.f, GLM_YUP); //, (vec3)({0,1,0}));
 
-          glm_mat4_mul(per, t, modelviewprojection);
+          // TODO: Remove this later
+          //glm_rotate_at(t, (vec3){0,0,0}, get_time() / 2.f, GLM_YUP); //, (vec3)({0,1,0}));
+
+          glm_mat4_mul(c.per, t, modelviewprojection);
         }
 
         // TODO: Do this only once during initialization
@@ -167,6 +162,18 @@ void render_present(Window* w) {
 }
 
 void drawcall_reset(void) { drawcall_len = 0; }
+
+void r_perspective(f32 ratio, f32 fov, Camera *c) {
+  glm_perspective(fov , ratio, 0.1, 100.0f, c->per);
+}
+
+void r_perspective_ortho(f32 ratio, f32 sz, Camera *c) {
+  glm_ortho(-sz * ratio, sz * ratio, -sz, sz, -sz, sz, c->per);
+}
+
+void r_set_camera(Camera* c) {
+  GLOBAL_PLATFORM->cam = c;
+}
 
 void engine_window_resize_pointers(i32* w, i32* h) {
   //GLOBAL_PLATFORM->window->game_w = w;
