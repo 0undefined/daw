@@ -35,6 +35,11 @@ void render_present(Window* w) {
   Camera c = *GLOBAL_PLATFORM->cam;
   const f32 ratio = (float)w->windowsize[0] / (float)w->windowsize[1];
 
+  mat4 view; // view
+  vec3 angle = {1, 0.5, 1};
+  glm_vec3_sub(c.pos, angle, angle);
+  glm_lookat(c.pos, angle, GLM_YUP, view);
+
   for (i32 i = 0; i < drawcall_len; i++) {
     RenderDrawCall dc = drawcalls[i];
     switch (dc.type) {
@@ -72,12 +77,7 @@ void render_present(Window* w) {
       glm_vec3_copy(dc.data.model.pos, pos);
       gl->UseProgram(o->shader.program);
 
-
-
-
-
       {
-        mat4 v; // view
         mat4 model = GLM_MAT4_IDENTITY_INIT;
         mat4 modelviewprojection;
 
@@ -85,18 +85,9 @@ void render_present(Window* w) {
         model[3][1] = pos[1];
         model[3][2] = pos[2];
 
-        /* Lookat zero should be changed to whatever later */
-        vec3 angle = {1, 0.5, 1};
-        glm_vec3_sub(c.pos, angle, angle);
-        glm_lookat(c.pos, angle, GLM_YUP, v);
-
-        { mat4 t;
-          //modelviewprojection = p * v * model
-          glm_mat4_mul(v, model, t);
-
-          // TODO: Remove this later
-          //glm_rotate_at(t, (vec3){0,0,0}, get_time() / 2.f, GLM_YUP); //, (vec3)({0,1,0}));
-
+        {  // modelviewprojection = p * view * model
+          mat4 t;
+          glm_mat4_mul(view, model, t);
           glm_mat4_mul(c.per, t, modelviewprojection);
         }
 
@@ -106,7 +97,7 @@ void render_present(Window* w) {
         gl->UniformMatrix4fv(matrix, 1, GL_FALSE, &modelviewprojection[0][0]);
       }
 
-
+      // TODO the buffers need to be abstracted a bit more
       gl->EnableVertexAttribArray(0);
       gl->BindBuffer(GL_ARRAY_BUFFER, o->vbo);
       gl->VertexAttribPointer(
@@ -133,12 +124,11 @@ void render_present(Window* w) {
 
 
 
-      //gl->UseProgram(p->testobject->shaderprogram);
-      //// Draw the triangle !
+      //// Draw the model !
       gl->DrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
 
       gl->DisableVertexAttribArray(0);
-      //gl->DisableVertexAttribArray(1);
+      gl->DisableVertexAttribArray(1);
 
 
 
