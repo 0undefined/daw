@@ -89,7 +89,6 @@ void render_present(Window* w) {
         vec3 angle = {1, 0.5, 1};
         glm_vec3_sub(c.pos, angle, angle);
         glm_lookat(c.pos, angle, GLM_YUP, v);
-        printf("%1.f  %.1f  %.1f\r", c.pos[0], c.pos[1], c.pos[2]);
 
         { mat4 t;
           //modelviewprojection = p * v * model
