@@ -316,7 +316,7 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
   // Update ticks
   u64 ticks = 0;
 
-  StateType (*update_func)(void*) = State_updateFunc(state);
+  StateType (*update_func)(f64,void*) = State_updateFunc(state);
 
   f64 last_fps_measurement = get_time();
 
@@ -359,7 +359,7 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
 //
 //    /* update */
     StateType next_state;
-      next_state = update_func((void*)(mem->data));
+      next_state = update_func(dt, (void*)(mem->data));
 
     if (next_state != STATE_null) {
       if (next_state == STATE_quit) break;

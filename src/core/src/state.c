@@ -7,7 +7,7 @@
 
 //typedef void state_init_t(void*,void*);
 //typedef void* (state_free_t(void*));
-typedef StateType state_update_t(void*);
+typedef StateType state_update_t(f64, void*);
 
 const char* StateTypeStr[] = {
     "null",
@@ -90,7 +90,7 @@ void* State_free(StateType type, memory* mem) {
   return state_retval;
 }
 
-StateType (*State_updateFunc(StateType type))(void*) {
+StateType (*State_updateFunc(StateType type))(f64, void*) {
   switch (type) {
 #ifdef DAW_BUILD_HOTRELOAD
 #define State(name)                                                            \
@@ -117,7 +117,7 @@ StateType (*State_updateFunc(StateType type))(void*) {
   return NULL;
 }
 
-StateType State_update(StateType type, memory* mem) {
+StateType State_update(StateType type, f64 dt, memory* mem) {
   StateType next_state = STATE_null;
   switch (type) {
 #define State(name)                                                            \
