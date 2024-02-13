@@ -31,10 +31,19 @@ void glfw_err_callback(int code, const char* description) {
 }
 
 void window_size_callback(GLFWwindow* window, int width, int height) {
-  GladGLContext* gl = GLOBAL_PLATFORM->window->context;
+  const GladGLContext* gl = GLOBAL_PLATFORM->window->context;
+  Camera* c = GLOBAL_PLATFORM->cam;
   gl->Viewport(0,0, width, height);
   GLOBAL_PLATFORM->window->windowsize[0] = width;
   GLOBAL_PLATFORM->window->windowsize[1] = height;
+
+  if (c->type == Camera_Perspective) {
+    r_perspective(c->parameters.perspective.fov, c);
+  }
+  else if (c->type == Camera_Orthogonal) {
+    r_perspective_ortho(c->parameters.orthogonal.sz, c);
+  }
+
 }
 
 GladGLContext* create_context(GLFWwindow *window) {

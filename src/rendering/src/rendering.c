@@ -166,11 +166,23 @@ void render_present(Window* w) {
 
 void drawcall_reset(void) { drawcall_len = 0; }
 
-void r_perspective(f32 ratio, f32 fov, Camera *c) {
+void r_perspective(f32 fov, Camera *c) {
+  const f64 ratio = (f64)GLOBAL_PLATFORM->window->windowsize[0]
+                  / (f64)GLOBAL_PLATFORM->window->windowsize[1];
+
+  c->type = Camera_Perspective;
+  c->parameters.perspective.fov = fov;
+
   glm_perspective(fov , ratio, 0.1, 100.0f, c->per);
 }
 
-void r_perspective_ortho(f32 ratio, f32 sz, Camera *c) {
+void r_perspective_ortho(f32 sz, Camera *c) {
+  const f64 ratio = (f64)GLOBAL_PLATFORM->window->windowsize[0]
+                  / (f64)GLOBAL_PLATFORM->window->windowsize[1];
+
+  c->type = Camera_Orthogonal;
+  c->parameters.orthogonal.sz = sz;
+
   glm_ortho(-sz * ratio, sz * ratio, -sz, sz, -sz * 10.f, sz * 10.f, c->per);
 }
 

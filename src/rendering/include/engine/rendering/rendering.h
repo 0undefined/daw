@@ -60,12 +60,27 @@ typedef struct {
   u32 mvp;
 } RenderObject;
 
+typedef enum {
+  Camera_Perspective,
+  Camera_Orthogonal,
+} CameraType;
+
 typedef struct {
   /* Position of the camera in world-space. */
   vec3 pos;
   /* Perspective matrix. Initialize with r_perspective_ortho or r_perspective. */
   /* Alternatively, use `glm_perspective` or `glm_ortho`. */
   mat4 per;
+
+  /* Used to re-calculate the perspective matrix when resizing the window */
+  CameraType type;
+  /* Yes, could use a singular "f32 arg", but this is more extendable in the
+   * future. */
+  union {
+    struct {f32 fov;} perspective;
+    struct {f32 sz;} orthogonal;
+  } parameters;
+
 } Camera;
 
 /* Rendering functions */
@@ -75,8 +90,8 @@ void drawcall_reset(void);
 void render(Window* w);
 
 /* Misc */
-void r_perspective(f32 ratio, f32 fov, Camera *c);
-void r_perspective_ortho(f32 ratio, f32 sz, Camera *c);
+void r_perspective(f32 fov, Camera *c);
+void r_perspective_ortho(f32 sz, Camera *c);
 
 void r_set_camera(Camera* c);
 
