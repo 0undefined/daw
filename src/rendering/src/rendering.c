@@ -86,7 +86,10 @@ void render_present(Window* w) {
         model[3][2] = pos[2];
 
         /* Lookat zero should be changed to whatever later */
-        glm_lookat(c.pos, GLM_VEC3_ZERO, GLM_YUP, v);
+        vec3 angle = {1, 0.5, 1};
+        glm_vec3_sub(c.pos, angle, angle);
+        glm_lookat(c.pos, angle, GLM_YUP, v);
+        printf("%1.f  %.1f  %.1f\r", c.pos[0], c.pos[1], c.pos[2]);
 
         { mat4 t;
           //modelviewprojection = p * v * model
@@ -168,7 +171,7 @@ void r_perspective(f32 ratio, f32 fov, Camera *c) {
 }
 
 void r_perspective_ortho(f32 ratio, f32 sz, Camera *c) {
-  glm_ortho(-sz * ratio, sz * ratio, -sz, sz, -sz, sz, c->per);
+  glm_ortho(-sz * ratio, sz * ratio, -sz, sz, -sz * 10.f, sz * 10.f, c->per);
 }
 
 void r_set_camera(Camera* c) {
