@@ -162,7 +162,7 @@ void r_perspective(f32 fov, Camera *c) {
   c->type = Camera_Perspective;
   c->parameters.perspective.fov = fov;
 
-  glm_perspective(fov , ratio, 0.1, 100.0f, c->per);
+  glm_perspective(glm_rad(fov), ratio, 0.1, 100.0f, c->per);
 }
 
 void r_perspective_ortho(f32 sz, Camera *c) {
