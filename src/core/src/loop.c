@@ -38,6 +38,7 @@ Platform* GLOBAL_PLATFORM = NULL;
 
 static Camera default_camera = {
   .pos = {3, 0, 0},
+  .dir = {1, 1, 1},
 };
 
 input_callback_t* callbacks[128];

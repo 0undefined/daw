@@ -36,8 +36,9 @@ void render_present(Window* w) {
   const f32 ratio = (float)w->windowsize[0] / (float)w->windowsize[1];
 
   mat4 view; // view
-  vec3 angle = {1, 2.0, 1};
-  glm_vec3_sub(c.pos, angle, angle);
+  vec3 angle; // viewing angle / direction of the camera
+
+  glm_vec3_sub(c.pos, c.dir, angle);
   glm_lookat(c.pos, angle, GLM_YUP, view);
 
   for (i32 i = 0; i < drawcall_len; i++) {

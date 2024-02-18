@@ -72,6 +72,10 @@ typedef enum {
 typedef struct {
   /* Position of the camera in world-space. */
   vec3 pos;
+
+  /* The viewing direction of the camera, relative to the camera. */
+  vec3 dir;
+
   /* Perspective matrix. Initialize with r_perspective_ortho or r_perspective. */
   /* Alternatively, use `glm_perspective` or `glm_ortho`. */
   mat4 per;
