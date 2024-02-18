@@ -1,6 +1,10 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 
 typedef struct memory {
@@ -21,4 +25,7 @@ void memory_free(memory* mem, usize size);
 
 void memory_clear(memory* mem);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

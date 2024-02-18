@@ -1,6 +1,10 @@
 #ifndef ENGINE_CTRL_INPUT_H
 #define ENGINE_CTRL_INPUT_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 #include <engine/ctrl/scancodes.h>
 
@@ -92,4 +96,7 @@ void i_bind_alt(binding_t* b, scancode_t s);
     .scancode = key, .scancode_alt = altkey, .since_last_activation = 0        \
   }
 
+#ifdef __cplusplus
+}
+#endif
 #endif

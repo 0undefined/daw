@@ -1,6 +1,10 @@
 #ifndef ENGINE_HASHMAP_H
 #define ENGINE_HASHMAP_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdlib.h>
 
 #include <engine/core/types.h>
@@ -51,4 +55,7 @@ i32 lolhash(const usize s, i32 v);
     }                                                                          \
   }
 
+#ifdef __cplusplus
+}
+#endif
 #endif

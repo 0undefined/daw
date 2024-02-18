@@ -1,6 +1,10 @@
 #ifndef ENGINE_UTILS_H
 #define ENGINE_UTILS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 #include <engine/utils/vector.h>
 
@@ -33,4 +37,7 @@ i32* kernmap(const void* map, i32* dstmap, const v2_i32 mapsize,
 /* Returns an index from the given weights. */
 i32 pick_from_sample(const i32* weights, i32 len);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

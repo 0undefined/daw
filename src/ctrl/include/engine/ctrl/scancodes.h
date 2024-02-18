@@ -1,5 +1,9 @@
 #ifndef ENGINE_CTRL_SCANCODES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // We want to reserve the following bytes marked with X for MODS,
 // one bit per MODIFIER (shift, control, alt, super):
 // XXXX 0000 0000 0000  0000 0000 0000 0000
@@ -79,4 +83,7 @@ typedef enum {
 #undef ACTION
 #undef MOD
 
+#ifdef __cplusplus
+}
+#endif
 #endif

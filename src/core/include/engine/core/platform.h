@@ -1,6 +1,10 @@
 #ifndef ENGINE_CORE_PLATFORM_H
 #define ENGINE_CORE_PLATFORM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 #include <engine/core/memory.h>
 #include <engine/ctrl/input.h>
@@ -51,4 +55,7 @@ typedef struct Platform {
   binding_t bindings_global[NUM_GLOBAL_BINDINGS];
 } Platform;
 
+#ifdef __cplusplus
+}
+#endif
 #endif

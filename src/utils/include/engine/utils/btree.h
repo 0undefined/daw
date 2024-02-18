@@ -1,6 +1,10 @@
 #ifndef BTREE_H
 #define BTREE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stddef.h>
 
 #define BTREE_DEGREE_DEFAULT 4
@@ -51,4 +55,7 @@ void btree_iter_t_reset(struct btree* tree, struct btree_iter_t** it);
 
 void* btree_iter(struct btree* tree, struct btree_iter_t* iter);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

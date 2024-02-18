@@ -1,6 +1,10 @@
 #ifndef ENGINE_RESOURCES_H
 #define ENGINE_RESOURCES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 #include <engine/rendering/rendering.h>
 
@@ -112,4 +116,7 @@ isize resource_make_global(isize resource_id);
 
 #include <engine/resources/texture.h>
 
+#ifdef __cplusplus
+}
+#endif
 #endif

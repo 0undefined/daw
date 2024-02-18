@@ -1,6 +1,10 @@
 #ifndef STATE_H
 #define STATE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/memory.h>
 
 typedef enum StateType {
@@ -31,4 +35,7 @@ bool state_refresh_input_ctx(void* lib, i_ctx** ctx, usize ctx_len);
 
 #endif
 
+#ifdef __cplusplus
+}
+#endif
 #endif

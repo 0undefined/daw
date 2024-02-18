@@ -1,6 +1,10 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 
 #include <stdbool.h>
@@ -28,4 +32,8 @@ v2_i32 v2_i32_min(v2_i32 a, v2_i32 b);
 v2_i32 v2_i32_lerp(f32 dt, v2_i32 a, v2_i32 b);
 
 void v2_i32_fprintf(FILE* stream, v2_i32 a);
+
+#ifdef __cplusplus
+}
+#endif
 #endif

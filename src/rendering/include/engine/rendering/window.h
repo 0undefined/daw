@@ -1,6 +1,10 @@
 #ifndef WINDOW_H
 #define WINDOW_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 #include <cglm/cglm.h>
 
@@ -40,4 +44,7 @@ void destroy_window(Window* w);
 void init_render_opengl(Window* w);
 
 #undef API
+#ifdef __cplusplus
+}
+#endif
 #endif

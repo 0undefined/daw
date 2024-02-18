@@ -1,6 +1,10 @@
 #ifndef ENGINE_FOV_H
 #define ENGINE_FOV_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 #include <engine/utils/vector.h>
 #include <stdbool.h>
@@ -18,4 +22,7 @@ void fov_shadowcast(const void* map, const v2_i32 mapsize,
                     bool (*visblocking)(const void*), i32* lightmap,
                     const i32 range, v2_i32 src);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

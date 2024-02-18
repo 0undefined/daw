@@ -1,6 +1,10 @@
 #ifndef ENGINE_ENGINE_H
 #define ENGINE_ENGINE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 
 /* TODO: Cleanup the includes, ideally this header file should only include all
@@ -48,4 +52,7 @@ v2_i32* get_mousepos(void);
 /* move this */
 void delay(uint32_t ms);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

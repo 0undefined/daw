@@ -1,6 +1,10 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 
 typedef struct {
@@ -11,4 +15,7 @@ typedef struct {
 
 Texture* load_texture(void* render, const Asset_TextureSpec* ts);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

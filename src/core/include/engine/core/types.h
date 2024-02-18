@@ -1,6 +1,10 @@
 #ifndef ENGINE_TYPES_H
 #define ENGINE_TYPES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 
@@ -31,4 +35,7 @@ typedef i32 isize;
 
 typedef bool(predicate_t)(const void*);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

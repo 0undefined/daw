@@ -1,6 +1,10 @@
 #ifndef ENGINE_RENDERING_RENDERING_H
 #define ENGINE_RENDERING_RENDERING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <engine/core/types.h>
 #include <engine/utils/vector.h>
 #include <engine/rendering/window.h>
@@ -139,4 +143,7 @@ u32 ComposeShader(u32 *shaders, usize shaders_len);
 
 ShaderType guess_shadertype_from_filename(const char *restrict fname);
 
+#ifdef __cplusplus
+}
+#endif
 #endif

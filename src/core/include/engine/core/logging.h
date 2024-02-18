@@ -1,6 +1,10 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -46,4 +50,7 @@ void WARN(const char* fmt, ...);
 
 void ERROR(const char* fmt, ...);
 
+#ifdef __cplusplus
+}
+#endif
 #endif
