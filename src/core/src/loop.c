@@ -239,9 +239,6 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
   p->mouse_lclick = false;
   p->mouse_rclick = false;
 
-  p->edit_text = NULL;
-  p->edit_pos = 0;
-
   p->bindings = NULL;
   p->bindings_sz = 0;
   p->bindings_len = 0;
@@ -250,27 +247,26 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
   glm_ortho_default(45.f, p->cam->per);
 
   {
-    int x,y,n;
-    test_image = stbi_load(img_filename, &x, &y, &n, 0);
+    int width;
+    int height;
+    int components_per_pixel;
+    test_image =
+        stbi_load(img_filename, &width, &height, &components_per_pixel, 0);
     if (test_image == NULL) {
       ERROR("Failed to load image %s", img_filename);
     } else {
-      //
-       const GladGLContext *gl = w->context;
-       gl->GenTextures(1, &img_texture);
-       gl->BindTexture(GL_TEXTURE_2D, img_texture);
+      const GladGLContext* gl = w->context;
+      gl->GenTextures(1, &img_texture);
+      gl->BindTexture(GL_TEXTURE_2D, img_texture);
 
-       gl->TexImage2D(GL_TEXTURE_2D, 0, GL_RGB, x, y, 0, GL_RGBA, GL_UNSIGNED_BYTE, test_image);
+      gl->TexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA,
+                     GL_UNSIGNED_BYTE, test_image);
 
-       gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-       gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+      gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+      gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
       stbi_image_free(test_image);
     }
-//    // ... process data if not NULL ...
-//    // ... x = width, y = height, n = # 8-bit components per pixel ...
-//    // ... replace '0' with '1'..'4' to force that many components per pixel
-//    // ... but 'n' will always be the number that it would have been if you said 0
   }
   // TODO: Add global bindings
 
@@ -294,6 +290,7 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
 }
 
 i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
+
   if (p == NULL) {
     ERROR("Platform is uninitialized.\n");
     INFO("initialize with `engine_init`");
@@ -316,10 +313,12 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
   // Update ticks
   u64 ticks = 0;
 
-  StateType (*update_func)(f64,void*) = State_updateFunc(state);
+  StateType (*update_func)(f64, void*) = State_updateFunc(state);
 
-  //f64 last_fps_measurement = get_time();
-  //f64 last_fps_ticks = 0;
+#ifdef BENCHMARK
+  f64 last_fps_measurement = get_time();
+  f64 last_fps_ticks = 0;
+#endif
 
   /* Main loop */
   do {
@@ -327,11 +326,13 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
     const f64 dt = now - time;
     time = now;
 
-    //if (now - last_fps_measurement > 1.000) {
-    //  printf("\n FPS: %.1f  \t ticks: %lu", (double)(ticks - last_fps_ticks) / (now - last_fps_measurement), ticks);
-    //  last_fps_measurement = now;
-    //  last_fps_ticks = ticks;
-    //}
+#ifdef BENCHMARK
+    if (now - last_fps_measurement > 1.000) {
+      printf("\n FPS: %.1f  \t ticks: %lu", (double)(ticks - last_fps_ticks) / (now - last_fps_measurement), ticks);
+      last_fps_measurement = now;
+      last_fps_ticks = ticks;
+    }
+#endif
 
     glfwPollEvents();
     /* Events */
@@ -361,7 +362,7 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
 //
 //    /* update */
     StateType next_state;
-      next_state = update_func(dt, (void*)(mem->data));
+    next_state = update_func(dt, (void*)(mem->data));
 
     if (next_state != STATE_null) {
       if (next_state == STATE_quit) break;
@@ -382,45 +383,13 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
         f64 state_init_time = get_time();
         State_init(state, mem, retval);
         INFO("Initializing state \"%s\" took %.1fms", StateTypeStr[state],
-            (get_time() - state_init_time) * 1000.0);
+             (get_time() - state_init_time) * 1000.0);
       }
     } else {
 
       render_begin(p->window);
 
-
-      //gl->EnableVertexAttribArray(0);
-      //gl->BindBuffer(GL_ARRAY_BUFFER, p->testobject->vbo);
-      //gl->VertexAttribPointer(
-      //    0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-      //    3,                  // size
-      //    GL_FLOAT,           // type
-      //    GL_FALSE,           // normalized?
-      //    0,                  // stride
-      //    (void*)0            // array buffer offset
-      //    );
-
-      //// Do the color buffer (?)
-      //gl->EnableVertexAttribArray(1);
-      //gl->BindBuffer(GL_ARRAY_BUFFER, p->testobject->col);
-      //gl->VertexAttribPointer(
-      //    1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-      //    3,                                // size
-      //    GL_FLOAT,                         // type
-      //    GL_FALSE,                         // normalized?
-      //    0,                                // stride
-      //    (void*)0                          // array buffer offset
-      //    );
-
-
-
-
-      //gl->UseProgram(p->testobject->shaderprogram);
-      //// Draw the triangle !
-      //gl->DrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
-
-      //gl->DisableVertexAttribArray(0);
-      //gl->DisableVertexAttribArray(1);
+      // ???
 
       render_present(p->window);
     }
@@ -489,6 +458,7 @@ void engine_input_ctx_push(i_ctx* ctx) {
       LOG("(+state) %s", ctx->bindings[i].action.state.activate_str);
       LOG("(-state) %s", ctx->bindings[i].action.state.deactivate_str);
       break;
+
     case InputType_range:
       LOG("(range) --unhandled--");
       break;
@@ -511,5 +481,7 @@ void engine_input_ctx_reset(void) {
     i_ctx_t_free(GLOBAL_PLATFORM->bindings[--GLOBAL_PLATFORM->bindings_len]);
   }
 }
-//ivec2 get_windowsize(void) { return GLOBAL_PLATFORM->window->windowsize; }
-v2_i32* get_mousepos(void) { return &GLOBAL_PLATFORM->mouse_pos; }
+
+void get_mousepos(double *x, double *y) {
+  glfwGetCursorPos(GLOBAL_PLATFORM->window->window, x, y);
+}

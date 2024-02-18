@@ -27,6 +27,8 @@ typedef struct {
 #include <engine/rendering/window.h>
 #include <engine/core/platform.h>
 
+#include <cglm/cglm.h>
+
 /* Essential functions */
 Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight,
                       const f32 render_scale, const u32 flags,
@@ -47,7 +49,7 @@ void render_add_unit(RenderUnit* u);
 void engine_input_ctx_push(i_ctx* ctx);
 void engine_input_ctx_pop(void);
 void engine_input_ctx_reset(void);
-v2_i32* get_mousepos(void);
+void get_mousepos(double *x, double *y);
 
 /* move this */
 void delay(uint32_t ms);

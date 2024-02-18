@@ -41,10 +41,6 @@ typedef struct Platform {
   /* Global resources that live from engine_init to engine_free */
   Resources* resources;
 
-  /* Text input/editing is currently not used/implemented */
-  char* edit_text;
-  usize edit_pos;
-
   memory* mem;
 
   /* The ctrl is probably the only sensible thing in this struct. */

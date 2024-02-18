@@ -100,8 +100,6 @@ void r_perspective_ortho(f32 sz, Camera *c);
 void r_set_camera(Camera* c);
 
 //void window_size_callback(GLFWwindow* window, i32 width, i32 height);
-//void engine_window_resize_pointers(i32* w, i32* h);
-//void engine_window_resize_pointers_reset(void);
 
 void engine_draw_sprite(Sprite* s, v2_i32* pos, f32 scale);
 void engine_draw_sprite_ex(Sprite* s, v2_i32* pos, f32 scale,
