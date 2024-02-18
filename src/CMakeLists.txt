@@ -21,6 +21,7 @@ add_library(${PROJECT_NAME}
   )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE C)
+set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   include
