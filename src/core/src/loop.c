@@ -372,7 +372,7 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
       void* retval = State_free(state, mem);
       memory_clear(mem);
 
-      engine_input_ctx_reset();
+      i_ctx_reset();
 
       // Reset camera to default camera
       p->cam = &default_camera;
@@ -425,63 +425,3 @@ void engine_stop(Platform* p) {
 
 /* Set the maximum framerate */
 void engine_fps_max(u64 cap) { /* does nothing */ }
-
-/* Pushes an input context onto the input handling stack */
-void engine_input_ctx_push(i_ctx* ctx) {
-  if (GLOBAL_PLATFORM->bindings == NULL) {
-    GLOBAL_PLATFORM->bindings = calloc(8, sizeof(i_ctx*));
-    GLOBAL_PLATFORM->bindings_sz = 8;
-  }
-
-  if (GLOBAL_PLATFORM->bindings_len + 1 >= GLOBAL_PLATFORM->bindings_sz) {
-    void* m =
-        realloc(GLOBAL_PLATFORM->bindings, GLOBAL_PLATFORM->bindings_sz + 8);
-    if (m == NULL) {
-      ERROR("Failed to allocate 8 bytes (%d): %s", errno, strerror(errno));
-      exit(EXIT_FAILURE);
-    }
-    GLOBAL_PLATFORM->bindings_sz += 8;
-  }
-
-  LOG("Bindings in ctx[%d]:", GLOBAL_PLATFORM->bindings_len);
-  for (isize i = 0; i < ctx->len; i++) {
-    switch (ctx->bindings[i].action.type) {
-    case InputType_error:
-      LOG("(error)");
-      break;
-
-    case InputType_action:
-      LOG("(action) %s", ctx->bindings[i].action.action.callback_str);
-      break;
-
-    case InputType_state:
-      LOG("(+state) %s", ctx->bindings[i].action.state.activate_str);
-      LOG("(-state) %s", ctx->bindings[i].action.state.deactivate_str);
-      break;
-
-    case InputType_range:
-      LOG("(range) --unhandled--");
-      break;
-    }
-  }
-
-  GLOBAL_PLATFORM->bindings[GLOBAL_PLATFORM->bindings_len++] = ctx;
-}
-
-/* Pops an input context from the input stack */
-void engine_input_ctx_pop(void) {
-  if (GLOBAL_PLATFORM->bindings == NULL || GLOBAL_PLATFORM->bindings_sz == 0)
-    return;
-  i_ctx_t_free(GLOBAL_PLATFORM->bindings[--GLOBAL_PLATFORM->bindings_len]);
-}
-
-/* Removes all input contexts from the input stack */
-void engine_input_ctx_reset(void) {
-  while (GLOBAL_PLATFORM->bindings_len > 0) {
-    i_ctx_t_free(GLOBAL_PLATFORM->bindings[--GLOBAL_PLATFORM->bindings_len]);
-  }
-}
-
-void get_mousepos(double *x, double *y) {
-  glfwGetCursorPos(GLOBAL_PLATFORM->window->window, x, y);
-}

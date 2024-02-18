@@ -198,3 +198,16 @@ void destroy_window(Window* w) {
       ERROR("Destroying unknown renderer type.");
   }
 }
+
+void get_mousepos(double *x, double *y) {
+  Window* w = GLOBAL_PLATFORM->window;
+
+  switch(w->framework) {
+    case WINDOW_FRAMEWORK_GLFW:
+      glfwGetCursorPos(GLOBAL_PLATFORM->window->window, x, y);
+      break;
+    default:
+      ERROR("get_mouse_pos not implemented for chosen framework.");
+  }
+
+}

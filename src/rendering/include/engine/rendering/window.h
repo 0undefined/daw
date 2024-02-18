@@ -43,6 +43,8 @@ void destroy_window(Window* w);
 // Renderer intializer(s)
 void init_render_opengl(Window* w);
 
+void get_mousepos(double *x, double *y);
+
 #undef API
 #ifdef __cplusplus
 }

@@ -45,12 +45,6 @@ void render_set_zoom(f32 new_zoom);
 void render_adjust_zoom(f32 diff);
 void render_add_unit(RenderUnit* u);
 
-/* Input handling */
-void engine_input_ctx_push(i_ctx* ctx);
-void engine_input_ctx_pop(void);
-void engine_input_ctx_reset(void);
-void get_mousepos(double *x, double *y);
-
 /* move this */
 void delay(uint32_t ms);
 
