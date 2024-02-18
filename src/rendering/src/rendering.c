@@ -36,7 +36,7 @@ void render_present(Window* w) {
   const f32 ratio = (float)w->windowsize[0] / (float)w->windowsize[1];
 
   mat4 view; // view
-  vec3 angle = {1, 0.5, 1};
+  vec3 angle = {1, 2.0, 1};
   glm_vec3_sub(c.pos, angle, angle);
   glm_lookat(c.pos, angle, GLM_YUP, view);
 
