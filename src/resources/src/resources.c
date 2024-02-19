@@ -53,7 +53,7 @@ i32 resources_load(Resources *resources) {
       case Asset_shaderprog: idx = shaderprog_len++; break;
       case Asset_texture:    idx = texture_len++;    break;
 
-      case Asset_error:
+      case Asset_error: break;
       default:
         ERROR("Unknown resource type!");
         exit(EXIT_FAILURE);
@@ -117,6 +117,7 @@ i32 resources_load(Resources *resources) {
         break;
 
     case Asset_error:
+        break;
     default:
         ERROR("Unknown resource type!");
         exit(EXIT_FAILURE);
