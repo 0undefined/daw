@@ -63,16 +63,13 @@ void render_present(Window* w) {
 
 
     case RenderDrawCallType_Model: {
-#ifdef _DEBUG
-      if (dc.data.sprite.sprite == NULL) {
-        WARN("Sprite %lx in drawcall %d/%d had NULL reference",
-             dc.data.sprite.sprite, i, drawcall_len);
-        __asm__("int3;");
 
-        drawcall_len = 0;
-        exit(EXIT_FAILURE);
-      }
-#endif
+      // bind shader program
+      // - set uniforms
+      // bind vertex array
+      // bind index buffer
+
+
       RenderObject* o = dc.data.model.model;
       vec3 pos;
       glm_vec3_copy(dc.data.model.pos, pos);
