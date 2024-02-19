@@ -73,6 +73,10 @@ void render_present(Window* w) {
       RenderObject* o = dc.data.model.model;
       vec3 pos;
       glm_vec3_copy(dc.data.model.pos, pos);
+
+      gl->ActiveTexture(GL_TEXTURE0);
+      gl->BindTexture(GL_TEXTURE_2D, o->texture);
+
       gl->UseProgram(o->shader.program);
 
       {
@@ -121,12 +125,12 @@ void render_present(Window* w) {
 
 
 
-
       //// Draw the model !
       gl->DrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
 
       gl->DisableVertexAttribArray(0);
       gl->DisableVertexAttribArray(1);
+
 
 
 

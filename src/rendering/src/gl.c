@@ -184,7 +184,7 @@ Shader compose_shader(Shader *shaders, usize shaders_len) {
   return (Shader){.program = prog, .type = Shader_Program};
 }
 
-RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz) {
+RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz, u32 texture) {
   GladGLContext *gl = GLOBAL_PLATFORM->window->context;
   RenderObject o;
 
@@ -203,6 +203,8 @@ RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv,
   gl->BufferData(GL_ARRAY_BUFFER, uv_sz, uv, GL_STATIC_DRAW);
 
   o.shader = *shader;
+
+  o.texture = texture;
 
   return o;
 }

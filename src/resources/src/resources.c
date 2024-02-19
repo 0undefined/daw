@@ -22,6 +22,8 @@ void* get_asset(Resources* r, u32 idx) {
     return &r->shader[r->get[idx]];
 
   case Asset_texture:
+    return &r->texture[r->get[idx]];
+
   case Asset_error:
   case Asset_audio:
   case Asset_font:
@@ -109,10 +111,11 @@ i32 resources_load(Resources *resources) {
         const Shader s = compose_shader(shaders, sz);
         DEBUG("shader = %d -- %s\n", s.program, ShaderType_str[s.type]);
 
-        resources->shader[resources->shader_len++] = s;
+        resources->shader[resources->shader_len] = s;
+        resources->shader_len++;
     } break;
     case Asset_texture:
-        resources->texture[resources->texture_len++] = load_texture(&resources->assets[i].texture);
+        resources->texture[resources->texture_len] = load_texture(&resources->assets[i].texture);
         resources->texture_len++;
         break;
 
@@ -124,7 +127,7 @@ i32 resources_load(Resources *resources) {
         break;
     }
 
-    resources->get[i] = idx;
+    //resources->get[i] = idx;
   }
 
   free(imm_shader);

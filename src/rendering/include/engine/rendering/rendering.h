@@ -71,6 +71,8 @@ typedef struct {
   u32 col;
   /* MVP (a uniform from the shader) */
   u32 mvp;
+
+  u32 texture;
 } RenderObject;
 
 typedef enum {
@@ -145,7 +147,7 @@ typedef struct {
   } data;
 } RenderDrawCall;
 
-RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz);
+RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz, u32 texture);
 
 Shader compile_shader(const char* file_path, const ShaderType shader_type);
 Shader compose_shader(Shader *shaders, usize shaders_len);
