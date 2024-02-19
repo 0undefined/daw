@@ -272,5 +272,7 @@ Texture createTextureFromImageData(unsigned char* image_data, i32 width, i32 hei
   gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
+  gl->BindTexture(GL_TEXTURE_2D, 0);
+
   return t;
 }
