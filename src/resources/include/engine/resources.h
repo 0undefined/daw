@@ -65,8 +65,8 @@ typedef struct {
 typedef struct {
   enum Asset type;
   const char* path;
-  i32 width;
-  i32 height;
+  /* Bits per component, set to zero if you don't want to change the format. */
+  i32 bpc;
 } Asset_TextureSpec;
 
 typedef union {
@@ -90,21 +90,25 @@ typedef struct {
   /* Loaded assets */
   usize shader_len;
   Shader* shader;
+
+  usize texture_len;
+  Texture* texture;
 } Resources;
 
 #define TextureDefinition(_path, ...) unimplemented
 #define Resource_AudioDefinition(_path, ...) unimplemented
-#define Declare_Shader(_path) (const asset_t){.shader = {.type = Asset_shader, .path=_path}}
+#define Declare_Shader(PATH) (const asset_t){.shader = {.type = Asset_shader, .path=PATH}}
 #define Declare_ShaderProgram(SHADERS, NUMSHADERS) (const asset_t){.shaderprog = {.type = Asset_shaderprog, .shader=SHADERS, .shader_len=NUMSHADERS}}
+#define Declare_Texture(PATH) (const asset_t){.texture = {.type = Asset_texture, .path=PATH, .bpc=0}}
 
 void* get_asset(Resources* r, u32 idx);
 
 /* Each of resource_load_font, resource_load_texture, and resource_load_audio
  * loads a given resource into the engines memory and returns an identifier.
  */
-isize resource_load_font(Asset_FontSpec font_def);
-isize resource_load_texture(Asset_TextureSpec texture_def);
-isize resource_load_audio(Asset_AudioSpec audio_def);
+//isize resource_load_font(Asset_FontSpec font_def);
+//isize resource_load_texture(Asset_TextureSpec texture_def);
+//isize resource_load_audio(Asset_AudioSpec audio_def);
 
 // Loads all resources specified in `assets` and populates corresponding
 // resources members.

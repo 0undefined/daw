@@ -252,3 +252,28 @@ Sprite sprite_new(u64 tid, u8 coord) {
         .y = ts * ((coord & 0xF0) >> 4),
       }};
 }
+
+Texture createTextureFromImageData(unsigned char* image_data, i32 width, i32 height) {
+  Window* restrict w = GLOBAL_PLATFORM->window;
+  Texture t;
+  t.width = width;
+  t.height = height;
+
+  if (w->renderer != WINDOW_RENDERER_OPENGL) {
+    ERROR("createTextureFromImageData not implemented for chosen renderer!");
+    return (Texture){.id = 0, .width = 0, .height = 0};
+  }
+
+  const GladGLContext* gl = w->context;
+
+  gl->GenTextures(1, &t.id);
+  gl->BindTexture(GL_TEXTURE_2D, t.id);
+
+  gl->TexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA,
+                 GL_UNSIGNED_BYTE, image_data);
+
+  gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+  return t;
+}

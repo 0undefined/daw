@@ -20,12 +20,21 @@ extern "C" {
 #define RGB(_r, _g, _b) RGBA(_r, _g, _b, 0xFF)
 
 /* Types */
+/* TODO: Cleanup these types. */
 typedef struct {
   u8 r;
   u8 g;
   u8 b;
   u8 a;
 } Engine_color;
+
+typedef struct {
+  /* Maybe implement types, such as `atlas` (default), `standalone`, or
+   * something idk. */
+  u32 id;
+  i32 width;
+  i32 height;
+} Texture;
 
 typedef struct {
   u32 texture_id;
@@ -144,6 +153,8 @@ Shader compose_shader(Shader *shaders, usize shaders_len);
 u32 ComposeShader(u32 *shaders, usize shaders_len);
 
 ShaderType guess_shadertype_from_filename(const char *restrict fname);
+
+Texture createTextureFromImageData(unsigned char* image_data, i32 width, i32 height);
 
 #ifdef __cplusplus
 }

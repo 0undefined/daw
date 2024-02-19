@@ -42,6 +42,7 @@ i32 resources_load(Resources *resources) {
 
   isize i = 0;
 
+  // Count each type of resource so we can allocate appropriate sizes.
   for (i = 0; i < resources->assets_len; i++) {
     isize idx = 0;
 
@@ -50,7 +51,7 @@ i32 resources_load(Resources *resources) {
       case Asset_font:       idx = font_len++;       WARN("Font resource type not implemented!"); break;
       case Asset_shader:     idx = shader_len++;     break;
       case Asset_shaderprog: idx = shaderprog_len++; break;
-      case Asset_texture:    idx = texture_len++;    WARN("Texture resource type not implemented!");break;
+      case Asset_texture:    idx = texture_len++;    break;
 
       case Asset_error:
       default:
@@ -59,13 +60,14 @@ i32 resources_load(Resources *resources) {
         break;
     }
 
+    // Update index translation table.
     resources->get[i] = idx;
   }
 
   //resources->audio = calloc(audio_len, sizeof());
   //resources->font = calloc(font_len, sizeof());
   resources->shader = calloc(shaderprog_len, sizeof(Shader));
-  //resources->texture = calloc(texture_len, sizeof());
+  resources->texture = calloc(texture_len, sizeof(Texture));
 
   Shader* imm_shader = calloc(shader_len, sizeof(Shader));
 
@@ -110,8 +112,8 @@ i32 resources_load(Resources *resources) {
         resources->shader[resources->shader_len++] = s;
     } break;
     case Asset_texture:
-        texture_len++;
-        WARN("Texture resource type not implemented!");
+        resources->texture[resources->texture_len++] = load_texture(&resources->assets[i].texture);
+        resources->texture_len++;
         break;
 
     case Asset_error:

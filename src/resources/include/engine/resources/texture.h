@@ -6,14 +6,10 @@ extern "C" {
 #endif
 
 #include <engine/core/types.h>
+#include <engine/resources.h>
+#include <engine/rendering/rendering.h>
 
-typedef struct {
-  const i32 tilesize;
-  const i32 width;
-  const i32 height;
-} Texture;
-
-Texture* load_texture(void* render, const Asset_TextureSpec* ts);
+Texture load_texture(const Asset_TextureSpec *restrict ts);
 
 #ifdef __cplusplus
 }

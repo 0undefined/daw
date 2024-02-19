@@ -44,12 +44,6 @@ static Camera default_camera = {
 input_callback_t* callbacks[128];
 usize callbacks_len;
 
-/* TODO: MOVE ME */
-#include <glad/gl.h>
-char *img_filename = "test.png";
-unsigned char *test_image = NULL;
-GLuint img_texture;
-
 i32 nproc(void) {
   return get_nprocs();
 }
@@ -247,28 +241,6 @@ Platform* engine_init(const char* windowtitle, i32 windowWidth, i32 windowHeight
   p->cam = &default_camera;
   glm_ortho_default(45.f, p->cam->per);
 
-  {
-    int width;
-    int height;
-    int components_per_pixel;
-    test_image =
-        stbi_load(img_filename, &width, &height, &components_per_pixel, 0);
-    if (test_image == NULL) {
-      ERROR("Failed to load image %s", img_filename);
-    } else {
-      const GladGLContext* gl = w->context;
-      gl->GenTextures(1, &img_texture);
-      gl->BindTexture(GL_TEXTURE_2D, img_texture);
-
-      gl->TexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA,
-                     GL_UNSIGNED_BYTE, test_image);
-
-      gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-      gl->TexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-      stbi_image_free(test_image);
-    }
-  }
   // TODO: Add global bindings
 
   INFO("Available cores: %d", nproc());
