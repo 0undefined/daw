@@ -194,6 +194,7 @@ RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv,
   gl->BindVertexArray(o.vao);
 
   /* For each buffer in the shader, */
+  /* The shader should be generalied, */
   gl->GenBuffers(1, &(o.vbo));
   gl->BindBuffer(GL_ARRAY_BUFFER, o.vbo);
   gl->BufferData(GL_ARRAY_BUFFER, sz, model, GL_STATIC_DRAW);

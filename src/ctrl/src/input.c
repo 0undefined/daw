@@ -192,7 +192,7 @@ bool i_update_unique_binding(i_ctx* ctx, binding_t* binding) {
 
 void i_flush_bindings(f64 dt, usize numcalls, input_callback_t* c[], void* state_mem) {
   for (usize i = 0; i < numcalls; i++) {
-    (c[i])(dt, state_mem);
+    (c[i])(state_mem);
   }
   // reset callback len and be ready for more
   callbacks_len = 0;

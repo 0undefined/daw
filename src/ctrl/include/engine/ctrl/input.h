@@ -8,7 +8,7 @@ extern "C" {
 #include <engine/core/types.h>
 #include <engine/ctrl/scancodes.h>
 
-typedef void input_callback_t(f64, void*);
+typedef void input_callback_t(void*);
 typedef i32 scancode_t;
 
 typedef enum InputType {
