@@ -106,10 +106,9 @@ i32 resources_load(Resources *resources) {
           //DEBUG("shader[%d] = %d\n", j, imm_shader[resources->assets[i].shaderprog.shader[j]].program);
           //shaders[j] = imm_shader[resources->assets[i].shaderprog.shader[j]];
           shaders[j] = imm_shader[j];
-          DEBUG("shader[%d] = %d -- %s\n", j, shaders[j].program, ShaderType_str[shaders[j].type]);
         }
+
         const Shader s = compose_shader(shaders, sz);
-        DEBUG("shader = %d -- %s\n", s.program, ShaderType_str[s.type]);
 
         resources->shader[resources->shader_len] = s;
         resources->shader_len++;

@@ -17,8 +17,6 @@ extern Platform* GLOBAL_PLATFORM;
 RenderDrawCall drawcalls[drawcall_limit];
 i32 drawcall_len = 0;
 
-//struct RenderObject;
-
 /* Implementations */
 
 /* Clear the screen,
