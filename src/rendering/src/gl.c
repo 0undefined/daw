@@ -141,8 +141,8 @@ GLuint load_shaders(
   gl->DetachShader(ProgramID, vertexShader.program);
   gl->DetachShader(ProgramID, fragmentShader.program);
 
-  gl->DeleteShader(vertexShader.program);
-  gl->DeleteShader(fragmentShader.program);
+  //gl->DeleteShader(vertexShader.program);
+  //gl->DeleteShader(fragmentShader.program);
 
   return ProgramID;
 }
@@ -151,7 +151,6 @@ GLuint load_shaders(
 Shader compose_shader(Shader *shaders, usize shaders_len) {
   const GladGLContext* gl = GLOBAL_PLATFORM->window->context;
   GLint Result = GL_FALSE;
-  int InfoLogLength = 0;
 
   if (shaders_len == 0) {
     ERROR("No shaders provided!");
@@ -160,20 +159,31 @@ Shader compose_shader(Shader *shaders, usize shaders_len) {
 
   u32 prog = gl->CreateProgram();
 
+  if (prog == 0) {
+    ERROR("Failed to create program!");
+    return (Shader){.program = 0, .type = Shader_Error};
+  }
+
   for (int i = 0; i < shaders_len; i++) {
-    DEBUG("Attaching shader [%d] : %s (%d) = %d\n", i, ShaderType_str[shaders[i].type], shaders[i].type, shaders[i].program);
     gl->AttachShader(prog, shaders[i].program);
+    INFO("Attaching shader %d to %d", shaders[i].program, prog);
   }
 
   gl->LinkProgram(prog);
 
   // Check the program
   gl->GetProgramiv(prog, GL_LINK_STATUS, &Result);
-  gl->GetProgramiv(prog, GL_INFO_LOG_LENGTH, &InfoLogLength);
-  if ( InfoLogLength > 0 ) {
-    char* msg = calloc(InfoLogLength + 1, sizeof(char));
-    gl->GetShaderInfoLog(prog, InfoLogLength, NULL, msg);
-    ERROR("(Compose) Compiling shader[%d]: " TERM_COLOR_YELLOW "%s" TERM_COLOR_RESET, InfoLogLength, msg);
+  if (Result != GL_TRUE) {
+    // Get the size of the log
+    int log_len = 0;
+    int msg_len = 0;
+    gl->GetProgramiv(prog, GL_INFO_LOG_LENGTH, &log_len);
+    char* msg = calloc(log_len + 1, sizeof(char));
+
+    // Copy the log message(s)
+    gl->GetProgramInfoLog(prog, log_len, &msg_len, msg);
+
+    ERROR("(Compose) Compiling shader:\n" TERM_COLOR_YELLOW "%s" TERM_COLOR_RESET "\n", msg);
     free(msg);
   }
 
@@ -184,11 +194,17 @@ Shader compose_shader(Shader *shaders, usize shaders_len) {
   return (Shader){.program = prog, .type = Shader_Program};
 }
 
+void shaders_delete(Shader* shader, isize shader_len) {
+  const GladGLContext* gl = GLOBAL_PLATFORM->window->context;
+
+  for (isize i = 0; i < shader_len; i++) {
+    gl->DeleteShader(shader[i].program);
+  }
+}
+
 RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz, u32 texture) {
   GladGLContext *gl = GLOBAL_PLATFORM->window->context;
   RenderObject o;
-
-  //DEBUG("RenderObject got %d: %s\n", shader->program, ShaderType_str[shader->type]);
 
   gl->GenVertexArrays(1, &(o.vao));
   gl->BindVertexArray(o.vao);

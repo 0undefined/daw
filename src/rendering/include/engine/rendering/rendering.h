@@ -151,6 +151,7 @@ RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv,
 
 Shader compile_shader(const char* file_path, const ShaderType shader_type);
 Shader compose_shader(Shader *shaders, usize shaders_len);
+void shaders_delete(Shader* shader, isize shader_len);
 
 u32 ComposeShader(u32 *shaders, usize shaders_len);
 

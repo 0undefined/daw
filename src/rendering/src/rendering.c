@@ -72,10 +72,9 @@ void render_present(Window* w) {
       vec3 pos;
       glm_vec3_copy(dc.data.model.pos, pos);
 
+      gl->UseProgram(o->shader.program);
       gl->ActiveTexture(GL_TEXTURE0);
       gl->BindTexture(GL_TEXTURE_2D, o->texture);
-
-      gl->UseProgram(o->shader.program);
 
       {
         mat4 model = GLM_MAT4_IDENTITY_INIT;

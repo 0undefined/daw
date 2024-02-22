@@ -17,8 +17,8 @@ void* get_asset(Resources* r, u32 idx) {
     break;
 
   case Asset_shaderprog:
-    LOG("Idx: r->get[idx] = %d", r->get[idx]);
-    LOG("Ptr: &r->shader[r->get[idx]] = %z", &r->shader[r->get[idx]]);
+    LOG("Idx: r->get[%d] = %d", idx, r->get[idx]);
+    //LOG("Ptr: &r->shader[r->get[idx]] = %z", &r->shader[r->get[idx]]);
     return &r->shader[r->get[idx]];
 
   case Asset_texture:
@@ -96,16 +96,21 @@ i32 resources_load(Resources *resources) {
             guess_shadertype_from_filename(resources->assets[i].shader.path);
         const Shader s = compile_shader(resources->assets[i].shader.path, t);
         LOG("Compiled %s! (%s)", resources->assets[i].shader.path, ShaderType_str[t]);
-        imm_shader[shader_len++] = s;
+
+        imm_shader[shader_len] = s;
+        shader_len++;
     } break;
     case Asset_shaderprog: {
         const isize sz = resources->assets[i].shaderprog.shader_len;
+        const u32* shader_ids = resources->assets[i].shaderprog.shader;
         Shader* shaders = calloc(sz, sizeof(Shader));
 
         for (int j = 0; j < sz; j++) {
           //DEBUG("shader[%d] = %d\n", j, imm_shader[resources->assets[i].shaderprog.shader[j]].program);
           //shaders[j] = imm_shader[resources->assets[i].shaderprog.shader[j]];
-          shaders[j] = imm_shader[j];
+          u32 shader_idx = shader_ids[j];
+          //DEBUG("Idx: get[%d] = %d\n", shader_idx, imm_shader[resources->get[shader_idx]].program);
+          shaders[j] = imm_shader[resources->get[shader_idx]];
         }
 
         const Shader s = compose_shader(shaders, sz);
@@ -129,7 +134,17 @@ i32 resources_load(Resources *resources) {
     //resources->get[i] = idx;
   }
 
+  LOG("Total assets: %lu", resources->assets_len);
+  LOG(" Shaders: %lu", resources->shader_len);
+  LOG(" Textures: %lu", resources->texture_len);
+
+  // Delete the immediate shaders
+  for (int i = 0; i < shader_len; i++) {
+    // glDeleteShader()
+  }
+
   free(imm_shader);
+  shaders_delete(imm_shader, shader_len);
 
   return 0;
 }
