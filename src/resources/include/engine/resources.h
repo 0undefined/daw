@@ -34,6 +34,7 @@ enum Asset {
   Asset_shader,
   Asset_shaderprog,
   Asset_texture,
+  Asset_model,
 };
 
 typedef struct {
@@ -69,6 +70,11 @@ typedef struct {
   i32 bpc;
 } Asset_TextureSpec;
 
+typedef struct {
+  enum Asset type;
+  const char* path;
+} Asset_ModelSpec;
+
 typedef union {
   enum Asset type;
   Asset_AudioSpec audio;
@@ -76,7 +82,10 @@ typedef union {
   Asset_ShaderSpec shader;
   Asset_ShaderProgramSpec shaderprog;
   Asset_TextureSpec texture;
+  Asset_ModelSpec model;
 } asset_t;
+
+#include <engine/resources/model.h>
 
 // The resource spec
 typedef struct {
@@ -93,6 +102,9 @@ typedef struct {
 
   usize texture_len;
   Texture* texture;
+
+  usize model_len;
+  Model* model;
 } Resources;
 
 #define TextureDefinition(_path, ...) unimplemented
