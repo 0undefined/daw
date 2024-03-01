@@ -98,11 +98,11 @@ FetchContent_Declare(cglm
   GIT_REPOSITORY https://github.com/recp/cglm.git
   GIT_TAG v0.9.2
 )
-FetchContent_Declare(stb_image
+FetchContent_Declare(stb
   GIT_REPOSITORY https://github.com/nothings/stb.git
-  GIT_TAG b7cf1246284b49dfe7f1288e6f739b7a3a9d966b
+  GIT_TAG master
   )
-FetchContent_MakeAvailable(cglm stb_image)
+FetchContent_MakeAvailable(cglm stb)
 
 ## Glad
 set(GLAD_HEADER ${CMAKE_BINARY_DIR}/include/glad/gl.h)

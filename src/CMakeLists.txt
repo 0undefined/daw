@@ -32,6 +32,7 @@ target_link_libraries(${PROJECT_NAME}
   glfw
   OpenGL::GL
   cglm
+  stb
   daw_core
   daw_rendering
   daw_ctrl
