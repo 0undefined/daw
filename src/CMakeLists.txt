@@ -25,6 +25,8 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY C_STANDARD 99)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
   include
+  # TODO make including stb more streamlined
+  ${CMAKE_BINARY_DIR}/_deps/cgs-src/src
   ${CMAKE_BINARY_DIR}/include
   ${ENGINE_INCLUDE})
 
@@ -32,7 +34,6 @@ target_link_libraries(${PROJECT_NAME}
   glfw
   OpenGL::GL
   cglm
-  stb
   daw_core
   daw_rendering
   daw_ctrl

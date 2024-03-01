@@ -105,6 +105,7 @@ FetchContent_Declare(stb
 FetchContent_MakeAvailable(cglm stb)
 
 ## Glad
+# TODO: make sure the glad command is run before building
 set(GLAD_HEADER ${CMAKE_BINARY_DIR}/include/glad/gl.h)
 
 ## Compilation information
