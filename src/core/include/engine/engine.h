@@ -48,6 +48,10 @@ void render_add_unit(RenderUnit* u);
 /* move this */
 void delay(uint32_t ms);
 
+// file operations
+isize f_get_sz(FILE* f);
+
+
 #ifdef __cplusplus
 }
 #endif

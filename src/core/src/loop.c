@@ -398,3 +398,20 @@ void engine_stop(Platform* p) {
 
 /* Set the maximum framerate */
 void engine_fps_max(u64 cap) { /* does nothing */ }
+
+isize f_get_sz(FILE* f) {
+  if (f == NULL) {
+    ERROR("File was null!");
+    return 0;
+  }
+
+  const isize pos = ftell(f);
+
+  fseek(f, 0, SEEK_END);
+  const i64 size = ftell(f);
+
+  // Reset the position to the position prior to calling f_get_sz
+  fseek(f, pos, SEEK_SET);
+
+  return size;
+}

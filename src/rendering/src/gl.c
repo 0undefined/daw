@@ -22,23 +22,6 @@ const char* ShaderType_str[] = {
   [Shader_Compute] = "Shader_Compute",
 };
 
-isize f_get_sz(FILE* f) {
-  if (f == NULL) {
-    ERROR("File was null!");
-    return 0;
-  }
-
-  const isize pos = ftell(f);
-
-  fseek(f, 0, SEEK_END);
-  const i64 size = ftell(f);
-
-  // Reset the position to the position prior to calling f_get_sz
-  fseek(f, pos, SEEK_SET);
-
-  return size;
-}
-
 Shader compile_shader(const char* file_path, const ShaderType shader_type) {
   GLuint shaderID = 0;
   GLenum shadertype = GL_INVALID_ENUM;
