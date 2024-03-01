@@ -9,6 +9,7 @@
 
 #include <engine/rendering/rendering.h>
 #include <engine/core/platform.h>
+#include <engine/engine.h>
 
 extern Platform* GLOBAL_PLATFORM;
 
