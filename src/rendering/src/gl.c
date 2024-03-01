@@ -185,7 +185,7 @@ void shaders_delete(Shader* shader, isize shader_len) {
   }
 }
 
-RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz, u32 texture) {
+RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz, float* normal, usize normal_sz, u32 texture) {
   GladGLContext *gl = GLOBAL_PLATFORM->window->context;
   RenderObject o;
 
@@ -201,6 +201,10 @@ RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv,
   gl->GenBuffers(1, &(o.col));
   gl->BindBuffer(GL_ARRAY_BUFFER, o.col);
   gl->BufferData(GL_ARRAY_BUFFER, uv_sz, uv, GL_STATIC_DRAW);
+
+  gl->GenBuffers(1, &(o.normal));
+  gl->BindBuffer(GL_ARRAY_BUFFER, o.normal);
+  gl->BufferData(GL_ARRAY_BUFFER, normal_sz, normal, GL_STATIC_DRAW);
 
   o.shader = *shader;
 

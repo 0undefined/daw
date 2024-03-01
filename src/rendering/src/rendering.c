@@ -108,12 +108,24 @@ void render_present(Window* w) {
           (void*)0            // array buffer offset
           );
 
-      //// Do the color buffer (?)
+      //// Do the uv buffer (?)
       gl->EnableVertexAttribArray(1);
       gl->BindBuffer(GL_ARRAY_BUFFER, o->col);
       gl->VertexAttribPointer(
           1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
           2,                                // size
+          GL_FLOAT,                         // type
+          GL_FALSE,                         // normalized?
+          0,                                // stride
+          (void*)0                          // array buffer offset
+          );
+
+      //// Do the normal buffer (?)
+      gl->EnableVertexAttribArray(2);
+      gl->BindBuffer(GL_ARRAY_BUFFER, o->normal);
+      gl->VertexAttribPointer(
+          2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
+          3,                                // size
           GL_FLOAT,                         // type
           GL_FALSE,                         // normalized?
           0,                                // stride
