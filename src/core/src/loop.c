@@ -288,10 +288,10 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
 
   StateType (*update_func)(f64, void*) = State_updateFunc(state);
 
-#ifdef BENCHMARK
+//#ifdef BENCHMARK
   f64 last_fps_measurement = get_time();
   f64 last_fps_ticks = 0;
-#endif
+//#endif
 
   /* Main loop */
   do {
@@ -299,13 +299,13 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
     const f64 dt = now - time;
     time = now;
 
-#ifdef BENCHMARK
+//#ifdef BENCHMARK
     if (now - last_fps_measurement > 1.000) {
       printf("\n FPS: %.1f  \t ticks: %lu", (double)(ticks - last_fps_ticks) / (now - last_fps_measurement), ticks);
       last_fps_measurement = now;
       last_fps_ticks = ticks;
     }
-#endif
+//#endif
 
     glfwPollEvents();
     /* Events */
