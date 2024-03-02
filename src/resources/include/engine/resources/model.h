@@ -7,7 +7,6 @@ extern "C" {
 
 #include <engine/core/types.h>
 #include <cglm/cglm.h>
-#include <glad/gl.h>
 
 typedef enum {
   Model_error,
@@ -17,9 +16,9 @@ typedef enum {
 typedef struct {
   ModelType format;
 
-  GLuint m_uiVAO;
-  GLuint m_uiVBO;
-  GLuint m_uiIBO;
+  u32 m_uiVAO;
+  u32 m_uiVBO;
+  u32 m_uiIBO;
   unsigned m_uiNumIndices;
 } Model;
 
