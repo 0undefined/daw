@@ -186,7 +186,10 @@ void shaders_delete(Shader* shader, isize shader_len) {
   }
 }
 
-RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv, usize uv_sz, float* normal, usize normal_sz, u32 texture) {
+RenderObject RenderObject_new(
+    Shader* shader,
+    u32 texture,
+    ShaderBuffer *restrict buffers, usize num_buffers) {
   GladGLContext *gl = GLOBAL_PLATFORM->window->context;
   RenderObject o;
 
@@ -195,21 +198,19 @@ RenderObject RenderObject_new(float* model, Shader* shader, usize sz, float* uv,
 
   /* For each buffer in the shader, */
   /* The shader should be generalied, */
-  gl->GenBuffers(1, &(o.vbo));
-  gl->BindBuffer(GL_ARRAY_BUFFER, o.vbo);
-  gl->BufferData(GL_ARRAY_BUFFER, sz, model, GL_STATIC_DRAW);
-
-  gl->GenBuffers(1, &(o.col));
-  gl->BindBuffer(GL_ARRAY_BUFFER, o.col);
-  gl->BufferData(GL_ARRAY_BUFFER, uv_sz, uv, GL_STATIC_DRAW);
-
-  gl->GenBuffers(1, &(o.normal));
-  gl->BindBuffer(GL_ARRAY_BUFFER, o.normal);
-  gl->BufferData(GL_ARRAY_BUFFER, normal_sz, normal, GL_STATIC_DRAW);
+  for (usize i = 0; i < num_buffers; i++) {
+    gl->GenBuffers(1, &(buffers[i].buffername));
+    gl->BindBuffer(GL_ARRAY_BUFFER, buffers[i].buffername);
+    gl->BufferData(GL_ARRAY_BUFFER, buffers[i].sz * buffers[i].n, buffers[i].data, GL_STATIC_DRAW);
+  }
 
   o.shader = *shader;
-
   o.texture = texture;
+  o.buffer = buffers;
+  o.buffer_len = num_buffers;
+  o.mvp = gl->GetUniformLocation(o.shader.program, "MVP");
+
+  gl->BindVertexArray(0);
 
   return o;
 }

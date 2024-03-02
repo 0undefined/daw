@@ -59,23 +59,27 @@ typedef struct {
 } Shader;
 
 typedef struct {
+  // Maybe also define type? so texture normals can be mapped to a texture
+  // atlas?
+  u32 buffername;
+  isize sz;
+  isize n;
+  isize m;
+  void* data;
+} ShaderBuffer;
+
+typedef struct {
   /* Shader proram */
   Shader shader;
   /* Vertex Array Object */
   u32 vao;
-  /* Vertex Buffer Object */
-  u32 vbo;
-  /* Index Buffer Object */
-  u32 ibo;
-  /* Color (?) */
-  u32 col;
 
-  /* norm */
-  u32 normal;
   /* MVP (a uniform from the shader) */
   u32 mvp;
 
   u32 texture;
+  usize buffer_len;
+  ShaderBuffer* buffer;
 } RenderObject;
 
 typedef enum {
@@ -150,11 +154,12 @@ typedef struct {
   } data;
 } RenderDrawCall;
 
-RenderObject RenderObject_new(float* model,
-    Shader* shader, usize sz,
-    float* uv, usize uv_sz,
-    float* normal, usize normal_sz,
-    u32 texture);
+// TODO make all the shader buffers a list
+
+RenderObject RenderObject_new(
+    Shader* shader,
+    u32 texture,
+    ShaderBuffer *restrict buffers, usize num_buffers);
 
 Shader compile_shader(const char* file_path, const ShaderType shader_type);
 Shader compose_shader(Shader *shaders, usize shaders_len);

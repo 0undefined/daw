@@ -73,6 +73,7 @@ void render_present(Window* w) {
       glm_vec3_copy(dc.data.model.pos, pos);
 
       gl->UseProgram(o->shader.program);
+      // TODO: Use texture atlas
       gl->ActiveTexture(GL_TEXTURE0);
       gl->BindTexture(GL_TEXTURE_2D, o->texture);
 
@@ -91,54 +92,35 @@ void render_present(Window* w) {
         }
 
         // TODO: Do this only once during initialization
-        u32 matrix = gl->GetUniformLocation(o->shader.program, "MVP");
+        u32 matrix = o->mvp;
 
         gl->UniformMatrix4fv(matrix, 1, GL_FALSE, &modelviewprojection[0][0]);
       }
 
       // TODO the buffers need to be abstracted a bit more
-      gl->EnableVertexAttribArray(0);
-      gl->BindBuffer(GL_ARRAY_BUFFER, o->vbo);
-      gl->VertexAttribPointer(
-          0,                  // attribute 0. No particular reason for 0, but must match the layout in the shader.
-          3,                  // size
-          GL_FLOAT,           // type
-          GL_FALSE,           // normalized?
-          0,                  // stride
-          (void*)0            // array buffer offset
-          );
+      gl->BindVertexArray(o->vao);
 
-      //// Do the uv buffer (?)
-      gl->EnableVertexAttribArray(1);
-      gl->BindBuffer(GL_ARRAY_BUFFER, o->col);
-      gl->VertexAttribPointer(
-          1,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-          2,                                // size
-          GL_FLOAT,                         // type
-          GL_FALSE,                         // normalized?
-          0,                                // stride
-          (void*)0                          // array buffer offset
-          );
+      for (usize i = 0; i < o->buffer_len; i++) {
+        gl->EnableVertexAttribArray(i);
+        gl->BindBuffer(GL_ARRAY_BUFFER, o->buffer[i].buffername);
+        gl->VertexAttribPointer(
+            i,                  // ...
+            o->buffer[i].m,                  // size
+            GL_FLOAT,           // type
+            GL_FALSE,           // normalized?
+            0,                  // stride
+            (void*)0            // array buffer offset
+            );
+      }
 
-      //// Do the normal buffer (?)
-      gl->EnableVertexAttribArray(2);
-      gl->BindBuffer(GL_ARRAY_BUFFER, o->normal);
-      gl->VertexAttribPointer(
-          2,                                // attribute. No particular reason for 1, but must match the layout in the shader.
-          3,                                // size
-          GL_FLOAT,                         // type
-          GL_FALSE,                         // normalized?
-          0,                                // stride
-          (void*)0                          // array buffer offset
-          );
-
-
-
-      //// Draw the model !
+      // Draw the model !
       gl->DrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
 
-      gl->DisableVertexAttribArray(0);
-      gl->DisableVertexAttribArray(1);
+      for (usize i = 0; i < o->buffer_len; i++) {
+        gl->DisableVertexAttribArray(i);
+      }
+      //gl->DisableVertexAttribArray(1);
+      gl->BindVertexArray(0);
 
 
 
