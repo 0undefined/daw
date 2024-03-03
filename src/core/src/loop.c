@@ -301,7 +301,10 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
 
 //#ifdef BENCHMARK
     if (now - last_fps_measurement > 1.000) {
-      printf("\n FPS: %.1f  \t ticks: %lu", (double)(ticks - last_fps_ticks) / (now - last_fps_measurement), ticks);
+      printf("\n FPS: %.1f  \t ticks: %lu   \t frametime: %.1f"
+          , (double)(ticks - last_fps_ticks) / (now - last_fps_measurement)
+          , ticks
+          , dt * 1000.f);
       last_fps_measurement = now;
       last_fps_ticks = ticks;
     }
@@ -360,11 +363,16 @@ i32 engine_run(Platform* p, StateType initial_state, void* state_arg) {
       }
     } else {
 
+      f64 t = get_time();
       render_begin(p->window);
 
       // ???
 
       render_present(p->window);
+
+      if (last_fps_measurement == now) {
+        printf("\n rendertime: %.1f", (double)(get_time() - t) * 1000.);
+      }
     }
 
     ticks++;

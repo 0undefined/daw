@@ -68,6 +68,7 @@ void render_present(Window* w) {
       // bind index buffer
 
 
+      f64 t = get_time();
       RenderObject* o = dc.data.model.model;
       vec3 pos;
       glm_vec3_copy(dc.data.model.pos, pos);
@@ -121,6 +122,9 @@ void render_present(Window* w) {
       }
       //gl->DisableVertexAttribArray(1);
       gl->BindVertexArray(0);
+      if (i == 8) {
+        printf("\r obj: %.3f", (double)(get_time() - t) * 1000.);
+      }
 
 
 
