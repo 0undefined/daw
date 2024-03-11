@@ -82,6 +82,28 @@ typedef struct {
   ShaderBuffer* buffer;
 } RenderObject;
 
+typedef struct {
+  isize count;
+  // TODO: Add index buffer?
+  f32 *vertices;
+} RenderModel;
+
+typedef struct {
+  // Size and count of models
+  isize msize;
+  isize mcount;
+  // Size and count of vertices
+  isize vsize;
+  isize vcount;
+  // Should we keep track of each added model?
+  // sort of like an array of pointers?
+  // then have a function to update each model?
+  RenderModel *models;
+  u32 vertexbuffer;
+  f32 *vertices;
+  // TODO: Add index buffer?
+} RenderBatch;
+
 typedef enum {
   Camera_Perspective,
   Camera_Orthogonal,
@@ -134,6 +156,7 @@ typedef enum {
   RenderDrawCallType_Text,
   RenderDrawCallType_Sprite,
   RenderDrawCallType_Model,
+  RenderDrawCallType_Batch,
 } RenderDrawCallType;
 
 typedef struct {
@@ -151,6 +174,10 @@ typedef struct {
       vec3 pos;
       f32 scale;
     } model;
+    struct {
+      RenderObject* model;
+      isize id;
+    } batch;
   } data;
 } RenderDrawCall;
 
