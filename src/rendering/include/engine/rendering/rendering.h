@@ -58,15 +58,53 @@ typedef struct {
   u32 program;
 } Shader;
 
+typedef enum {
+  ShaderBufferDataType_nil,
+
+  ShaderBufferDataType_f32,
+  ShaderBufferDataType_f64,
+
+  ShaderBufferDataType_i32,
+  ShaderBufferDataType_i64,
+} ShaderBufferDataType;
+
+const
+usize ShaderBufferDataType_size(ShaderBufferDataType t) {
+  switch (t) {
+  case ShaderBufferDataType_nil: return 0;
+  case ShaderBufferDataType_f32: return sizeof(f32);
+  case ShaderBufferDataType_f64: return sizeof(f64);
+  case ShaderBufferDataType_i32: return sizeof(i32);
+  case ShaderBufferDataType_i64: return sizeof(i64);
+  default: return 0;
+  }
+}
+
 typedef struct {
-  // Maybe also define type? so texture normals can be mapped to a texture
-  // atlas?
+  // The backend ID, ie. glGenBuffer(numBufferObjects, &this->buffername)
   u32 buffername;
-  isize sz;
-  isize n;
-  isize m;
+  // The size of data  = count * size_elem
+  isize size;
+  // Number of elements
+  isize count;
+  // components per generic vertex attribute (ie, 3 for RGB, 2 for UV)
+  isize components;
+  // Size of each element
+  ShaderBufferDataType datatype;
+  isize size_elem;
+  // Pointer to the data
   void* data;
 } ShaderBuffer;
+
+#define SHADERBUFFER_NEW(T, COUNT, COMPONENTS, DATA) \
+  (ShaderBuffer){ \
+    .buffername = 0, \
+    .size = COUNT * sizeof(T), \
+    .count = COUNT, \
+    .datatype = ShaderBufferDataType_##T, \
+    .size_elem = sizeof(T), \
+    .data = DATA, \
+  }
 
 typedef struct {
   /* Shader proram */
@@ -74,34 +112,30 @@ typedef struct {
   /* Vertex Array Object */
   u32 vao;
 
-  /* MVP (a uniform from the shader) */
+  /* MVP (a uniform from the shader).
+   * This could also probably be generalized */
   u32 mvp;
 
+  // The texture ID, glBindTextures(target, &this->texture)
   u32 texture;
+
+  // Number of buffers
   usize buffer_len;
+
+  // The vertex buffer is also just a buffer.
   ShaderBuffer* buffer;
 } RenderObject;
 
 typedef struct {
-  isize count;
-  // TODO: Add index buffer?
-  f32 *vertices;
-} RenderModel;
-
-typedef struct {
-  // Size and count of models
+  // Size of models buffer
   isize msize;
+  // number of models (RenderObject)
   isize mcount;
+
+  RenderObject *models;
+
   // Size and count of vertices
-  isize vsize;
-  isize vcount;
-  // Should we keep track of each added model?
-  // sort of like an array of pointers?
-  // then have a function to update each model?
-  RenderModel *models;
-  u32 vertexbuffer;
-  f32 *vertices;
-  // TODO: Add index buffer?
+  RenderObject renderobj;
 } RenderBatch;
 
 typedef enum {
