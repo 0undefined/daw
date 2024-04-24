@@ -201,7 +201,7 @@ RenderObject RenderObject_new(
   for (usize i = 0; i < num_buffers; i++) {
     gl->GenBuffers(1, &(buffers[i].buffername));
     gl->BindBuffer(GL_ARRAY_BUFFER, buffers[i].buffername);
-    gl->BufferData(GL_ARRAY_BUFFER, buffers[i].sz * buffers[i].n, buffers[i].data, GL_STATIC_DRAW);
+    gl->BufferData(GL_ARRAY_BUFFER, buffers[i].size * buffers[i].count * buffers[i].size_elem, buffers[i].data, GL_STATIC_DRAW);
   }
 
   o.shader = *shader;

@@ -42,7 +42,6 @@ typedef struct {
 } Sprite;
 
 typedef enum {
-  //GL_COMPUTE_SHADER, GL_VERTEX_SHADER, GL_TESS_CONTROL_SHADER, GL_TESS_EVALUATION_SHADER, GL_GEOMETRY_SHADER, GL_FRAGMENT_SHADER
   Shader_Error,
   Shader_Program, /* Collection of shaders */
   Shader_Vertex,
@@ -68,18 +67,6 @@ typedef enum {
   ShaderBufferDataType_i64,
 } ShaderBufferDataType;
 
-const
-usize ShaderBufferDataType_size(ShaderBufferDataType t) {
-  switch (t) {
-  case ShaderBufferDataType_nil: return 0;
-  case ShaderBufferDataType_f32: return sizeof(f32);
-  case ShaderBufferDataType_f64: return sizeof(f64);
-  case ShaderBufferDataType_i32: return sizeof(i32);
-  case ShaderBufferDataType_i64: return sizeof(i64);
-  default: return 0;
-  }
-}
-
 typedef struct {
   // The backend ID, ie. glGenBuffer(numBufferObjects, &this->buffername)
   u32 buffername;
@@ -89,7 +76,7 @@ typedef struct {
   isize count;
   // components per generic vertex attribute (ie, 3 for RGB, 2 for UV)
   isize components;
-  // Size of each element
+  // Type & size of each element
   ShaderBufferDataType datatype;
   isize size_elem;
   // Pointer to the data
@@ -122,14 +109,14 @@ typedef struct {
   // Number of buffers
   usize buffer_len;
 
-  // The vertex buffer is also just a buffer.
+  // The vertex buffer is also just a buffer
   ShaderBuffer* buffer;
 } RenderObject;
 
 typedef struct {
   // Size of models buffer
   isize msize;
-  // number of models (RenderObject)
+  // number of models in the `models` buffer
   isize mcount;
 
   RenderObject *models;
@@ -164,6 +151,9 @@ typedef struct {
   } parameters;
 
 } Camera;
+
+const
+usize ShaderBufferDataType_size(ShaderBufferDataType t);
 
 /* Rendering functions */
 void render_begin(Window* w);

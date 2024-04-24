@@ -20,8 +20,38 @@ RenderDrawCall drawcalls[drawcall_limit];
 RenderBatch render_batches[batch_limit];
 i32 drawcall_len = 0;
 
-// Count is the number of models to reserve space for
-RenderBatch renderbatch_new(const isize count) {
+const
+usize ShaderBufferDataType_size(ShaderBufferDataType t) {
+  switch (t) {
+  case ShaderBufferDataType_nil: return 0;
+  case ShaderBufferDataType_f32: return sizeof(f32);
+  case ShaderBufferDataType_f64: return sizeof(f64);
+  case ShaderBufferDataType_i32: return sizeof(i32);
+  case ShaderBufferDataType_i64: return sizeof(i64);
+  default: return 0;
+  }
+}
+
+// `RenderBatch` is used for batch rendering. The struct is used as a
+// "management" parent structure to keep track of multiple `RenderObject`s that
+// are put into a final `RenderObject` to render.
+// `RenderObject`s are copied to the internal `models` array, to which the
+// pointer to the copied RenderObject is returned, or NULL if an error occurred.
+// If changes are made to a render object the batch should be refreshed.
+// Renderbatches assumes that all buffer layouts are the same.
+
+// renderbatch_new: Create a new render batch with space for `count` models.
+int renderbatch_new(RenderBatch* renderbatch, const isize count) {
+  if (renderbatch == NULL) {
+    ERROR("renderbatch was null!");
+    return -1;
+  }
+
+  if (count < 1) {
+    ERROR("count must be a positive integer!");
+    return -1;
+  }
+
   GladGLContext* restrict gl = GLOBAL_PLATFORM->window->context;
 
   u32 vbo = 0;
@@ -30,127 +60,162 @@ RenderBatch renderbatch_new(const isize count) {
   gl->BufferData(GL_ARRAY_BUFFER, 0, NULL, GL_DYNAMIC_DRAW);
   gl->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
 
-  return (RenderBatch){
-    .msize = sizeof(RenderModel) * count,
-    .mcount = 0,
-    .vsize = 0,
-    .vcount = 0,
-    .models = (RenderModel*)malloc(sizeof(RenderModel) * count),
-    .vertexbuffer = vbo,
-    .vertices = NULL,
-  };
+  renderbatch->msize = sizeof(RenderObject) * count;
+  renderbatch->mcount = 0;
+  renderbatch->models = (RenderObject*)malloc(sizeof(RenderObject) * count);
+  if (renderbatch->models == NULL) {
+    ERROR("Failed to allocate %lu size of bytes for models array!", sizeof(RenderObject) * count);
+    return -1;
+  }
+
+  memset(&(renderbatch->renderobj), 0, sizeof(RenderObject));
+
+  return 0;
 }
 
-RenderBatch renderbatch_add(RenderBatch b, const isize count, f32* vertices) {
-
-  RenderModel m = {.count = count, .vertices = vertices};
-
-  if (b.models == NULL) {
-    b = renderbatch_new(64);
+// renderbatch_refresh: Refresh all models in the batch.
+int renderbatch_refresh(RenderBatch* renderbatch) {
+  for (isize i = 0; i < renderbatch->mcount; i++) {
+    // Go through all buffers
   }
 
-  if ((b.mcount + 1) * sizeof(RenderModel) > b.msize) {
-    // grow the size
-    b.models = realloc(b.models, b.msize * 2);
-    b.msize *= 2;
-  }
-
-  // Add the model to the tracking list
-  b.models[b.mcount] = m;
-  b.mcount++;
-
-  // Update the vertex buffer
-  if (b.vertices == NULL) {
-    isize newsz = sizeof(f32) * count;
-    b.vertices = malloc(newsz);
-    b.vsize = newsz;
-
-  } else if (sizeof(f32) * (b.vcount + count) > b.vsize) {
-    // Grow the vertex buffer size
-    isize newsz = b.vsize * 2;
-    while (newsz < sizeof(f32) * count + b.vsize) {
-      newsz *= 2;
-    }
-
-    b.vertices = realloc(&b.vertices, newsz);
-    b.vsize = newsz;
-  }
-
-  // Copy the new buffer data
-  memcpy(&b.vertices[b.vcount], vertices, count * sizeof(f32));
-  b.vcount += count;
-
-  const GladGLContext *restrict gl = GLOBAL_PLATFORM->window->context;
-  gl->BindBuffer(GL_ARRAY_BUFFER, b.vertexbuffer);
-  gl->BufferData(GL_ARRAY_BUFFER, b.vcount, b.vertices, GL_DYNAMIC_DRAW);
-  gl->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-
-  return b;
+  return 0;
 }
 
-RenderBatch renderbatch_add_ex(RenderBatch b, const isize num, const isize *count, f32** vertices) {
-
-  RenderModel *mm = NULL;
-
-  if (b.models == NULL) {
-    b = renderbatch_new(num);
-  }
-
-  if ((b.mcount + num) * sizeof(RenderModel) > b.msize) {
-    // grow the size
-    b.models = realloc(b.models, (b.mcount + num) * sizeof(RenderModel));
-    b.msize += num * sizeof(RenderModel);
-  }
-
-  // Add the models to the tracking list
-  isize vcount = 0;
-  for (isize i = 0; i < num; i++) {
-    b.models[b.mcount + i] = (RenderModel){.count = count[i], .vertices = vertices[i]};
-    vcount = count[i];
-  }
-
-  b.mcount += num;
-
-  // Update the vertex buffer
-  if (b.vertices == NULL) {
-    isize newsz = sizeof(f32) * vcount;
-    b.vertices = malloc(newsz);
-    b.vsize = newsz;
-
-  } else if (sizeof(f32) * (b.vcount + vcount) > b.vsize) {
-    // Grow the vertex buffer size by doubling it (a couple of times)
-    isize newsz = b.vsize * 2;
-    while (newsz < sizeof(f32) * vcount + b.vsize) {
-      newsz *= 2;
-    }
-
-    b.vertices = realloc(&b.vertices, newsz);
-    b.vsize = newsz;
-  }
-
-  // Copy the new buffer data
-  for (isize i = 0; i < num; i++) {
-    memcpy(&b.vertices[b.vcount], vertices[i], count[i] * sizeof(f32));
-    b.vcount += count[i];
-  }
-
-  const GladGLContext *restrict gl = GLOBAL_PLATFORM->window->context;
-  gl->BindBuffer(GL_ARRAY_BUFFER, b.vertexbuffer);
-  gl->BufferData(GL_ARRAY_BUFFER, b.vcount, b.vertices, GL_DYNAMIC_DRAW);
-  gl->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-
-  return b;
+int renderbatch_add(RenderBatch* renderbatch) {
+  return 0;
 }
 
-void renderbatch_update(RenderBatch b, f32** vertices) {
-  // TODO fixup this mess
-  isize acc = 0;
-  for (isize i = 0; i < b.mcount; i++) {
-    const isize sz = b.models[i].count * sizeof(f32);
-    memcpy(&b.vertices[acc], b.models[i].vertices, sz);
-    acc += sz;
-  }
-}
+
+//RenderBatch renderobject_extend(RenderObject b, RenderObject *restrict object) {
+//}
+//RenderBatch renderbatch_add(RenderBatch b, RenderObject *restrict object) {
+//
+//  if (b.models == NULL) {
+//    b = renderbatch_new(64);
+//  }
+//
+//  // Check to see if we have room for the new object
+//  if ((b.mcount + 1) * sizeof(RenderObject) > b.msize) {
+//    // grow the size
+//    b.models = realloc(b.models, b.msize * 2);
+//    b.msize *= 2;
+//  }
+//
+//  // Add the model to the tracking list
+//  b.models[b.mcount] = *object;
+//  b.mcount++;
+//
+//  // Update the vertex buffer
+//  if (b.vertices == NULL) {
+//    isize newsz = sizeof(f32) * count;
+//    b.vertices = malloc(newsz);
+//    b.vsize = newsz;
+//
+//  } else if (sizeof(f32) * (b.vcount + count) > b.vsize) {
+//    // Grow the vertex buffer size
+//    isize newsz = b.vsize * 2;
+//    while (newsz < sizeof(f32) * count + b.vsize) {
+//      newsz *= 2;
+//    }
+//
+//    b.vertices = realloc(&b.vertices, newsz);
+//    b.vsize = newsz;
+//  }
+//
+//  // Copy the new buffer data
+//  memcpy(&b.vertices[b.vcount], vertices, count * sizeof(f32));
+//  b.vcount += count;
+//
+//  const GladGLContext *restrict gl = GLOBAL_PLATFORM->window->context;
+//  gl->BindBuffer(GL_ARRAY_BUFFER, b.vertexbuffer);
+//  gl->BufferData(GL_ARRAY_BUFFER, b.vcount, b.vertices, GL_DYNAMIC_DRAW);
+//  gl->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+//
+//  return b;
+//}
+//
+//RenderBatch renderbatch_add_ex(RenderBatch b,
+//    Shader* shader,
+//    u32 texture,
+//    const isize num, const isize *count, f32** vertices, ShaderBuffer *restrict buffers, usize num_buffers) {
+//  /*
+//   * !!!README!!! TODO FIXME
+//   * it just occurred to me..
+//   *
+//   * We already do the hard work in renderobject, and can maybe suffice to use
+//   * that, and use all of the renderbatch code to squish together the vertices
+//   * and other buffers together to a single buffer?
+//   *
+//   * So we will have a bunch of pointers to the render objects,
+//   * then create a "batched" render object, with the data
+//   *
+//   *
+//   *
+//   *
+//   * */
+//
+//  RenderModel *mm = NULL;
+//
+//  if (b.models == NULL) {
+//    b = renderbatch_new(num);
+//  }
+//
+//  if ((b.mcount + num) * sizeof(RenderModel) > b.msize) {
+//    // grow the size
+//    b.models = realloc(b.models, (b.mcount + num) * sizeof(RenderModel));
+//    b.msize += num * sizeof(RenderModel);
+//  }
+//
+//  // Add the models to the tracking list
+//  isize vcount = 0;
+//  for (isize i = 0; i < num; i++) {
+//    b.models[b.mcount + i] = (RenderModel){.count = count[i], .vertices = vertices[i]};
+//    vcount = count[i];
+//  }
+//
+//  b.mcount += num;
+//
+//  // Update the vertex buffer
+//  if (b.vertices == NULL) {
+//    isize newsz = sizeof(f32) * vcount;
+//    b.vertices = malloc(newsz);
+//    b.vsize = newsz;
+//
+//  } else if (sizeof(f32) * (b.vcount + vcount) > b.vsize) {
+//    // Grow the vertex buffer size by doubling it (a couple of times)
+//    isize newsz = b.vsize * 2;
+//    while (newsz < sizeof(f32) * vcount + b.vsize) {
+//      newsz *= 2;
+//    }
+//
+//    b.vertices = realloc(&b.vertices, newsz);
+//    b.vsize = newsz;
+//  }
+//
+//  // Copy the new buffer data
+//  for (isize i = 0; i < num; i++) {
+//    memcpy(&b.vertices[b.vcount], vertices[i], count[i] * sizeof(f32));
+//    b.vcount += count[i];
+//  }
+//
+//  const GladGLContext *restrict gl = GLOBAL_PLATFORM->window->context;
+//  gl->BindBuffer(GL_ARRAY_BUFFER, b.vertexbuffer);
+//  gl->BufferData(GL_ARRAY_BUFFER, b.vcount, b.vertices, GL_DYNAMIC_DRAW);
+//  gl->VertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+//
+//  return b;
+//}
+//
+//void renderbatch_update(RenderBatch b, f32** vertices) {
+//  // TODO fixup this mess
+//  isize acc = 0;
+//  for (isize i = 0; i < b.mcount; i++) {
+//    const isize sz = b.models[i].count * sizeof(f32);
+//    memcpy(&b.vertices[acc], b.models[i].vertices, sz);
+//    acc += sz;
+//  }
+//}
 
 /* Implementations */
 
@@ -223,7 +288,7 @@ void render_present(Window* w) {
         gl->BindBuffer(GL_ARRAY_BUFFER, o->buffer[i].buffername);
         gl->VertexAttribPointer(
             i,                  // ...
-            o->buffer[i].m,                  // size
+            o->buffer[i].components, // size
             GL_FLOAT,           // type
             GL_FALSE,           // normalized?
             0,                  // stride
@@ -233,7 +298,7 @@ void render_present(Window* w) {
 
       // Draw the model !
       // TODO: Use DrawElements and an index buffer!
-      gl->DrawArrays(GL_TRIANGLES, 0, 3*b->vcount); // Starting from vertex 0; 3 vertices total -> 1 triangle
+      gl->DrawArrays(GL_TRIANGLES, 0, b->renderobj.buffer->size); // Starting from vertex 0; 3 vertices total -> 1 triangle
 
       for (usize i = 0; i < o->buffer_len; i++) {
         gl->DisableVertexAttribArray(i);
@@ -294,7 +359,7 @@ void render_present(Window* w) {
         gl->BindBuffer(GL_ARRAY_BUFFER, o->buffer[i].buffername);
         gl->VertexAttribPointer(
             i,                  // ...
-            o->buffer[i].m,                  // size
+            o->buffer[i].size,                  // size
             GL_FLOAT,           // type
             GL_FALSE,           // normalized?
             0,                  // stride
