@@ -307,9 +307,9 @@ void render_present(Window* w) {
       //gl->DisableVertexAttribArray(1);
       gl->BindVertexArray(0);
 
-      if (i == 8) {
-        printf("\r obj: %.3f", (double)(get_time() - t) * 1000.);
-      }
+      //if (i == 8) {
+      //  printf("\r obj: %.3f", (double)(get_time() - t) * 1000.);
+      //}
 
     } break;
 
@@ -378,9 +378,9 @@ void render_present(Window* w) {
       //gl->DisableVertexAttribArray(1);
       gl->BindVertexArray(0);
 
-      if (i == 8) {
-        printf("\r obj: %.3f", (double)(get_time() - t) * 1000.);
-      }
+      //if (i == 8) {
+      //  printf("\r obj: %.3f", (double)(get_time() - t) * 1000.);
+      //}
 
 
 
