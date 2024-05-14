@@ -167,6 +167,8 @@ void init_render_opengl(Window* w) {
   ctx->Enable(GL_DEPTH_TEST);
   ctx->DepthFunc(GL_LESS);
 
+  glfwSwapInterval(0);
+
   w->context = ctx;
   w->renderer = WINDOW_RENDERER_OPENGL;
 }
