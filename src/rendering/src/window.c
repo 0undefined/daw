@@ -80,6 +80,8 @@ Window* init_window_glfw(
   INFO_("initializing window...");
   //glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
   glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+  glfwWindowHint(GLFW_DECORATED, GLFW_FALSE);
+  glfwWindowHint(GLFW_FLOATING, GLFW_TRUE);
 
   glfwWindowHint(GLFW_SAMPLES, 0); // Disable anti aliasing
 
