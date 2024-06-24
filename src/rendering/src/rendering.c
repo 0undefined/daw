@@ -76,13 +76,50 @@ int renderbatch_new(RenderBatch* renderbatch, const isize count) {
 // renderbatch_refresh: Refresh all models in the batch.
 int renderbatch_refresh(RenderBatch* renderbatch) {
   for (isize i = 0; i < renderbatch->mcount; i++) {
-    // Go through all buffers
+    memcpy(renderbatch->renderobj.buffer, obj->buffer, obj->buffer_len);
   }
 
   return 0;
 }
 
-int renderbatch_add(RenderBatch* renderbatch) {
+// Add a render object to the render batch
+int renderbatch_add(RenderBatch* renderbatch, RenderObject* obj) {
+  if (renderbatch == NULL) {
+    ERROR("renderbatch was null!");
+    return -1;
+  }
+
+  if (renderbatch->models == NULL) {
+    const isize sz = 8 * sizeof(RenderObject);
+    renderbatch->models = malloc(8 * sizeof(RenderObject));
+    renderbatch->msize = sz;
+    renderbatch->mcount = 0;
+  } else if ((renderbatch->mcount + 1) * sizeof(RenderObject) > renderbatch->msize) {
+    const isize sz = renderbatch->msize * 2;
+    renderbatch->models = realloc(&(renderbatch->models), sz);
+    renderbatch->msize = sz;
+  }
+
+  if (renderbatch->renderobj.buffer == NULL) {
+    renderbatch->renderobj.buffer = malloc(sizeof(ShaderBuffer));
+  }
+
+  if (renderbatch->mcount == 0) {
+    // Copy the first objects shaderstuff
+    renderbatch->renderobj.shader = obj->shader;
+    renderbatch->renderobj.vao = obj->vao;
+    renderbatch->renderobj.mvp = obj->mvp;
+    renderbatch->renderobj.texture = obj->texture;
+    renderbatch->renderobj.buffer_len = obj->buffer_len;
+  }
+
+  memcpy(renderbatch->renderobj.buffer + renderbatch->renderobj.buffer_len, obj->buffer, obj->buffer_len);
+
+  if (renderbatch->mcount != 0) {
+    renderbatch->renderobj.buffer_len += obj->buffer_len;
+  }
+  renderbatch->mcount++;
+
   return 0;
 }
 
