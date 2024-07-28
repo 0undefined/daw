@@ -410,7 +410,7 @@ void render_present(Window* w) {
 
       // Draw the model !
       // TODO: Use DrawElements and an index buffer!
-      gl->DrawArrays(GL_TRIANGLES, 0, 3*12); // Starting from vertex 0; 3 vertices total -> 1 triangle
+      gl->DrawArrays(GL_TRIANGLES, 0, o->buffer->size); // Starting from vertex 0; 3 vertices total -> 1 triangle
 
       for (usize i = 0; i < o->buffer_len; i++) {
         gl->DisableVertexAttribArray(i);
