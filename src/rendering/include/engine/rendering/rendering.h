@@ -181,7 +181,6 @@ typedef enum {
   RenderDrawCallType_Text,
   RenderDrawCallType_Sprite,
   RenderDrawCallType_Model,
-  RenderDrawCallType_Batch,
 } RenderDrawCallType;
 
 typedef struct {
@@ -199,10 +198,6 @@ typedef struct {
       vec3 pos;
       f32 scale;
     } model;
-    struct {
-      RenderObject* model;
-      isize id;
-    } batch;
   } data;
 } RenderDrawCall;
 
