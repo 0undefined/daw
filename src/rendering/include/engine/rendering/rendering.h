@@ -88,6 +88,7 @@ typedef struct {
     .buffername = 0, \
     .size = COUNT * sizeof(T), \
     .count = COUNT, \
+    .components = COMPONENTS, \
     .datatype = ShaderBufferDataType_##T, \
     .size_elem = sizeof(T), \
     .data = DATA, \
