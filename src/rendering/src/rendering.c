@@ -400,7 +400,7 @@ void render_present(Window* w) {
         gl->BindBuffer(GL_ARRAY_BUFFER, o->buffer[i].buffername);
         gl->VertexAttribPointer(
             i,                  // ...
-            o->buffer[i].size,                  // size
+            o->buffer[i].components,                  // size
             GL_FLOAT,           // type
             GL_FALSE,           // normalized?
             0,                  // stride
